@@ -14,7 +14,7 @@ interface EditorialTableViewProps {
 
 export const EditorialTableView: React.FC<EditorialTableViewProps> = ({ items, onOpenSearch }) => {
   const [hoveredItem, setHoveredItem] = useState<WatchlistItem | null>(items[0] || null);
-  const { removeItem } = useWatchlist();
+  const { removeItem, setSelectedGenre } = useWatchlist();
 
   if (items.length === 0) {
     return (
@@ -100,12 +100,15 @@ export const EditorialTableView: React.FC<EditorialTableViewProps> = ({ items, o
             {activePreview.genres && activePreview.genres.length > 0 && (
               <div className="flex flex-wrap gap-1">
                 {activePreview.genres.map((g) => (
-                  <span
+                  <button
                     key={g}
-                    className="text-[10px] font-mono-code px-1.5 py-0.5 rounded bg-white/[0.08] text-zinc-300 backdrop-blur-sm"
+                    type="button"
+                    onClick={() => setSelectedGenre(g)}
+                    className="text-[10px] font-mono-code px-1.5 py-0.5 rounded bg-white/[0.08] hover:bg-white hover:text-zinc-950 text-zinc-300 backdrop-blur-sm transition-colors cursor-pointer"
+                    title={`Filter by ${g}`}
                   >
                     {g}
-                  </span>
+                  </button>
                 ))}
               </div>
             )}
