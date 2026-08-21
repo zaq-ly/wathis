@@ -3,8 +3,8 @@ import './globals.css';
 import { Providers } from '@/components/Providers';
 
 export const metadata: Metadata = {
-  title: 'Watchlist — Completed Films & Series',
-  description: 'Curated personal catalogue of completed movies and series with official TMDB metadata.',
+  title: 'wathis — Completed Films & Series',
+  description: 'Curated personal archive for finished films and series.',
   manifest: '/manifest.json',
 };
 

@@ -41,20 +41,11 @@ export const Header: React.FC<HeaderProps> = ({
             {/* Monogram Brand */}
             <button
               type="button"
-              onMouseEnter={() => setIsLogoHovered(true)}
-              onMouseLeave={() => setIsLogoHovered(false)}
-              className="flex items-center font-mono-code font-bold text-sm tracking-tight text-white focus:outline-none select-none group"
+              className="flex items-center font-mono-code font-bold text-base tracking-tighter text-white focus:outline-none select-none group"
             >
-              <div className="flex items-center h-6 overflow-hidden">
-                <span className="text-white text-base">W.</span>
-                <span className={`text-zinc-500 text-xs transition-all duration-300 overflow-hidden whitespace-nowrap ${isLogoHovered ? 'max-w-xs opacity-100 pl-0.5 pr-1' : 'max-w-0 opacity-0'}`}>
-                  ATCH
-                </span>
-                <span className="text-white text-base">L.</span>
-                <span className={`text-zinc-500 text-xs transition-all duration-300 overflow-hidden whitespace-nowrap ${isLogoHovered ? 'max-w-xs opacity-100 pl-0.5' : 'max-w-0 opacity-0'}`}>
-                  IST
-                </span>
-              </div>
+              <span className="text-white hover:text-zinc-200 transition-colors">
+                wathis<span className="text-zinc-500 group-hover:text-white transition-colors">.</span>
+              </span>
             </button>
 
             {/* Editorial Nav Tabs */}

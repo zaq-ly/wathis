@@ -1,7 +1,7 @@
 {
-  "name": "Watchlist App",
-  "short_name": "Watchlist",
-  "description": "Curated personal catalogue of completed movies and series",
+  "name": "wathis",
+  "short_name": "wathis.",
+  "description": "Curated personal archive for completed films and series",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#090a0c",
