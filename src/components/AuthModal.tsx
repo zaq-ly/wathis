@@ -42,9 +42,9 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-md animate-in fade-in duration-150">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/85 backdrop-blur-md animate-in fade-in duration-150">
       <div
-        className="w-full max-w-sm bg-[#0f1013] border border-white/[0.1] rounded-lg shadow-2xl overflow-hidden p-6 relative font-mono-code"
+        className="w-full max-w-sm bg-[#0f1013] border border-white/[0.1] rounded-lg shadow-2xl overflow-hidden p-5 sm:p-6 relative font-mono-code"
         onClick={(e) => e.stopPropagation()}
       >
         <button
@@ -59,7 +59,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
             Sign In with Google
           </h2>
           <p className="text-xs text-zinc-500 mt-1">
-            Sync your watchlist across devices with your Google account.
+            Sync your wathis across devices with your Google account.
           </p>
         </div>
 

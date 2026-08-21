@@ -1,6 +1,6 @@
 export type MediaType = 'movie' | 'tv';
 
-export interface WatchlistItem {
+export interface WathisItem {
   id?: string;
   user_id?: string;
   tmdb_id: number;
@@ -12,9 +12,13 @@ export interface WatchlistItem {
   backdrop_path: string | null;
   genres: string[];
   season_count?: number | null;
+  season_label?: string | null;
   overview?: string;
+  vote_average?: number | null;
   created_at?: string;
 }
+
+export type WatchlistItem = WathisItem;
 
 export interface TMDBRawSearchResult {
   id: number;
@@ -29,6 +33,7 @@ export interface TMDBRawSearchResult {
   backdrop_path?: string | null;
   genre_ids?: number[];
   overview?: string;
+  vote_average?: number;
 }
 
 export interface TMDBRawGenre {
@@ -49,11 +54,13 @@ export interface TMDBRawDetail {
   genres?: TMDBRawGenre[];
   number_of_seasons?: number;
   overview?: string;
+  vote_average?: number;
 }
 
 export interface SearchResultItem {
   tmdb_id: number;
   title: string;
+  original_title?: string;
   media_type: MediaType;
   release_year: number | null;
   poster_path: string | null;
@@ -61,4 +68,5 @@ export interface SearchResultItem {
   genres: string[];
   season_count: number | null;
   overview: string;
+  vote_average?: number | null;
 }

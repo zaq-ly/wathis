@@ -1,19 +1,21 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 import { searchTMDB } from '@/lib/tmdb';
 
-export async function GET(request: NextRequest) {
-  const searchParams = request.nextUrl.searchParams;
-  const query = searchParams.get('q');
+export const dynamic = 'force-dynamic';
 
-  if (!query || !query.trim()) {
-    return NextResponse.json({ results: [] });
-  }
-
+export async function GET(request: Request) {
   try {
+    const { searchParams } = new URL(request.url);
+    const query = searchParams.get('q');
+
+    if (!query || !query.trim()) {
+      return NextResponse.json({ results: [] });
+    }
+
     const results = await searchTMDB(query);
     return NextResponse.json({ results });
   } catch (error) {
     console.error('API TMDB Search error:', error);
-    return NextResponse.json({ error: 'Failed to fetch search results' }, { status: 500 });
+    return NextResponse.json({ results: [] });
   }
 }

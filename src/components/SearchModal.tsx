@@ -4,6 +4,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useWatchlist } from '@/context/WatchlistContext';
 import { SearchResultItem } from '@/types/watchlist';
 import { getTMDBImageUrl } from '@/lib/utils';
+import { fetchTMDBSearch } from '@/lib/searchClient';
 import { Search, X, Check, Plus, Loader2, Film, Tv, Sparkles } from 'lucide-react';
 import Image from 'next/image';
 
@@ -40,11 +41,10 @@ export const SearchModal: React.FC<SearchModalProps> = ({ isOpen, onClose }) => 
     const timer = setTimeout(async () => {
       setIsLoading(true);
       try {
-        const res = await fetch(`/api/tmdb/search?q=${encodeURIComponent(query.trim())}`);
-        const data = await res.json();
-        setResults(data.results || []);
+        const items = await fetchTMDBSearch(query);
+        setResults(items);
       } catch (err) {
-        console.error('Search request failed:', err);
+        console.warn('Search notice:', err);
         setResults([]);
       } finally {
         setIsLoading(false);
@@ -74,21 +74,21 @@ export const SearchModal: React.FC<SearchModalProps> = ({ isOpen, onClose }) => 
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-start justify-center pt-12 sm:pt-20 px-4 bg-black/85 backdrop-blur-md animate-in fade-in duration-150">
+    <div className="fixed inset-0 z-50 flex items-start justify-center pt-6 sm:pt-20 px-2.5 sm:px-4 bg-black/85 backdrop-blur-md animate-in fade-in duration-150">
       <div
-        className="w-full max-w-2xl bg-[#0e0f13] border border-white/[0.1] rounded-lg shadow-2xl overflow-hidden flex flex-col max-h-[85vh]"
+        className="w-full max-w-2xl bg-[#0e0f13] border border-white/[0.1] rounded-lg shadow-2xl overflow-hidden flex flex-col max-h-[92vh] sm:max-h-[85vh]"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Search Input Bar */}
-        <div className="flex items-center px-4 py-3.5 border-b border-white/[0.08] bg-zinc-950/80">
-          <Search className="w-4 h-4 text-zinc-400 mr-3 shrink-0" />
+        <div className="flex items-center px-3 sm:px-4 py-3 sm:py-3.5 border-b border-white/[0.08] bg-zinc-950/80">
+          <Search className="w-4 h-4 text-zinc-400 mr-2.5 sm:mr-3 shrink-0" />
           <input
             ref={inputRef}
             type="text"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder="Search TMDB titles (e.g. Inception, Succession)..."
-            className="w-full bg-transparent text-zinc-100 placeholder-zinc-500 text-sm outline-none font-mono-code"
+            placeholder="Search TMDB titles (e.g. Inception)..."
+            className="w-full bg-transparent text-zinc-100 placeholder-zinc-500 text-xs sm:text-sm outline-none font-mono-code"
           />
           {isLoading && <Loader2 className="w-4 h-4 text-zinc-400 animate-spin mr-2 shrink-0" />}
           {query && (
@@ -117,12 +117,12 @@ export const SearchModal: React.FC<SearchModalProps> = ({ isOpen, onClose }) => 
               return (
                 <div
                   key={`${item.media_type}-${item.tmdb_id}-${index}`}
-                  className="p-3 bg-[#0c0d10] border border-white/[0.06] rounded-lg flex items-center justify-between space-x-3 hover:border-white/[0.2] transition-colors"
+                  className="p-2 sm:p-3 bg-[#0c0d10] border border-white/[0.06] rounded-lg flex items-center justify-between space-x-2.5 sm:space-x-3 hover:border-white/[0.2] transition-colors"
                 >
                   {/* Left info */}
-                  <div className="flex items-center space-x-3 min-w-0 pr-3">
+                  <div className="flex items-center space-x-2.5 sm:space-x-3 min-w-0 pr-2 sm:pr-3">
                     {/* Thumbnail Poster */}
-                    <div className="relative w-12 h-16 bg-zinc-800 rounded overflow-hidden shrink-0 border border-zinc-700/50">
+                    <div className="relative w-10 h-14 sm:w-12 sm:h-16 bg-zinc-800 rounded overflow-hidden shrink-0 border border-zinc-700/50">
                       {posterUrl ? (
                         <Image
                           src={posterUrl}
@@ -151,6 +151,12 @@ export const SearchModal: React.FC<SearchModalProps> = ({ isOpen, onClose }) => 
                         )}
                       </div>
 
+                      {item.original_title && item.original_title !== item.title && (
+                        <div className="text-[11px] text-zinc-500 font-mono-code truncate">
+                          {item.original_title}
+                        </div>
+                      )}
+
                       <div className="flex items-center space-x-2 mt-1">
                         <span
                           className={`inline-flex items-center space-x-1 text-[10px] font-mono-code uppercase px-1.5 py-0.5 rounded border ${
@@ -171,6 +177,12 @@ export const SearchModal: React.FC<SearchModalProps> = ({ isOpen, onClose }) => 
                             </>
                           )}
                         </span>
+
+                        {item.vote_average ? (
+                          <span className="text-[10px] text-amber-400 font-mono-code font-medium bg-amber-400/10 px-1.5 py-0.5 rounded border border-amber-400/20">
+                            ★ {item.vote_average}
+                          </span>
+                        ) : null}
 
                         {item.genres && item.genres.length > 0 && (
                           <span className="text-xs text-zinc-500 font-mono-code truncate hidden sm:inline">
