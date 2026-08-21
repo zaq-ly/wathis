@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import { WatchlistItem } from '@/types/watchlist';
 import { useWatchlist } from '@/context/WatchlistContext';
 import { getTMDBImageUrl } from '@/lib/utils';
-import { Trash2, Calendar, Sparkles, ExternalLink, Clapperboard, Film, Tv, ArrowLeftRight } from 'lucide-react';
+import { Trash2, Calendar, Sparkles, ExternalLink, Clapperboard, Film, Tv, ArrowLeftRight, RefreshCw } from 'lucide-react';
 import Image from 'next/image';
 import { EditMatchModal } from './EditMatchModal';
 
@@ -16,7 +16,7 @@ interface EditorialTableViewProps {
 export const EditorialTableView: React.FC<EditorialTableViewProps> = ({ items, onOpenSearch }) => {
   const [hoveredItem, setHoveredItem] = useState<WatchlistItem | null>(items[0] || null);
   const [editingItem, setEditingItem] = useState<WatchlistItem | null>(null);
-  const { removeItem, setSelectedGenre } = useWatchlist();
+  const { removeItem, setSelectedGenre, syncCloudToSupabase, user } = useWatchlist();
 
   if (items.length === 0) {
     return (
@@ -29,16 +29,27 @@ export const EditorialTableView: React.FC<EditorialTableViewProps> = ({ items, o
             Catalogue is Empty
           </h3>
           <p className="text-[11px] text-zinc-600 leading-relaxed">
-            Record your completed movies and series from TMDB, or sign in to load your personal archive.
+            Your personal account watchlist is empty. Add titles manually or import the curated 240+ title archive.
           </p>
         </div>
-        <button
-          onClick={onOpenSearch}
-          className="inline-flex items-center space-x-2 text-xs font-mono-code bg-white hover:bg-zinc-200 text-zinc-950 font-bold px-3.5 py-2 rounded transition-all shadow-sm"
-        >
-          <Sparkles className="w-3.5 h-3.5" />
-          <span>Add Title</span>
-        </button>
+        <div className="flex items-center justify-center space-x-2">
+          <button
+            onClick={onOpenSearch}
+            className="inline-flex items-center space-x-2 text-xs font-mono-code bg-white hover:bg-zinc-200 text-zinc-950 font-bold px-3.5 py-2 rounded transition-all shadow-sm"
+          >
+            <Sparkles className="w-3.5 h-3.5" />
+            <span>Add Title</span>
+          </button>
+          {user && (
+            <button
+              onClick={() => syncCloudToSupabase()}
+              className="inline-flex items-center space-x-2 text-xs font-mono-code bg-zinc-900 hover:bg-zinc-800 text-zinc-300 border border-white/[0.1] px-3.5 py-2 rounded transition-all"
+            >
+              <RefreshCw className="w-3.5 h-3.5" />
+              <span>Load Archive</span>
+            </button>
+          )}
+        </div>
       </div>
     );
   }

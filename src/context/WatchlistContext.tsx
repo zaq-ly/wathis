@@ -54,7 +54,7 @@ export function WatchlistProvider({ children }: { children: React.ReactNode }) {
 
   const supabase = createClient();
 
-  // 1. Initialize Auth and Load Items
+  // 1. Initialize Auth and Listen for User Changes
   useEffect(() => {
     let isMounted = true;
 
@@ -63,8 +63,9 @@ export function WatchlistProvider({ children }: { children: React.ReactNode }) {
         try {
           const { data: { session } } = await supabase.auth.getSession();
           if (isMounted) {
-            setUser(session?.user ?? null);
-            if (!session?.user) {
+            const initialUser = session?.user ?? null;
+            setUser(initialUser);
+            if (!initialUser) {
               setItems([]);
               setIsLoading(false);
             }
@@ -74,8 +75,9 @@ export function WatchlistProvider({ children }: { children: React.ReactNode }) {
             if (isMounted) {
               const currentUser = session?.user ?? null;
               setUser(currentUser);
+              // Clear items on logout or account switch
+              setItems([]);
               if (!currentUser) {
-                setItems([]);
                 setIsLoading(false);
               }
             }
@@ -101,7 +103,7 @@ export function WatchlistProvider({ children }: { children: React.ReactNode }) {
     };
   }, [isConfigured, supabase]);
 
-  // 2. Fetch Watchlist Items for Authenticated User
+  // 2. Fetch Watchlist Items strictly for the Authenticated User
   const fetchItems = useCallback(async () => {
     if (!isConfigured) {
       setItems(seedWatchlist as WatchlistItem[]);
@@ -117,9 +119,11 @@ export function WatchlistProvider({ children }: { children: React.ReactNode }) {
 
     setIsLoading(true);
     try {
+      // Strictly query items owned by this specific user_id
       const { data, error } = await supabase
         .from('watchlist_items')
         .select('*')
+        .eq('user_id', user.id)
         .order('created_at', { ascending: false });
 
       if (error) throw error;
@@ -137,45 +141,13 @@ export function WatchlistProvider({ children }: { children: React.ReactNode }) {
         });
         setItems(enriched);
       } else {
-        // First-time user login: auto-seed Notion archive items to this user's Supabase account
-        const seen = new Set<string>();
-        const seedRows = (seedWatchlist as WatchlistItem[])
-          .filter((item) => {
-            const key = `${item.media_type}-${item.tmdb_id}`;
-            if (seen.has(key)) return false;
-            seen.add(key);
-            return true;
-          })
-          .map((item) => ({
-            user_id: user.id,
-            tmdb_id: item.tmdb_id,
-            title: item.title,
-            original_title: item.original_title || item.title,
-            media_type: item.media_type,
-            release_year: item.release_year,
-            poster_path: item.poster_path,
-            backdrop_path: item.backdrop_path,
-            genres: item.genres || [],
-            season_count: item.season_count,
-            overview: item.overview,
-          }));
-
-        const { data: inserted, error: insertErr } = await supabase
-          .from('watchlist_items')
-          .upsert(seedRows, { onConflict: 'user_id,tmdb_id,media_type' })
-          .select();
-
-        if (insertErr) {
-          console.warn('Auto-seed cloud sync warning (falling back to local archive):', insertErr.message || insertErr);
-          setItems(seedWatchlist as WatchlistItem[]);
-        } else {
-          setItems(inserted || (seedWatchlist as WatchlistItem[]));
-        }
+        // New account has 0 items (clean slate)
+        setItems([]);
       }
     } catch (err: unknown) {
       const errorMessage = err instanceof Error ? err.message : String(err);
-      console.warn('Supabase fetch notice, using local archive:', errorMessage);
-      setItems(seedWatchlist as WatchlistItem[]);
+      console.warn('Supabase fetch notice:', errorMessage);
+      setItems([]);
     } finally {
       setIsLoading(false);
     }
