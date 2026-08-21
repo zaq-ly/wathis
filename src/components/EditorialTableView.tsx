@@ -163,7 +163,7 @@ export const EditorialTableView: React.FC<EditorialTableViewProps> = ({ items, o
 
               return (
                 <div
-                  key={`${item.media_type}-${item.tmdb_id}`}
+                  key={item.id || `${item.media_type}-${item.tmdb_id}-${index}`}
                   onMouseEnter={() => setHoveredItem(item)}
                   className={`grid grid-cols-12 items-center px-4 py-3 cursor-pointer transition-all editorial-row group ${
                     isCurrentHover ? 'is-active' : ''

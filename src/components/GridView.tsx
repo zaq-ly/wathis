@@ -42,12 +42,12 @@ export const GridView: React.FC<GridViewProps> = ({ items, onOpenSearch }) => {
 
   return (
     <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 pt-3">
-      {items.map((item) => {
+      {items.map((item, index) => {
         const posterUrl = getTMDBImageUrl(item.poster_path, 'w500');
 
         return (
           <div
-            key={`${item.media_type}-${item.tmdb_id}`}
+            key={item.id || `${item.media_type}-${item.tmdb_id}-${index}`}
             className="group relative flex flex-col bg-[#0c0d10] border border-white/[0.06] hover:border-white/[0.2] rounded-lg overflow-hidden transition-all duration-300"
           >
             {/* Poster Thumbnail */}

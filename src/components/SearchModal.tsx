@@ -110,14 +110,14 @@ export const SearchModal: React.FC<SearchModalProps> = ({ isOpen, onClose }) => 
         {/* Results Container */}
         <div className="flex-1 overflow-y-auto divide-y divide-zinc-800/60 p-2">
           {results.length > 0 ? (
-            results.map((item) => {
+            results.map((item, index) => {
               const alreadyAdded = isItemInWatchlist(item.tmdb_id, item.media_type) || addedIds[`${item.media_type}_${item.tmdb_id}`];
               const posterUrl = getTMDBImageUrl(item.poster_path, 'w300');
 
               return (
                 <div
-                  key={`${item.media_type}-${item.tmdb_id}`}
-                  className="flex items-center justify-between p-3 rounded-lg hover:bg-zinc-800/50 transition-colors group"
+                  key={`${item.media_type}-${item.tmdb_id}-${index}`}
+                  className="p-3 bg-[#0c0d10] border border-white/[0.06] rounded-lg flex items-center justify-between space-x-3 hover:border-white/[0.2] transition-colors"
                 >
                   {/* Left info */}
                   <div className="flex items-center space-x-3 min-w-0 pr-3">
