@@ -9,7 +9,12 @@ const nextConfig = {
       },
       {
         protocol: 'https',
-        hostname: 'cdn.sanity.io',
+        hostname: '**.googleusercontent.com',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'lh3.googleusercontent.com',
         pathname: '/**',
       },
     ],

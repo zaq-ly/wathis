@@ -11,7 +11,7 @@ import { GridView } from '@/components/GridView';
 import { Search, Loader2 } from 'lucide-react';
 
 export default function HomePage() {
-  const { filteredItems, isLoading, searchQuery, setSearchQuery } = useWatchlist();
+  const { filteredItems, isLoading, searchQuery, setSearchQuery, filterType } = useWatchlist();
   const [viewMode, setViewMode] = useState<'table' | 'grid'>('table');
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isAuthOpen, setIsAuthOpen] = useState(false);
@@ -33,7 +33,7 @@ export default function HomePage() {
   }, []);
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#08080a]">
+    <div className="min-h-screen flex flex-col bg-[#050507]">
       {/* Top Header */}
       <Header
         onOpenSearch={() => setIsSearchOpen(true)}
@@ -44,36 +44,36 @@ export default function HomePage() {
       />
 
       {/* Main Container */}
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
+      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-4">
         {/* Local Search and Filter In-Page Header */}
-        <div className="flex flex-col sm:flex-row sm:items-baseline justify-between gap-4 pb-2 border-b border-white/[0.06]">
-          <div>
-            <h1 className="text-xl font-bold tracking-tight text-white font-mono-code uppercase">
-              Catalogue,
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-white/[0.04]">
+          <div className="flex items-baseline space-x-2">
+            <h1 className="text-sm font-mono-code font-semibold tracking-tight text-zinc-100 uppercase">
+              {filterType === 'movie' ? 'Films' : filterType === 'tv' ? 'Series' : 'Archive'},
             </h1>
-            <p className="text-xs text-zinc-500 font-mono-code mt-0.5">
-              Personal record of completed cinematography & series.
-            </p>
+            <span className="text-[11px] text-zinc-600 font-mono-code">
+              {filteredItems.length} titles
+            </span>
           </div>
 
           {/* Quick Filter in list */}
-          <div className="relative w-full sm:w-64">
-            <Search className="w-3.5 h-3.5 text-zinc-500 absolute left-3 top-2.5" />
+          <div className="relative w-full sm:w-56">
+            <Search className="w-3.5 h-3.5 text-zinc-600 absolute left-2.5 top-2.5" />
             <input
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Filter list..."
-              className="w-full bg-zinc-900/60 border border-white/[0.08] rounded pl-8 pr-3 py-1.5 text-xs text-zinc-200 placeholder-zinc-600 font-mono-code focus:outline-none focus:border-zinc-500"
+              placeholder="Filter title / genre..."
+              className="w-full bg-white/[0.02] border border-white/[0.06] hover:border-white/[0.12] rounded pl-8 pr-3 py-1.5 text-xs text-zinc-200 placeholder-zinc-600 font-mono-code focus:outline-none focus:border-white/[0.3] transition-colors"
             />
           </div>
         </div>
 
         {/* Content Body */}
         {isLoading ? (
-          <div className="py-28 flex flex-col items-center justify-center space-y-3">
-            <Loader2 className="w-6 h-6 text-zinc-500 animate-spin" />
-            <span className="text-xs text-zinc-500 font-mono-code">Loading archive...</span>
+          <div className="py-32 flex flex-col items-center justify-center space-y-3">
+            <Loader2 className="w-5 h-5 text-zinc-600 animate-spin" />
+            <span className="text-xs text-zinc-600 font-mono-code">Loading catalogue...</span>
           </div>
         ) : viewMode === 'table' ? (
           <EditorialTableView
@@ -89,10 +89,10 @@ export default function HomePage() {
       </main>
 
       {/* Footer */}
-      <footer className="border-t border-white/[0.06] py-8 text-center text-xs font-mono-code text-zinc-600 bg-[#08080a]">
-        <div className="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-3">
-          <span className="tracking-wide">WATCHLIST — Minimalist Editorial Database</span>
-          <span className="text-zinc-600">TMDB API Verified Metadata</span>
+      <footer className="border-t border-white/[0.04] py-6 text-xs font-mono-code text-zinc-700 bg-[#050507]">
+        <div className="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-2 text-[11px]">
+          <span>wathis. — Minimalist Film & Series Archive</span>
+          <span>Official TMDB Metadata</span>
         </div>
       </footer>
 
