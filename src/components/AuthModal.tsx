@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { createClient, isSupabaseConfigured } from '@/lib/supabase/client';
-import { X, Lock, Mail, Loader2, AlertCircle, CheckCircle2 } from 'lucide-react';
+import { X, Loader2, AlertCircle, CheckCircle2 } from 'lucide-react';
 
 interface AuthModalProps {
   isOpen: boolean;
@@ -10,50 +10,33 @@ interface AuthModalProps {
 }
 
 export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
-  const [isSignUp, setIsSignUp] = useState(false);
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
   const supabaseConfigured = isSupabaseConfigured();
   const supabase = createClient();
 
   if (!isOpen) return null;
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleGoogleSignIn = async () => {
     setErrorMessage(null);
-    setSuccessMessage(null);
-
     if (!supabaseConfigured) {
-      setErrorMessage('Supabase is not configured yet. Please add NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY to .env.local.');
+      setErrorMessage('Supabase is not configured yet in .env.local.');
       return;
     }
 
     setIsLoading(true);
     try {
-      if (isSignUp) {
-        const { error } = await supabase.auth.signUp({
-          email,
-          password,
-        });
-        if (error) throw error;
-        setSuccessMessage('Registration successful! Please check your email to confirm or sign in.');
-      } else {
-        const { error } = await supabase.auth.signInWithPassword({
-          email,
-          password,
-        });
-        if (error) throw error;
-        setSuccessMessage('Signed in successfully.');
-        setTimeout(() => onClose(), 800);
-      }
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo: `${window.location.origin}/auth/callback`,
+        },
+      });
+      if (error) throw error;
     } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : 'Authentication failed';
+      const message = err instanceof Error ? err.message : 'Google sign-in failed';
       setErrorMessage(message);
-    } finally {
       setIsLoading(false);
     }
   };
@@ -61,7 +44,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-md animate-in fade-in duration-150">
       <div
-        className="w-full max-w-md bg-[#0f1013] border border-white/[0.1] rounded-lg shadow-2xl overflow-hidden p-6 relative font-mono-code"
+        className="w-full max-w-sm bg-[#0f1013] border border-white/[0.1] rounded-lg shadow-2xl overflow-hidden p-6 relative font-mono-code"
         onClick={(e) => e.stopPropagation()}
       >
         <button
@@ -71,96 +54,58 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
           <X className="w-4 h-4" />
         </button>
 
-        <div className="mb-5">
+        <div className="mb-6 text-center">
           <h2 className="text-base font-bold text-white uppercase tracking-tight">
-            {isSignUp ? 'Create Watchlist Account' : 'Sign In to Account'}
+            Sign In with Google
           </h2>
-          <p className="text-xs text-zinc-500 mt-0.5">
-            Cloud PostgreSQL database with Row Level Security.
+          <p className="text-xs text-zinc-500 mt-1">
+            Sync your watchlist across devices with your Google account.
           </p>
         </div>
-
-        {!supabaseConfigured && (
-          <div className="mb-4 p-3 bg-zinc-950 border border-white/[0.08] rounded text-zinc-300 text-xs flex items-start space-x-2.5">
-            <AlertCircle className="w-4 h-4 shrink-0 text-amber-400 mt-0.5" />
-            <div>
-              <p className="font-bold text-white">Local Demo Mode Active</p>
-              <p className="text-zinc-500 text-[11px] mt-1 leading-relaxed">
-                All 243 titles are saved locally. Connect Supabase by setting your project credentials in <code className="text-zinc-300">.env.local</code>.
-              </p>
-            </div>
-          </div>
-        )}
 
         {errorMessage && (
           <div className="mb-4 p-3 bg-red-950/40 border border-red-800/50 rounded text-red-300 text-xs flex items-center space-x-2">
             <AlertCircle className="w-4 h-4 shrink-0" />
-            <span>{errorMessage}</span>
+            <span className="text-[11px]">{errorMessage}</span>
           </div>
         )}
 
-        {successMessage && (
-          <div className="mb-4 p-3 bg-zinc-900 border border-white/[0.15] rounded text-emerald-400 text-xs flex items-center space-x-2">
-            <CheckCircle2 className="w-4 h-4 shrink-0" />
-            <span>{successMessage}</span>
-          </div>
-        )}
-
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label className="block text-[11px] uppercase text-zinc-500 mb-1 tracking-wider">Email</label>
-            <div className="relative">
-              <Mail className="w-3.5 h-3.5 text-zinc-500 absolute left-3 top-3" />
-              <input
-                type="email"
-                required
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="name@domain.com"
-                className="w-full bg-zinc-950 border border-white/[0.08] rounded pl-9 pr-3 py-2 text-xs text-zinc-100 placeholder-zinc-700 focus:outline-none focus:border-zinc-500"
-              />
-            </div>
-          </div>
-
-          <div>
-            <label className="block text-[11px] uppercase text-zinc-500 mb-1 tracking-wider">Password</label>
-            <div className="relative">
-              <Lock className="w-3.5 h-3.5 text-zinc-500 absolute left-3 top-3" />
-              <input
-                type="password"
-                required
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="••••••••"
-                className="w-full bg-zinc-950 border border-white/[0.08] rounded pl-9 pr-3 py-2 text-xs text-zinc-100 placeholder-zinc-700 focus:outline-none focus:border-zinc-500"
-              />
-            </div>
-          </div>
-
-          <button
-            type="submit"
-            disabled={isLoading}
-            className="w-full bg-white hover:bg-zinc-200 text-zinc-950 font-bold py-2.5 rounded text-xs uppercase tracking-wider transition-all disabled:opacity-50 flex items-center justify-center space-x-2 shadow-sm"
-          >
-            {isLoading && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
-            <span>{isSignUp ? 'Register Account' : 'Sign In'}</span>
-          </button>
-        </form>
-
-        <div className="mt-4 pt-4 border-t border-white/[0.06] text-center">
+        <div className="space-y-3">
+          {/* Primary Google Login Button */}
           <button
             type="button"
-            onClick={() => {
-              setIsSignUp(!isSignUp);
-              setErrorMessage(null);
-              setSuccessMessage(null);
-            }}
-            className="text-xs text-zinc-500 hover:text-zinc-300"
+            onClick={handleGoogleSignIn}
+            disabled={isLoading}
+            className="w-full bg-white hover:bg-zinc-200 text-zinc-950 font-bold py-3 px-4 rounded text-xs uppercase tracking-wider transition-all disabled:opacity-50 flex items-center justify-center space-x-3 shadow-md active:scale-98"
           >
-            {isSignUp
-              ? 'Already have an account? Sign In'
-              : "Don't have an account? Create one"}
+            {isLoading ? (
+              <Loader2 className="w-4 h-4 animate-spin text-zinc-950" />
+            ) : (
+              <svg className="w-4 h-4" viewBox="0 0 24 24">
+                <path
+                  fill="#4285F4"
+                  d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.82-2.4 3.68v3.05h3.88c2.27-2.09 3.665-5.17 3.665-9.17z"
+                />
+                <path
+                  fill="#34A853"
+                  d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.12 0-5.77-2.1-6.72-4.93H1.25v3.15C3.26 21.36 7.34 24 12 24z"
+                />
+                <path
+                  fill="#FBBC05"
+                  d="M5.28 14.27c-.25-.72-.38-1.49-.38-2.27s.13-1.55.38-2.27V6.58H1.25C.45 8.18 0 9.98 0 12s.45 3.82 1.25 5.42l4.03-3.15z"
+                />
+                <path
+                  fill="#EA4335"
+                  d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.34 0 3.26 2.64 1.25 6.58l4.03 3.15c.95-2.83 3.6-4.98 6.72-4.98z"
+                />
+              </svg>
+            )}
+            <span>Continue with Google</span>
           </button>
+
+          <p className="text-[10px] text-zinc-500 text-center pt-2 leading-relaxed">
+            Data is strictly private & isolated using Supabase PostgreSQL Row Level Security.
+          </p>
         </div>
       </div>
     </div>
