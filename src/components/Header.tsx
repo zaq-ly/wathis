@@ -157,9 +157,16 @@ export const Header: React.FC<HeaderProps> = ({
 
             {/* Auth / Account */}
             {user ? (
-              <div className="flex items-center space-x-2 pl-2 border-l border-zinc-800">
-                <span className="text-xs text-zinc-400 font-mono-code hidden md:inline truncate max-w-[100px]">
-                  {user.email?.split('@')[0]}
+              <div className="flex items-center space-x-2.5 pl-2 border-l border-white/[0.08]">
+                {user.user_metadata?.avatar_url ? (
+                  <img
+                    src={user.user_metadata.avatar_url}
+                    alt={user.user_metadata?.full_name || 'User'}
+                    className="w-5 h-5 rounded-full border border-white/[0.2] object-cover"
+                  />
+                ) : null}
+                <span className="text-xs text-zinc-300 font-mono-code hidden md:inline truncate max-w-[120px]">
+                  {user.user_metadata?.full_name || user.email?.split('@')[0]}
                 </span>
                 <button
                   onClick={handleSignOut}

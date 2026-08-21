@@ -27,12 +27,10 @@ interface WatchlistContextType {
   genresList: string[];
 }
 
-const LOCAL_STORAGE_KEY = 'watchlist_notion_enriched_v4';
-
 const WatchlistContext = createContext<WatchlistContextType | undefined>(undefined);
 
 export function WatchlistProvider({ children }: { children: React.ReactNode }) {
-  const [items, setItems] = useState<WatchlistItem[]>(seedWatchlist as WatchlistItem[]);
+  const [items, setItems] = useState<WatchlistItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [user, setUser] = useState<User | null>(null);
   const [isConfigured] = useState<boolean>(isSupabaseConfigured());
@@ -51,10 +49,23 @@ export function WatchlistProvider({ children }: { children: React.ReactNode }) {
       if (isConfigured) {
         try {
           const { data: { session } } = await supabase.auth.getSession();
-          if (isMounted) setUser(session?.user ?? null);
+          if (isMounted) {
+            setUser(session?.user ?? null);
+            if (!session?.user) {
+              setItems([]);
+              setIsLoading(false);
+            }
+          }
 
           const { data: authListener } = supabase.auth.onAuthStateChange((_event, session) => {
-            if (isMounted) setUser(session?.user ?? null);
+            if (isMounted) {
+              const currentUser = session?.user ?? null;
+              setUser(currentUser);
+              if (!currentUser) {
+                setItems([]);
+                setIsLoading(false);
+              }
+            }
           });
 
           return () => {
@@ -62,7 +73,12 @@ export function WatchlistProvider({ children }: { children: React.ReactNode }) {
           };
         } catch (e) {
           console.error('Supabase auth error:', e);
+          setIsLoading(false);
         }
+      } else {
+        // Unconfigured fallback (offline standalone demo)
+        setItems(seedWatchlist as WatchlistItem[]);
+        setIsLoading(false);
       }
     }
 
@@ -72,51 +88,64 @@ export function WatchlistProvider({ children }: { children: React.ReactNode }) {
     };
   }, [isConfigured, supabase]);
 
-  // 2. Fetch Watchlist Items (Supabase or LocalStorage Fallback)
+  // 2. Fetch Watchlist Items for Authenticated User
   const fetchItems = useCallback(async () => {
-    setIsLoading(true);
-    if (isConfigured && user) {
-      try {
-        const { data, error } = await supabase
-          .from('watchlist_items')
-          .select('*')
-          .order('created_at', { ascending: false });
+    if (!isConfigured) {
+      setItems(seedWatchlist as WatchlistItem[]);
+      setIsLoading(false);
+      return;
+    }
 
-        if (error) throw error;
-        if (data && data.length > 0) {
-          setItems(data);
-        } else {
-          // If Supabase table is empty, auto-seed with Notion 243 items
+    if (!user) {
+      setItems([]);
+      setIsLoading(false);
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      const { data, error } = await supabase
+        .from('watchlist_items')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+
+      if (data && data.length > 0) {
+        setItems(data);
+      } else {
+        // First-time user login: auto-seed 243 Notion archive items to this user's Supabase account
+        const seedRows = (seedWatchlist as WatchlistItem[]).map((item) => ({
+          user_id: user.id,
+          tmdb_id: item.tmdb_id,
+          title: item.title,
+          original_title: item.original_title || item.title,
+          media_type: item.media_type,
+          release_year: item.release_year,
+          poster_path: item.poster_path,
+          backdrop_path: item.backdrop_path,
+          genres: item.genres || [],
+          season_count: item.season_count,
+          overview: item.overview,
+        }));
+
+        const { data: inserted, error: insertErr } = await supabase
+          .from('watchlist_items')
+          .upsert(seedRows, { onConflict: 'user_id,tmdb_id,media_type' })
+          .select();
+
+        if (insertErr) {
+          console.error('Auto-seed insert error:', insertErr);
           setItems(seedWatchlist as WatchlistItem[]);
+        } else {
+          setItems(inserted || (seedWatchlist as WatchlistItem[]));
         }
-      } catch (err) {
-        console.error('Failed to fetch items from Supabase:', err);
-        setItems(seedWatchlist as WatchlistItem[]);
-      } finally {
-        setIsLoading(false);
       }
-    } else {
-      // Local demo storage fallback
-      try {
-        const localData = localStorage.getItem(LOCAL_STORAGE_KEY);
-        if (localData) {
-          const parsed = JSON.parse(localData);
-          const hasPosters = Array.isArray(parsed) && parsed.filter(i => Boolean(i.poster_path)).length > 50;
-          if (hasPosters && parsed.length >= 100) {
-            setItems(parsed);
-            setIsLoading(false);
-            return;
-          }
-        }
-        // Overwrite with 100% enriched TMDB poster & release year data
-        const initial = seedWatchlist as WatchlistItem[];
-        setItems(initial);
-        localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(initial));
-      } catch {
-        setItems(seedWatchlist as WatchlistItem[]);
-      } finally {
-        setIsLoading(false);
-      }
+    } catch (err) {
+      console.error('Failed to fetch items from Supabase:', err);
+      setItems([]);
+    } finally {
+      setIsLoading(false);
     }
   }, [isConfigured, user, supabase]);
 
@@ -128,7 +157,7 @@ export function WatchlistProvider({ children }: { children: React.ReactNode }) {
     if (!isConfigured || !user) return { success: false, count: 0 };
     try {
       setIsLoading(true);
-      const itemsToInsert = items.map((item) => ({
+      const itemsToInsert = (seedWatchlist as WatchlistItem[]).map((item) => ({
         user_id: user.id,
         tmdb_id: item.tmdb_id,
         title: item.title,
@@ -159,13 +188,17 @@ export function WatchlistProvider({ children }: { children: React.ReactNode }) {
   };
 
   const resetToNotionArchive = () => {
-    const initial = seedWatchlist as WatchlistItem[];
-    setItems(initial);
-    localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(initial));
+    if (user && isConfigured) {
+      syncCloudToSupabase();
+    } else {
+      setItems(seedWatchlist as WatchlistItem[]);
+    }
   };
 
   // 3. Add Item to Watchlist
   const addItem = async (item: SearchResultItem): Promise<boolean> => {
+    if (!user) return false;
+
     // Check if already in list
     if (items.some((i) => i.tmdb_id === item.tmdb_id && i.media_type === item.media_type)) {
       return false;
@@ -184,50 +217,38 @@ export function WatchlistProvider({ children }: { children: React.ReactNode }) {
       created_at: new Date().toISOString(),
     };
 
-    if (isConfigured && user) {
-      try {
-        const { data, error } = await supabase
-          .from('watchlist_items')
-          .insert([{ ...newItem, user_id: user.id }])
-          .select()
-          .single();
+    try {
+      const { data, error } = await supabase
+        .from('watchlist_items')
+        .insert([{ ...newItem, user_id: user.id }])
+        .select()
+        .single();
 
-        if (error) throw error;
-        setItems((prev) => [data, ...prev]);
-        return true;
-      } catch (err) {
-        console.error('Failed to add item to Supabase:', err);
-        return false;
-      }
-    } else {
-      const updated = [newItem, ...items];
-      setItems(updated);
-      localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(updated));
+      if (error) throw error;
+      setItems((prev) => [data, ...prev]);
       return true;
+    } catch (err) {
+      console.error('Failed to add item to Supabase:', err);
+      return false;
     }
   };
 
   // 4. Remove Item
   const removeItem = async (tmdb_id: number, media_type: 'movie' | 'tv'): Promise<boolean> => {
-    if (isConfigured && user) {
-      try {
-        const { error } = await supabase
-          .from('watchlist_items')
-          .delete()
-          .match({ tmdb_id, media_type, user_id: user.id });
+    if (!user) return false;
 
-        if (error) throw error;
-        setItems((prev) => prev.filter((i) => !(i.tmdb_id === tmdb_id && i.media_type === media_type)));
-        return true;
-      } catch (err) {
-        console.error('Failed to remove item from Supabase:', err);
-        return false;
-      }
-    } else {
-      const updated = items.filter((i) => !(i.tmdb_id === tmdb_id && i.media_type === media_type));
-      setItems(updated);
-      localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(updated));
+    try {
+      const { error } = await supabase
+        .from('watchlist_items')
+        .delete()
+        .match({ tmdb_id, media_type, user_id: user.id });
+
+      if (error) throw error;
+      setItems((prev) => prev.filter((i) => !(i.tmdb_id === tmdb_id && i.media_type === media_type)));
       return true;
+    } catch (err) {
+      console.error('Failed to remove item from Supabase:', err);
+      return false;
     }
   };
 
