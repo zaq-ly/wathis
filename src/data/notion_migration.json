@@ -1,0 +1,2924 @@
+{
+  "movies": [
+    {
+      "rawTitle": "PREDESTINATION",
+      "notionGenre": "Mystery / Thriller",
+      "type": "movie",
+      "displayTitle": "Predestination"
+    },
+    {
+      "rawTitle": "THE INVISIBLE GUEST",
+      "notionGenre": "Mystery / Thriller",
+      "type": "movie",
+      "displayTitle": "The Invisible Guest"
+    },
+    {
+      "rawTitle": "FIGHT CLUB",
+      "notionGenre": "Mystery / Thriller",
+      "type": "movie",
+      "displayTitle": "Fight Club"
+    },
+    {
+      "rawTitle": "SHUTTER ISLAND",
+      "notionGenre": "Mystery / Thriller",
+      "type": "movie",
+      "displayTitle": "Shutter Island"
+    },
+    {
+      "rawTitle": "MEMENTO",
+      "notionGenre": "Mystery / Thriller",
+      "type": "movie",
+      "displayTitle": "Memento"
+    },
+    {
+      "rawTitle": "GET OUT",
+      "notionGenre": "Mystery / Thriller",
+      "type": "movie",
+      "displayTitle": "Get Out"
+    },
+    {
+      "rawTitle": "FRACTURED",
+      "notionGenre": "Mystery / Thriller",
+      "type": "movie",
+      "displayTitle": "Fractured"
+    },
+    {
+      "rawTitle": "SEARCHING",
+      "notionGenre": "Mystery / Thriller",
+      "type": "movie",
+      "displayTitle": "Searching"
+    },
+    {
+      "rawTitle": "BURNING",
+      "notionGenre": "Mystery / Thriller",
+      "type": "movie",
+      "displayTitle": "Burning"
+    },
+    {
+      "rawTitle": "KNIVES OUT",
+      "notionGenre": "Mystery / Thriller",
+      "type": "movie",
+      "displayTitle": "Knives Out"
+    },
+    {
+      "rawTitle": "ENOLA HOLMES S1 - S2",
+      "notionGenre": "Mystery / Thriller",
+      "type": "movie",
+      "displayTitle": "Enola Holmes S1 - S2"
+    },
+    {
+      "rawTitle": "A QUIET PLACE S1 - S2",
+      "notionGenre": "Mystery / Thriller",
+      "type": "movie",
+      "displayTitle": "A Quiet Place S1 - S2"
+    },
+    {
+      "rawTitle": "GONE GIRL",
+      "notionGenre": "Mystery / Thriller",
+      "type": "movie",
+      "displayTitle": "Gone Girl"
+    },
+    {
+      "rawTitle": "PARASITE",
+      "notionGenre": "Mystery / Thriller",
+      "type": "movie",
+      "displayTitle": "Parasite"
+    },
+    {
+      "rawTitle": "WHO I AM",
+      "notionGenre": "Mystery / Thriller",
+      "type": "movie",
+      "displayTitle": "Who I Am"
+    },
+    {
+      "rawTitle": "THE GIRL ON A BULDOZER",
+      "notionGenre": "Mystery / Thriller",
+      "type": "movie",
+      "displayTitle": "The Girl on a Buldozer"
+    },
+    {
+      "rawTitle": "FORGOTTEN",
+      "notionGenre": "Mystery / Thriller",
+      "type": "movie",
+      "displayTitle": "Forgotten"
+    },
+    {
+      "rawTitle": "LAMB",
+      "notionGenre": "Mystery / Thriller",
+      "type": "movie",
+      "displayTitle": "Lamb"
+    },
+    {
+      "rawTitle": "NOPE",
+      "notionGenre": "Mystery / Thriller",
+      "type": "movie",
+      "displayTitle": "Nope"
+    },
+    {
+      "rawTitle": "MIRAGE",
+      "notionGenre": "Mystery / Thriller",
+      "type": "movie",
+      "displayTitle": "Mirage"
+    },
+    {
+      "rawTitle": "OLD BOY",
+      "notionGenre": "Mystery / Thriller",
+      "type": "movie",
+      "displayTitle": "Old Boy"
+    },
+    {
+      "rawTitle": "THE SHAWSHANK REDEMPTION",
+      "notionGenre": "Mystery / Thriller",
+      "type": "movie",
+      "displayTitle": "The Shawshank Redemption"
+    },
+    {
+      "rawTitle": "BODIES BODIES BODIES",
+      "notionGenre": "Mystery / Thriller",
+      "type": "movie",
+      "displayTitle": "Bodies Bodies Bodies"
+    },
+    {
+      "rawTitle": "SE7EN",
+      "notionGenre": "Mystery / Thriller",
+      "type": "movie",
+      "displayTitle": "Se7en"
+    },
+    {
+      "rawTitle": "THE PRESTIGE",
+      "notionGenre": "Mystery / Thriller",
+      "type": "movie",
+      "displayTitle": "The Prestige"
+    },
+    {
+      "rawTitle": "MEMORIES OF MURDER",
+      "notionGenre": "Mystery / Thriller",
+      "type": "movie",
+      "displayTitle": "Memories of Murder"
+    },
+    {
+      "rawTitle": "MISSING",
+      "notionGenre": "Mystery / Thriller",
+      "type": "movie",
+      "displayTitle": "Missing"
+    },
+    {
+      "rawTitle": "ZODIAC",
+      "notionGenre": "Mystery / Thriller",
+      "type": "movie",
+      "displayTitle": "Zodiac"
+    },
+    {
+      "rawTitle": "THE TRUMAN SHOW",
+      "notionGenre": "Mystery / Thriller",
+      "type": "movie",
+      "displayTitle": "The Truman Show"
+    },
+    {
+      "rawTitle": "MOUSE : THE MOVIE",
+      "notionGenre": "Mystery / Thriller",
+      "type": "movie",
+      "displayTitle": "Mouse : The Movie"
+    },
+    {
+      "rawTitle": "THE OTHERS",
+      "notionGenre": "Mystery / Thriller",
+      "type": "movie",
+      "displayTitle": "The Others"
+    },
+    {
+      "rawTitle": "MEMOIR OF A MURDERER",
+      "notionGenre": "Mystery / Thriller",
+      "type": "movie",
+      "displayTitle": "Memoir of a Murderer"
+    },
+    {
+      "rawTitle": "MURDER ON THE ORIENT EXPRESS",
+      "notionGenre": "Mystery / Thriller",
+      "type": "movie",
+      "displayTitle": "Murder on the Orient Express"
+    },
+    {
+      "rawTitle": "LEAVE THE WORLD BEHIND",
+      "notionGenre": "Mystery / Thriller",
+      "type": "movie",
+      "displayTitle": "Leave the World Behind"
+    },
+    {
+      "rawTitle": "IDENTITY",
+      "notionGenre": "Mystery / Thriller",
+      "type": "movie",
+      "displayTitle": "Identity"
+    },
+    {
+      "rawTitle": "UNLOCKED",
+      "notionGenre": "Mystery / Thriller",
+      "type": "movie",
+      "displayTitle": "Unlocked"
+    },
+    {
+      "rawTitle": "THE DEPARTED",
+      "notionGenre": "Mystery / Thriller",
+      "type": "movie",
+      "displayTitle": "The Departed"
+    },
+    {
+      "rawTitle": "SEE HOW THEY RUN",
+      "notionGenre": "Mystery / Thriller",
+      "type": "movie",
+      "displayTitle": "See How They Run"
+    },
+    {
+      "rawTitle": "THE GOOD NURSE",
+      "notionGenre": "Mystery / Thriller",
+      "type": "movie",
+      "displayTitle": "The Good Nurse"
+    },
+    {
+      "rawTitle": "DECISION TO LEAVE",
+      "notionGenre": "Mystery / Thriller",
+      "type": "movie",
+      "displayTitle": "Decision to Leave"
+    },
+    {
+      "rawTitle": "WHAT HAPPENED TO MONDAY",
+      "notionGenre": "Mystery / Thriller",
+      "type": "movie",
+      "displayTitle": "What Happened to Monday"
+    },
+    {
+      "rawTitle": "CONFESSION",
+      "notionGenre": "Mystery / Thriller",
+      "type": "movie",
+      "displayTitle": "Confession"
+    },
+    {
+      "rawTitle": "THE WANDERING MOON",
+      "notionGenre": "Mystery / Thriller",
+      "type": "movie",
+      "displayTitle": "The Wandering Moon"
+    },
+    {
+      "rawTitle": "LUTHER THE FALLEN SUN",
+      "notionGenre": "Mystery / Thriller",
+      "type": "movie",
+      "displayTitle": "Luther the Fallen Sun"
+    },
+    {
+      "rawTitle": "THE CINDERELLA ADDICTION",
+      "notionGenre": "Mystery / Thriller",
+      "type": "movie",
+      "displayTitle": "The Cinderella Addiction"
+    },
+    {
+      "rawTitle": "MONTAGE",
+      "notionGenre": "Mystery / Thriller",
+      "type": "movie",
+      "displayTitle": "Montage"
+    },
+    {
+      "rawTitle": "TRIANGLE",
+      "notionGenre": "Mystery / Thriller",
+      "type": "movie",
+      "displayTitle": "Triangle"
+    },
+    {
+      "rawTitle": "PRISONERS",
+      "notionGenre": "Mystery / Thriller",
+      "type": "movie",
+      "displayTitle": "Prisoners"
+    },
+    {
+      "rawTitle": "IN THE TALL GRASS",
+      "notionGenre": "Mystery / Thriller",
+      "type": "movie",
+      "displayTitle": "In the Tall Grass"
+    },
+    {
+      "rawTitle": "NO MERCY",
+      "notionGenre": "Mystery / Thriller",
+      "type": "movie",
+      "displayTitle": "No Mercy"
+    },
+    {
+      "rawTitle": "THE SIXTH SENSE",
+      "notionGenre": "Mystery / Thriller",
+      "type": "movie",
+      "displayTitle": "The Sixth Sense"
+    },
+    {
+      "rawTitle": "CONFESSIONS",
+      "notionGenre": "Mystery / Thriller",
+      "type": "movie",
+      "displayTitle": "Confessions"
+    },
+    {
+      "rawTitle": "THE PLATFORM S1 - S2",
+      "notionGenre": "Mystery / Thriller",
+      "type": "movie",
+      "displayTitle": "The Platform S1 - S2"
+    },
+    {
+      "rawTitle": "MAHARAJA",
+      "notionGenre": "Mystery / Thriller",
+      "type": "movie",
+      "displayTitle": "Maharaja"
+    },
+    {
+      "rawTitle": "CADDO LAKE",
+      "notionGenre": "Mystery / Thriller",
+      "type": "movie",
+      "displayTitle": "Caddo Lake"
+    },
+    {
+      "rawTitle": "A PLACE CALLED SILENCE",
+      "notionGenre": "Mystery / Thriller",
+      "type": "movie",
+      "displayTitle": "A Place Called Silence"
+    },
+    {
+      "rawTitle": "EXTERRITORIAL",
+      "notionGenre": "Mystery / Thriller",
+      "type": "movie",
+      "displayTitle": "Exterritorial"
+    },
+    {
+      "rawTitle": "THE VOYEURS",
+      "notionGenre": "Mystery / Thriller",
+      "type": "movie",
+      "displayTitle": "The Voyeurs"
+    },
+    {
+      "rawTitle": "SILENT PARADE",
+      "notionGenre": "Mystery / Thriller",
+      "type": "movie",
+      "displayTitle": "Silent Parade"
+    },
+    {
+      "rawTitle": "NOW YOU SEE ME S1 - S3",
+      "notionGenre": "Action / Thriller",
+      "type": "movie",
+      "displayTitle": "Now You See Me S1 - S3"
+    },
+    {
+      "rawTitle": "CROW ZERO S1 - S3",
+      "notionGenre": "Action / Thriller",
+      "type": "movie",
+      "displayTitle": "Crow Zero S1 - S3"
+    },
+    {
+      "rawTitle": "JOHN WICK S1 - S4",
+      "notionGenre": "Action / Thriller",
+      "type": "movie",
+      "displayTitle": "John Wick S1 - S4"
+    },
+    {
+      "rawTitle": "EDGE OF TOMORROW",
+      "notionGenre": "Action / Thriller",
+      "type": "movie",
+      "displayTitle": "Edge of Tomorrow"
+    },
+    {
+      "rawTitle": "FISTFUL OF VENGEANCE",
+      "notionGenre": "Action / Thriller",
+      "type": "movie",
+      "displayTitle": "Fistful of Vengeance"
+    },
+    {
+      "rawTitle": "V FOR VENDETTA",
+      "notionGenre": "Action / Thriller",
+      "type": "movie",
+      "displayTitle": "V for Vendetta"
+    },
+    {
+      "rawTitle": "BATTLE ROYALE",
+      "notionGenre": "Action / Thriller",
+      "type": "movie",
+      "displayTitle": "Battle Royale"
+    },
+    {
+      "rawTitle": "THE SUICIDE SQUAD",
+      "notionGenre": "Action / Thriller",
+      "type": "movie",
+      "displayTitle": "The Suicide Squad"
+    },
+    {
+      "rawTitle": "SNOWDEN",
+      "notionGenre": "Action / Thriller",
+      "type": "movie",
+      "displayTitle": "Snowden"
+    },
+    {
+      "rawTitle": "YAKSHA: RUTHLESS OPERATIONS",
+      "notionGenre": "Action / Thriller",
+      "type": "movie",
+      "displayTitle": "Yaksha: Ruthless Operations"
+    },
+    {
+      "rawTitle": "MORBIUS",
+      "notionGenre": "Action / Thriller",
+      "type": "movie",
+      "displayTitle": "Morbius"
+    },
+    {
+      "rawTitle": "IP MAN S1 - S4",
+      "notionGenre": "Action / Thriller",
+      "type": "movie",
+      "displayTitle": "Ip Man S1 - S4"
+    },
+    {
+      "rawTitle": "4 KING",
+      "notionGenre": "Action / Thriller",
+      "type": "movie",
+      "displayTitle": "4 King"
+    },
+    {
+      "rawTitle": "IP MAN : THE AWAKENING",
+      "notionGenre": "Action / Thriller",
+      "type": "movie",
+      "displayTitle": "Ip Man : The Awakening"
+    },
+    {
+      "rawTitle": "FAST X",
+      "notionGenre": "Action / Thriller",
+      "type": "movie",
+      "displayTitle": "Fast X"
+    },
+    {
+      "rawTitle": "MIDNIGHT",
+      "notionGenre": "Action / Thriller",
+      "type": "movie",
+      "displayTitle": "Midnight"
+    },
+    {
+      "rawTitle": "REMEMBER",
+      "notionGenre": "Action / Thriller",
+      "type": "movie",
+      "displayTitle": "Remember"
+    },
+    {
+      "rawTitle": "JUMPER",
+      "notionGenre": "Action / Thriller",
+      "type": "movie",
+      "displayTitle": "Jumper"
+    },
+    {
+      "rawTitle": "UPGRADE",
+      "notionGenre": "Action / Thriller",
+      "type": "movie",
+      "displayTitle": "Upgrade"
+    },
+    {
+      "rawTitle": "CATCH ME IF YOU CAN",
+      "notionGenre": "Action / Thriller",
+      "type": "movie",
+      "displayTitle": "Catch Me If You Can"
+    },
+    {
+      "rawTitle": "ARMY OF THIEVES",
+      "notionGenre": "Action / Thriller",
+      "type": "movie",
+      "displayTitle": "Army of Thieves"
+    },
+    {
+      "rawTitle": "MENCURI RADEN SALEH",
+      "notionGenre": "Action / Thriller",
+      "type": "movie",
+      "displayTitle": "Mencuri Raden Saleh"
+    },
+    {
+      "rawTitle": "BADLAND HUNTERS",
+      "notionGenre": "Action / Thriller",
+      "type": "movie",
+      "displayTitle": "Badland Hunters"
+    },
+    {
+      "rawTitle": "LIFT",
+      "notionGenre": "Action / Thriller",
+      "type": "movie",
+      "displayTitle": "Lift"
+    },
+    {
+      "rawTitle": "THE OUTLAWS",
+      "notionGenre": "Action / Thriller",
+      "type": "movie",
+      "displayTitle": "The Outlaws"
+    },
+    {
+      "rawTitle": "CONCRETE UTOPIA",
+      "notionGenre": "Action / Thriller",
+      "type": "movie",
+      "displayTitle": "Concrete Utopia"
+    },
+    {
+      "rawTitle": "NOBODY",
+      "notionGenre": "Action / Thriller",
+      "type": "movie",
+      "displayTitle": "Nobody"
+    },
+    {
+      "rawTitle": "THE ROUNDUP: PUNISHMENT",
+      "notionGenre": "Action / Thriller",
+      "type": "movie",
+      "displayTitle": "The Roundup: Punishment"
+    },
+    {
+      "rawTitle": "FOLLOWING",
+      "notionGenre": "Action / Thriller",
+      "type": "movie",
+      "displayTitle": "Following"
+    },
+    {
+      "rawTitle": "PROJECT SILENCE",
+      "notionGenre": "Action / Thriller",
+      "type": "movie",
+      "displayTitle": "Project Silence"
+    },
+    {
+      "rawTitle": "EXTREME JOB",
+      "notionGenre": "Action / Thriller",
+      "type": "movie",
+      "displayTitle": "Extreme Job"
+    },
+    {
+      "rawTitle": "THE SHADOW STRAYS",
+      "notionGenre": "Action / Thriller",
+      "type": "movie",
+      "displayTitle": "The Shadow Strays"
+    },
+    {
+      "rawTitle": "COLD EYES",
+      "notionGenre": "Action / Thriller",
+      "type": "movie",
+      "displayTitle": "Cold Eyes"
+    },
+    {
+      "rawTitle": "PENGEPUNGAN DI BUKIT DURI",
+      "notionGenre": "Action / Thriller",
+      "type": "movie",
+      "displayTitle": "Pengepungan Di Bukit Duri"
+    },
+    {
+      "rawTitle": "DEMON CITY",
+      "notionGenre": "Action / Thriller",
+      "type": "movie",
+      "displayTitle": "Demon City"
+    },
+    {
+      "rawTitle": "FABRICATED CITY",
+      "notionGenre": "Action / Thriller",
+      "type": "movie",
+      "displayTitle": "Fabricated City"
+    },
+    {
+      "rawTitle": "THE SHADOW’S EDGE",
+      "notionGenre": "Action / Thriller",
+      "type": "movie",
+      "displayTitle": "The Shadow’s Edge"
+    },
+    {
+      "rawTitle": "RE:BORN",
+      "notionGenre": "Action / Thriller",
+      "type": "movie",
+      "displayTitle": "Re:Born"
+    },
+    {
+      "rawTitle": "TIMUR",
+      "notionGenre": "Action / Thriller",
+      "type": "movie",
+      "displayTitle": "Timur"
+    },
+    {
+      "rawTitle": "GHOST IN THE CELL",
+      "notionGenre": "Action / Thriller",
+      "type": "movie",
+      "displayTitle": "Ghost in the Cell"
+    },
+    {
+      "rawTitle": "APEX",
+      "notionGenre": "Action / Thriller",
+      "type": "movie",
+      "displayTitle": "Apex"
+    },
+    {
+      "rawTitle": "THE RED LINE",
+      "notionGenre": "Action / Thriller",
+      "type": "movie",
+      "displayTitle": "The Red Line"
+    },
+    {
+      "rawTitle": "UANG PANAI’",
+      "notionGenre": "Comedy",
+      "type": "movie",
+      "displayTitle": "Uang Panai’"
+    },
+    {
+      "rawTitle": "FREE GUY",
+      "notionGenre": "Comedy",
+      "type": "movie",
+      "displayTitle": "Free Guy"
+    },
+    {
+      "rawTitle": "THE DICTATOR",
+      "notionGenre": "Comedy",
+      "type": "movie",
+      "displayTitle": "The Dictator"
+    },
+    {
+      "rawTitle": "SEOUL VIBE",
+      "notionGenre": "Comedy",
+      "type": "movie",
+      "displayTitle": "Seoul Vibe"
+    },
+    {
+      "rawTitle": "THE BIG FOUR",
+      "notionGenre": "Comedy",
+      "type": "movie",
+      "displayTitle": "The Big Four"
+    },
+    {
+      "rawTitle": "THE MURDERER",
+      "notionGenre": "Comedy",
+      "type": "movie",
+      "displayTitle": "The Murderer"
+    },
+    {
+      "rawTitle": "ALKHALLAT+",
+      "notionGenre": "Comedy",
+      "type": "movie",
+      "displayTitle": "Alkhallat+"
+    },
+    {
+      "rawTitle": "SI JUKI THE MOVIE: HARTA PULAU MONYET",
+      "notionGenre": "Comedy",
+      "type": "movie",
+      "displayTitle": "Si Juki the Movie: Harta Pulau Monyet"
+    },
+    {
+      "rawTitle": "KELUAR MAIN 1994",
+      "notionGenre": "Comedy",
+      "type": "movie",
+      "displayTitle": "Keluar Main 1994"
+    },
+    {
+      "rawTitle": "UANG PANAI’ 2",
+      "notionGenre": "Comedy",
+      "type": "movie",
+      "displayTitle": "Uang Panai’ 2"
+    },
+    {
+      "rawTitle": "GJLS : IBUKU IBU-IBU",
+      "notionGenre": "Comedy",
+      "type": "movie",
+      "displayTitle": "Gjls : Ibuku Ibu-Ibu"
+    },
+    {
+      "rawTitle": "THE MEDIUM",
+      "notionGenre": "Horror / Thriller",
+      "type": "movie",
+      "displayTitle": "The Medium"
+    },
+    {
+      "rawTitle": "KKN DI DESA PENARI",
+      "notionGenre": "Horror / Thriller",
+      "type": "movie",
+      "displayTitle": "Kkn Di Desa Penari"
+    },
+    {
+      "rawTitle": "MIDSOMMAR",
+      "notionGenre": "Horror / Thriller",
+      "type": "movie",
+      "displayTitle": "Midsommar"
+    },
+    {
+      "rawTitle": "FALL",
+      "notionGenre": "Horror / Thriller",
+      "type": "movie",
+      "displayTitle": "Fall"
+    },
+    {
+      "rawTitle": "THE MENU",
+      "notionGenre": "Horror / Thriller",
+      "type": "movie",
+      "displayTitle": "The Menu"
+    },
+    {
+      "rawTitle": "US",
+      "notionGenre": "Horror / Thriller",
+      "type": "movie",
+      "displayTitle": "Us"
+    },
+    {
+      "rawTitle": "THE RITUAL",
+      "notionGenre": "Horror / Thriller",
+      "type": "movie",
+      "displayTitle": "The Ritual"
+    },
+    {
+      "rawTitle": "THE INNOCENT",
+      "notionGenre": "Horror / Thriller",
+      "type": "movie",
+      "displayTitle": "The Innocent"
+    },
+    {
+      "rawTitle": "THE CALL",
+      "notionGenre": "Horror / Thriller",
+      "type": "movie",
+      "displayTitle": "The Call"
+    },
+    {
+      "rawTitle": "MARUI VIDEO",
+      "notionGenre": "Horror / Thriller",
+      "type": "movie",
+      "displayTitle": "Marui Video"
+    },
+    {
+      "rawTitle": "THE WAILING",
+      "notionGenre": "Horror / Thriller",
+      "type": "movie",
+      "displayTitle": "The Wailing"
+    },
+    {
+      "rawTitle": "EXHUMA",
+      "notionGenre": "Horror / Thriller",
+      "type": "movie",
+      "displayTitle": "Exhuma"
+    },
+    {
+      "rawTitle": "WHAT YOU WISH FOR",
+      "notionGenre": "Horror / Thriller",
+      "type": "movie",
+      "displayTitle": "What You Wish For"
+    },
+    {
+      "rawTitle": "QODRAT 2",
+      "notionGenre": "Horror / Thriller",
+      "type": "movie",
+      "displayTitle": "Qodrat 2"
+    },
+    {
+      "rawTitle": "INCANTATION",
+      "notionGenre": "Horror / Thriller",
+      "type": "movie",
+      "displayTitle": "Incantation"
+    },
+    {
+      "rawTitle": "HOLY NIGHT: DEMON HUNTERS",
+      "notionGenre": "Horror / Thriller",
+      "type": "movie",
+      "displayTitle": "Holy Night: Demon Hunters"
+    },
+    {
+      "rawTitle": "PAMALI : TUMBAL",
+      "notionGenre": "Horror / Thriller",
+      "type": "movie",
+      "displayTitle": "Pamali : Tumbal"
+    },
+    {
+      "rawTitle": "WEAPONS",
+      "notionGenre": "Horror / Thriller",
+      "type": "movie",
+      "displayTitle": "Weapons"
+    },
+    {
+      "rawTitle": "SPREE",
+      "notionGenre": "Horror / Thriller",
+      "type": "movie",
+      "displayTitle": "Spree"
+    },
+    {
+      "rawTitle": "2037",
+      "notionGenre": "Drama",
+      "type": "movie",
+      "displayTitle": "2037"
+    },
+    {
+      "rawTitle": "ONE WEEK FRIENDS",
+      "notionGenre": "Drama",
+      "type": "movie",
+      "displayTitle": "One Week Friends"
+    },
+    {
+      "rawTitle": "THE BLUE SKIES AT YOUR FEET",
+      "notionGenre": "Drama",
+      "type": "movie",
+      "displayTitle": "The Blue Skies at Your Feet"
+    },
+    {
+      "rawTitle": "THE LAST 10 YEARS",
+      "notionGenre": "Drama",
+      "type": "movie",
+      "displayTitle": "The Last 10 Years"
+    },
+    {
+      "rawTitle": "CODA",
+      "notionGenre": "Drama",
+      "type": "movie",
+      "displayTitle": "Coda"
+    },
+    {
+      "rawTitle": "A BEAUTIFUL MIND",
+      "notionGenre": "Drama",
+      "type": "movie",
+      "displayTitle": "A Beautiful Mind"
+    },
+    {
+      "rawTitle": "MAN IN LOVE",
+      "notionGenre": "Drama",
+      "type": "movie",
+      "displayTitle": "Man in Love"
+    },
+    {
+      "rawTitle": "THE LOST LOTTERIES",
+      "notionGenre": "Drama",
+      "type": "movie",
+      "displayTitle": "The Lost Lotteries"
+    },
+    {
+      "rawTitle": "PERFECT STRANGER",
+      "notionGenre": "Drama",
+      "type": "movie",
+      "displayTitle": "Perfect Stranger"
+    },
+    {
+      "rawTitle": "NOT FRIENDS",
+      "notionGenre": "Drama",
+      "type": "movie",
+      "displayTitle": "Not Friends"
+    },
+    {
+      "rawTitle": "THE SOCIAL NETWORK",
+      "notionGenre": "Drama",
+      "type": "movie",
+      "displayTitle": "The Social Network"
+    },
+    {
+      "rawTitle": "THE IMITATION GAME",
+      "notionGenre": "Drama",
+      "type": "movie",
+      "displayTitle": "The Imitation Game"
+    },
+    {
+      "rawTitle": "DRAWING CLOSER",
+      "notionGenre": "Drama",
+      "type": "movie",
+      "displayTitle": "Drawing Closer"
+    },
+    {
+      "rawTitle": "\"LOVE ME",
+      "notionGenre": "LOVE ME NOT\",Drama",
+      "type": "movie",
+      "displayTitle": "\"love Me"
+    },
+    {
+      "rawTitle": "YOU ARE THE APPLE OF MY EYE",
+      "notionGenre": "Drama",
+      "type": "movie",
+      "displayTitle": "You Are the Apple of My Eye"
+    },
+    {
+      "rawTitle": "500 DAYS OF SUMMER",
+      "notionGenre": "Drama",
+      "type": "movie",
+      "displayTitle": "500 Days of Summer"
+    },
+    {
+      "rawTitle": "KAKA BOSS",
+      "notionGenre": "Drama",
+      "type": "movie",
+      "displayTitle": "Kaka Boss"
+    },
+    {
+      "rawTitle": "EVEN IF THIS LOVE DISAPPEARS FROM THE WORLD",
+      "notionGenre": "Drama",
+      "type": "movie",
+      "displayTitle": "Even If This Love Disappears from the World"
+    },
+    {
+      "rawTitle": "YOUR EYES TELL",
+      "notionGenre": "Drama",
+      "type": "movie",
+      "displayTitle": "Your Eyes Tell"
+    },
+    {
+      "rawTitle": "18x2 BEYOND YOUTHFUL DAYS",
+      "notionGenre": "Drama",
+      "type": "movie",
+      "displayTitle": "18x2 Beyond Youthful Days"
+    },
+    {
+      "rawTitle": "FORGET ME NOT",
+      "notionGenre": "Drama",
+      "type": "movie",
+      "displayTitle": "Forget Me Not"
+    },
+    {
+      "rawTitle": "OMG! OH MY GIRL",
+      "notionGenre": "Drama",
+      "type": "movie",
+      "displayTitle": "Omg! Oh My Girl"
+    },
+    {
+      "rawTitle": "BETTER DAYS",
+      "notionGenre": "Drama",
+      "type": "movie",
+      "displayTitle": "Better Days"
+    },
+    {
+      "rawTitle": "20TH CENTURY GIRL",
+      "notionGenre": "Drama",
+      "type": "movie",
+      "displayTitle": "20th Century Girl"
+    },
+    {
+      "rawTitle": "MONSTER",
+      "notionGenre": "Drama",
+      "type": "movie",
+      "displayTitle": "Monster"
+    },
+    {
+      "rawTitle": "366 DAYS",
+      "notionGenre": "Drama",
+      "type": "movie",
+      "displayTitle": "366 Days"
+    },
+    {
+      "rawTitle": "TOMORROW I WILL DATE WITH YESTERDAY’S YOU",
+      "notionGenre": "Drama",
+      "type": "movie",
+      "displayTitle": "Tomorrow I Will Date with Yesterday’s You"
+    },
+    {
+      "rawTitle": "LOVE LETTER",
+      "notionGenre": "Drama",
+      "type": "movie",
+      "displayTitle": "Love Letter"
+    },
+    {
+      "rawTitle": "DEAD POETS SOCIETY",
+      "notionGenre": "Drama",
+      "type": "movie",
+      "displayTitle": "Dead Poets Society"
+    },
+    {
+      "rawTitle": "TUNGGU AKU SUKSES NANTI",
+      "notionGenre": "Drama",
+      "type": "movie",
+      "displayTitle": "Tunggu Aku Sukses Nanti"
+    },
+    {
+      "rawTitle": "TINGGAL MENINGGAL",
+      "notionGenre": "Drama",
+      "type": "movie",
+      "displayTitle": "Tinggal Meninggal"
+    },
+    {
+      "rawTitle": "INTERSTELLAR",
+      "notionGenre": "Sci‑Fi",
+      "type": "movie",
+      "displayTitle": "Interstellar"
+    },
+    {
+      "rawTitle": "UANG PASSOLO",
+      "notionGenre": "Drama",
+      "type": "movie",
+      "displayTitle": "Uang Passolo"
+    },
+    {
+      "rawTitle": "PARADISE",
+      "notionGenre": "Sci‑Fi",
+      "type": "movie",
+      "displayTitle": "Paradise"
+    },
+    {
+      "rawTitle": "TENET",
+      "notionGenre": "Sci‑Fi",
+      "type": "movie",
+      "displayTitle": "Tenet"
+    },
+    {
+      "rawTitle": "THE MOON",
+      "notionGenre": "Sci‑Fi",
+      "type": "movie",
+      "displayTitle": "The Moon"
+    },
+    {
+      "rawTitle": "TOMORROWLAND",
+      "notionGenre": "Sci‑Fi",
+      "type": "movie",
+      "displayTitle": "Tomorrowland"
+    },
+    {
+      "rawTitle": "THE BUTTERFLY EFFECT",
+      "notionGenre": "Sci‑Fi",
+      "type": "movie",
+      "displayTitle": "The Butterfly Effect"
+    },
+    {
+      "rawTitle": "LOOPER",
+      "notionGenre": "Sci‑Fi",
+      "type": "movie",
+      "displayTitle": "Looper"
+    },
+    {
+      "rawTitle": "DONNIE DARKO",
+      "notionGenre": "Sci‑Fi",
+      "type": "movie",
+      "displayTitle": "Donnie Darko"
+    },
+    {
+      "rawTitle": "HYPNOTIC",
+      "notionGenre": "Sci‑Fi",
+      "type": "movie",
+      "displayTitle": "Hypnotic"
+    },
+    {
+      "rawTitle": "INCEPTION",
+      "notionGenre": "Sci‑Fi",
+      "type": "movie",
+      "displayTitle": "Inception"
+    },
+    {
+      "rawTitle": "SOURCE CODE",
+      "notionGenre": "Sci‑Fi",
+      "type": "movie",
+      "displayTitle": "Source Code"
+    },
+    {
+      "rawTitle": "MICKEY 17",
+      "notionGenre": "Sci‑Fi",
+      "type": "movie",
+      "displayTitle": "Mickey 17"
+    },
+    {
+      "rawTitle": "ARRIVAL",
+      "notionGenre": "Sci‑Fi",
+      "type": "movie",
+      "displayTitle": "Arrival"
+    },
+    {
+      "rawTitle": "TIMECRIMES",
+      "notionGenre": "Sci‑Fi",
+      "type": "movie",
+      "displayTitle": "Timecrimes"
+    },
+    {
+      "rawTitle": "THE GREAT FLOOD",
+      "notionGenre": "Sci‑Fi",
+      "type": "movie",
+      "displayTitle": "The Great Flood"
+    },
+    {
+      "rawTitle": "TIME TRAP",
+      "notionGenre": "Sci‑Fi",
+      "type": "movie",
+      "displayTitle": "Time Trap"
+    },
+    {
+      "rawTitle": "COHERENCE",
+      "notionGenre": "Mystery / Thriller",
+      "type": "movie",
+      "displayTitle": "Coherence"
+    },
+    {
+      "rawTitle": "EXIT 8",
+      "notionGenre": "Mystery / Thriller",
+      "type": "movie",
+      "displayTitle": "Exit 8"
+    },
+    {
+      "rawTitle": "THE FURIOUS",
+      "notionGenre": "Action / Thriller",
+      "type": "movie",
+      "displayTitle": "The Furious"
+    },
+    {
+      "rawTitle": "",
+      "notionGenre": "Mystery / Thriller",
+      "type": "movie",
+      "displayTitle": ""
+    },
+    {
+      "rawTitle": "THE LAST HOUSE",
+      "notionGenre": "Sci‑Fi",
+      "type": "movie",
+      "displayTitle": "The Last House"
+    }
+  ],
+  "series": [
+    {
+      "rawTitle": "DARK S1 - S3 ⭐",
+      "notionGenre": "Mystery / Thriller",
+      "type": "tv",
+      "displayTitle": "Dark S1 - S3 ⭐"
+    },
+    {
+      "rawTitle": "BEHIND HER EYES S1",
+      "notionGenre": "Mystery / Thriller",
+      "type": "tv",
+      "displayTitle": "Behind Her Eyes S1"
+    },
+    {
+      "rawTitle": "ALICE IN BORDERLAND S1 - S3",
+      "notionGenre": "Mystery / Thriller",
+      "type": "tv",
+      "displayTitle": "Alice in Borderland S1 - S3"
+    },
+    {
+      "rawTitle": "MONSTROUS S1",
+      "notionGenre": "Mystery / Thriller",
+      "type": "tv",
+      "displayTitle": "Monstrous S1"
+    },
+    {
+      "rawTitle": "FROM S1 - S3",
+      "notionGenre": "Mystery / Thriller",
+      "type": "tv",
+      "displayTitle": "From S1 - S3"
+    },
+    {
+      "rawTitle": "INVISIBLE CITY S1",
+      "notionGenre": "Mystery / Thriller",
+      "type": "tv",
+      "displayTitle": "Invisible City S1"
+    },
+    {
+      "rawTitle": "MIDNIGHT MASS S1",
+      "notionGenre": "Mystery / Thriller",
+      "type": "tv",
+      "displayTitle": "Midnight Mass S1"
+    },
+    {
+      "rawTitle": "BIG MOUSE S1",
+      "notionGenre": "Mystery / Thriller",
+      "type": "tv",
+      "displayTitle": "Big Mouse S1"
+    },
+    {
+      "rawTitle": "1899 S1",
+      "notionGenre": "Mystery / Thriller",
+      "type": "tv",
+      "displayTitle": "1899 S1"
+    },
+    {
+      "rawTitle": "GIRL FROM NOWHERE S1 - S2",
+      "notionGenre": "Mystery / Thriller",
+      "type": "tv",
+      "displayTitle": "Girl from Nowhere S1 - S2"
+    },
+    {
+      "rawTitle": "WEDNESDAY S1",
+      "notionGenre": "Mystery / Thriller",
+      "type": "tv",
+      "displayTitle": "Wednesday S1"
+    },
+    {
+      "rawTitle": "CLASS OF LIES S1",
+      "notionGenre": "Mystery / Thriller",
+      "type": "tv",
+      "displayTitle": "Class of Lies S1"
+    },
+    {
+      "rawTitle": "365 : REPEAT THE YEAR S1",
+      "notionGenre": "Mystery / Thriller",
+      "type": "tv",
+      "displayTitle": "365 : Repeat the Year S1"
+    },
+    {
+      "rawTitle": "NIGHT HAS COME S1",
+      "notionGenre": "Mystery / Thriller",
+      "type": "tv",
+      "displayTitle": "Night Has Come S1"
+    },
+    {
+      "rawTitle": "TELL ME WHAT YOU SAW S1",
+      "notionGenre": "Mystery / Thriller",
+      "type": "tv",
+      "displayTitle": "Tell Me What You Saw S1"
+    },
+    {
+      "rawTitle": "PARALLELS S1",
+      "notionGenre": "Mystery / Thriller",
+      "type": "tv",
+      "displayTitle": "Parallels S1"
+    },
+    {
+      "rawTitle": "STRANGER THINGS S1 - S5",
+      "notionGenre": "Mystery / Thriller",
+      "type": "tv",
+      "displayTitle": "Stranger Things S1 - S5"
+    },
+    {
+      "rawTitle": "MARE OF EASTTOWN S1",
+      "notionGenre": "Mystery / Thriller",
+      "type": "tv",
+      "displayTitle": "Mare of Easttown S1"
+    },
+    {
+      "rawTitle": "TREASON S1",
+      "notionGenre": "Mystery / Thriller",
+      "type": "tv",
+      "displayTitle": "Treason S1"
+    },
+    {
+      "rawTitle": "BLIND S1",
+      "notionGenre": "Mystery / Thriller",
+      "type": "tv",
+      "displayTitle": "Blind S1"
+    },
+    {
+      "rawTitle": "REVENGE OF OTHERS S1",
+      "notionGenre": "Mystery / Thriller",
+      "type": "tv",
+      "displayTitle": "Revenge of Others S1"
+    },
+    {
+      "rawTitle": "BITCH X RICH S1 - S2",
+      "notionGenre": "Mystery / Thriller",
+      "type": "tv",
+      "displayTitle": "Bitch X Rich S1 - S2"
+    },
+    {
+      "rawTitle": "PYRAMID GAME S1",
+      "notionGenre": "Mystery / Thriller",
+      "type": "tv",
+      "displayTitle": "Pyramid Game S1"
+    },
+    {
+      "rawTitle": "3 BODY PROBLEM S1",
+      "notionGenre": "Mystery / Thriller",
+      "type": "tv",
+      "displayTitle": "3 Body Problem S1"
+    },
+    {
+      "rawTitle": "THE FROG S1",
+      "notionGenre": "Mystery / Thriller",
+      "type": "tv",
+      "displayTitle": "The Frog S1"
+    },
+    {
+      "rawTitle": "MASTER OF THE HOUSE S1",
+      "notionGenre": "Mystery / Thriller",
+      "type": "tv",
+      "displayTitle": "Master of the House S1"
+    },
+    {
+      "rawTitle": "LIGHT SHOP S1",
+      "notionGenre": "Mystery / Thriller",
+      "type": "tv",
+      "displayTitle": "Light Shop S1"
+    },
+    {
+      "rawTitle": "CROSS S1",
+      "notionGenre": "Mystery / Thriller",
+      "type": "tv",
+      "displayTitle": "Cross S1"
+    },
+    {
+      "rawTitle": "KARMA S1",
+      "notionGenre": "Mystery / Thriller",
+      "type": "tv",
+      "displayTitle": "Karma S1"
+    },
+    {
+      "rawTitle": "CONSTELLATION S1",
+      "notionGenre": "Mystery / Thriller",
+      "type": "tv",
+      "displayTitle": "Constellation S1"
+    },
+    {
+      "rawTitle": "DARK MATTER S1",
+      "notionGenre": "Mystery / Thriller",
+      "type": "tv",
+      "displayTitle": "Dark Matter S1"
+    },
+    {
+      "rawTitle": "THE PRICE OF CONFESSION S1",
+      "notionGenre": "Mystery / Thriller",
+      "type": "tv",
+      "displayTitle": "The Price of Confession S1"
+    },
+    {
+      "rawTitle": "BODIES S1",
+      "notionGenre": "Mystery / Thriller",
+      "type": "tv",
+      "displayTitle": "Bodies S1"
+    },
+    {
+      "rawTitle": "SEBASTIAN FITZEK’S THERAPY S1",
+      "notionGenre": "Mystery / Thriller",
+      "type": "tv",
+      "displayTitle": "Sebastian Fitzek’s Therapy S1"
+    },
+    {
+      "rawTitle": "THE GIFTED S1",
+      "notionGenre": "Mystery / Thriller",
+      "type": "tv",
+      "displayTitle": "The Gifted S1"
+    },
+    {
+      "rawTitle": "GIRL FROM NOWHERE : THE RESET S1",
+      "notionGenre": "Mystery / Thriller",
+      "type": "tv",
+      "displayTitle": "Girl from Nowhere : The Reset S1"
+    },
+    {
+      "rawTitle": "IF WISHES COULD KILL S1",
+      "notionGenre": "Mystery / Thriller",
+      "type": "tv",
+      "displayTitle": "If Wishes Could Kill S1"
+    },
+    {
+      "rawTitle": "MONEY HEIST S1 - S5",
+      "notionGenre": "Action / Thriller",
+      "type": "tv",
+      "displayTitle": "Money Heist S1 - S5"
+    },
+    {
+      "rawTitle": "MAJISUKA GAKUEN S1 - S5",
+      "notionGenre": "Action / Thriller",
+      "type": "tv",
+      "displayTitle": "Majisuka Gakuen S1 - S5"
+    },
+    {
+      "rawTitle": "LUPIN S1 - S3",
+      "notionGenre": "Action / Thriller",
+      "type": "tv",
+      "displayTitle": "Lupin S1 - S3"
+    },
+    {
+      "rawTitle": "SQUID GAME S1 - S3",
+      "notionGenre": "Action / Thriller",
+      "type": "tv",
+      "displayTitle": "Squid Game S1 - S3"
+    },
+    {
+      "rawTitle": "WEAK HERO S1",
+      "notionGenre": "Action / Thriller",
+      "type": "tv",
+      "displayTitle": "Weak Hero S1"
+    },
+    {
+      "rawTitle": "BERLIN S1",
+      "notionGenre": "Action / Thriller",
+      "type": "tv",
+      "displayTitle": "Berlin S1"
+    },
+    {
+      "rawTitle": "A SHOP FOR KILLERS S1",
+      "notionGenre": "Action / Thriller",
+      "type": "tv",
+      "displayTitle": "A Shop for Killers S1"
+    },
+    {
+      "rawTitle": "A KILLER PARADOX S1",
+      "notionGenre": "Action / Thriller",
+      "type": "tv",
+      "displayTitle": "A Killer Paradox S1"
+    },
+    {
+      "rawTitle": "HOUSE OF NINJAS S1",
+      "notionGenre": "Action / Thriller",
+      "type": "tv",
+      "displayTitle": "House of Ninjas S1"
+    },
+    {
+      "rawTitle": "THE KING OF PIGS S1",
+      "notionGenre": "Action / Thriller",
+      "type": "tv",
+      "displayTitle": "The King of Pigs S1"
+    },
+    {
+      "rawTitle": "THE PARASYTE : THE GREY S1",
+      "notionGenre": "Action / Thriller",
+      "type": "tv",
+      "displayTitle": "The Parasyte : The Grey S1"
+    },
+    {
+      "rawTitle": "SUPACELL S1",
+      "notionGenre": "Action / Thriller",
+      "type": "tv",
+      "displayTitle": "Supacell S1"
+    },
+    {
+      "rawTitle": "STUDY GROUP S1",
+      "notionGenre": "Action / Thriller",
+      "type": "tv",
+      "displayTitle": "Study Group S1"
+    },
+    {
+      "rawTitle": "FAMILY MATTERS S1",
+      "notionGenre": "Action / Thriller",
+      "type": "tv",
+      "displayTitle": "Family Matters S1"
+    },
+    {
+      "rawTitle": "LAST SAMURAI STANDING S1",
+      "notionGenre": "Action / Thriller",
+      "type": "tv",
+      "displayTitle": "Last Samurai Standing S1"
+    },
+    {
+      "rawTitle": "THE QUEEN'S GAMBIT S1",
+      "notionGenre": "Drama",
+      "type": "tv",
+      "displayTitle": "The Queen's Gambit S1"
+    },
+    {
+      "rawTitle": "MAN VS BEE S1",
+      "notionGenre": "Comedy",
+      "type": "tv",
+      "displayTitle": "Man Vs Bee S1"
+    },
+    {
+      "rawTitle": "THICCA S1",
+      "notionGenre": "Drama",
+      "type": "tv",
+      "displayTitle": "Thicca S1"
+    },
+    {
+      "rawTitle": "THE DAY OF THE JACKAL S1",
+      "notionGenre": "Action / Thriller",
+      "type": "tv",
+      "displayTitle": "The Day of the Jackal S1"
+    },
+    {
+      "rawTitle": "MR. ROBOT S1-S4",
+      "notionGenre": "Mystery / Thriller",
+      "type": "tv",
+      "displayTitle": "Mr. Robot S1-S4"
+    },
+    {
+      "rawTitle": "AGENT KIM S1",
+      "notionGenre": "Action / Thriller",
+      "type": "tv",
+      "displayTitle": "Agent Kim S1"
+    },
+    {
+      "rawTitle": "DETECTIVE CHINATOWN S1",
+      "notionGenre": "Mystery / Thriller",
+      "type": "tv",
+      "displayTitle": "Detective Chinatown S1"
+    }
+  ],
+  "all": [
+    {
+      "rawTitle": "PREDESTINATION",
+      "notionGenre": "Mystery / Thriller",
+      "type": "movie",
+      "displayTitle": "Predestination"
+    },
+    {
+      "rawTitle": "THE INVISIBLE GUEST",
+      "notionGenre": "Mystery / Thriller",
+      "type": "movie",
+      "displayTitle": "The Invisible Guest"
+    },
+    {
+      "rawTitle": "FIGHT CLUB",
+      "notionGenre": "Mystery / Thriller",
+      "type": "movie",
+      "displayTitle": "Fight Club"
+    },
+    {
+      "rawTitle": "SHUTTER ISLAND",
+      "notionGenre": "Mystery / Thriller",
+      "type": "movie",
+      "displayTitle": "Shutter Island"
+    },
+    {
+      "rawTitle": "MEMENTO",
+      "notionGenre": "Mystery / Thriller",
+      "type": "movie",
+      "displayTitle": "Memento"
+    },
+    {
+      "rawTitle": "GET OUT",
+      "notionGenre": "Mystery / Thriller",
+      "type": "movie",
+      "displayTitle": "Get Out"
+    },
+    {
+      "rawTitle": "FRACTURED",
+      "notionGenre": "Mystery / Thriller",
+      "type": "movie",
+      "displayTitle": "Fractured"
+    },
+    {
+      "rawTitle": "SEARCHING",
+      "notionGenre": "Mystery / Thriller",
+      "type": "movie",
+      "displayTitle": "Searching"
+    },
+    {
+      "rawTitle": "BURNING",
+      "notionGenre": "Mystery / Thriller",
+      "type": "movie",
+      "displayTitle": "Burning"
+    },
+    {
+      "rawTitle": "KNIVES OUT",
+      "notionGenre": "Mystery / Thriller",
+      "type": "movie",
+      "displayTitle": "Knives Out"
+    },
+    {
+      "rawTitle": "ENOLA HOLMES S1 - S2",
+      "notionGenre": "Mystery / Thriller",
+      "type": "movie",
+      "displayTitle": "Enola Holmes S1 - S2"
+    },
+    {
+      "rawTitle": "A QUIET PLACE S1 - S2",
+      "notionGenre": "Mystery / Thriller",
+      "type": "movie",
+      "displayTitle": "A Quiet Place S1 - S2"
+    },
+    {
+      "rawTitle": "GONE GIRL",
+      "notionGenre": "Mystery / Thriller",
+      "type": "movie",
+      "displayTitle": "Gone Girl"
+    },
+    {
+      "rawTitle": "PARASITE",
+      "notionGenre": "Mystery / Thriller",
+      "type": "movie",
+      "displayTitle": "Parasite"
+    },
+    {
+      "rawTitle": "WHO I AM",
+      "notionGenre": "Mystery / Thriller",
+      "type": "movie",
+      "displayTitle": "Who I Am"
+    },
+    {
+      "rawTitle": "THE GIRL ON A BULDOZER",
+      "notionGenre": "Mystery / Thriller",
+      "type": "movie",
+      "displayTitle": "The Girl on a Buldozer"
+    },
+    {
+      "rawTitle": "FORGOTTEN",
+      "notionGenre": "Mystery / Thriller",
+      "type": "movie",
+      "displayTitle": "Forgotten"
+    },
+    {
+      "rawTitle": "LAMB",
+      "notionGenre": "Mystery / Thriller",
+      "type": "movie",
+      "displayTitle": "Lamb"
+    },
+    {
+      "rawTitle": "NOPE",
+      "notionGenre": "Mystery / Thriller",
+      "type": "movie",
+      "displayTitle": "Nope"
+    },
+    {
+      "rawTitle": "MIRAGE",
+      "notionGenre": "Mystery / Thriller",
+      "type": "movie",
+      "displayTitle": "Mirage"
+    },
+    {
+      "rawTitle": "OLD BOY",
+      "notionGenre": "Mystery / Thriller",
+      "type": "movie",
+      "displayTitle": "Old Boy"
+    },
+    {
+      "rawTitle": "THE SHAWSHANK REDEMPTION",
+      "notionGenre": "Mystery / Thriller",
+      "type": "movie",
+      "displayTitle": "The Shawshank Redemption"
+    },
+    {
+      "rawTitle": "BODIES BODIES BODIES",
+      "notionGenre": "Mystery / Thriller",
+      "type": "movie",
+      "displayTitle": "Bodies Bodies Bodies"
+    },
+    {
+      "rawTitle": "SE7EN",
+      "notionGenre": "Mystery / Thriller",
+      "type": "movie",
+      "displayTitle": "Se7en"
+    },
+    {
+      "rawTitle": "THE PRESTIGE",
+      "notionGenre": "Mystery / Thriller",
+      "type": "movie",
+      "displayTitle": "The Prestige"
+    },
+    {
+      "rawTitle": "MEMORIES OF MURDER",
+      "notionGenre": "Mystery / Thriller",
+      "type": "movie",
+      "displayTitle": "Memories of Murder"
+    },
+    {
+      "rawTitle": "MISSING",
+      "notionGenre": "Mystery / Thriller",
+      "type": "movie",
+      "displayTitle": "Missing"
+    },
+    {
+      "rawTitle": "ZODIAC",
+      "notionGenre": "Mystery / Thriller",
+      "type": "movie",
+      "displayTitle": "Zodiac"
+    },
+    {
+      "rawTitle": "THE TRUMAN SHOW",
+      "notionGenre": "Mystery / Thriller",
+      "type": "movie",
+      "displayTitle": "The Truman Show"
+    },
+    {
+      "rawTitle": "MOUSE : THE MOVIE",
+      "notionGenre": "Mystery / Thriller",
+      "type": "movie",
+      "displayTitle": "Mouse : The Movie"
+    },
+    {
+      "rawTitle": "THE OTHERS",
+      "notionGenre": "Mystery / Thriller",
+      "type": "movie",
+      "displayTitle": "The Others"
+    },
+    {
+      "rawTitle": "MEMOIR OF A MURDERER",
+      "notionGenre": "Mystery / Thriller",
+      "type": "movie",
+      "displayTitle": "Memoir of a Murderer"
+    },
+    {
+      "rawTitle": "MURDER ON THE ORIENT EXPRESS",
+      "notionGenre": "Mystery / Thriller",
+      "type": "movie",
+      "displayTitle": "Murder on the Orient Express"
+    },
+    {
+      "rawTitle": "LEAVE THE WORLD BEHIND",
+      "notionGenre": "Mystery / Thriller",
+      "type": "movie",
+      "displayTitle": "Leave the World Behind"
+    },
+    {
+      "rawTitle": "IDENTITY",
+      "notionGenre": "Mystery / Thriller",
+      "type": "movie",
+      "displayTitle": "Identity"
+    },
+    {
+      "rawTitle": "UNLOCKED",
+      "notionGenre": "Mystery / Thriller",
+      "type": "movie",
+      "displayTitle": "Unlocked"
+    },
+    {
+      "rawTitle": "THE DEPARTED",
+      "notionGenre": "Mystery / Thriller",
+      "type": "movie",
+      "displayTitle": "The Departed"
+    },
+    {
+      "rawTitle": "SEE HOW THEY RUN",
+      "notionGenre": "Mystery / Thriller",
+      "type": "movie",
+      "displayTitle": "See How They Run"
+    },
+    {
+      "rawTitle": "THE GOOD NURSE",
+      "notionGenre": "Mystery / Thriller",
+      "type": "movie",
+      "displayTitle": "The Good Nurse"
+    },
+    {
+      "rawTitle": "DECISION TO LEAVE",
+      "notionGenre": "Mystery / Thriller",
+      "type": "movie",
+      "displayTitle": "Decision to Leave"
+    },
+    {
+      "rawTitle": "WHAT HAPPENED TO MONDAY",
+      "notionGenre": "Mystery / Thriller",
+      "type": "movie",
+      "displayTitle": "What Happened to Monday"
+    },
+    {
+      "rawTitle": "CONFESSION",
+      "notionGenre": "Mystery / Thriller",
+      "type": "movie",
+      "displayTitle": "Confession"
+    },
+    {
+      "rawTitle": "THE WANDERING MOON",
+      "notionGenre": "Mystery / Thriller",
+      "type": "movie",
+      "displayTitle": "The Wandering Moon"
+    },
+    {
+      "rawTitle": "LUTHER THE FALLEN SUN",
+      "notionGenre": "Mystery / Thriller",
+      "type": "movie",
+      "displayTitle": "Luther the Fallen Sun"
+    },
+    {
+      "rawTitle": "THE CINDERELLA ADDICTION",
+      "notionGenre": "Mystery / Thriller",
+      "type": "movie",
+      "displayTitle": "The Cinderella Addiction"
+    },
+    {
+      "rawTitle": "MONTAGE",
+      "notionGenre": "Mystery / Thriller",
+      "type": "movie",
+      "displayTitle": "Montage"
+    },
+    {
+      "rawTitle": "TRIANGLE",
+      "notionGenre": "Mystery / Thriller",
+      "type": "movie",
+      "displayTitle": "Triangle"
+    },
+    {
+      "rawTitle": "PRISONERS",
+      "notionGenre": "Mystery / Thriller",
+      "type": "movie",
+      "displayTitle": "Prisoners"
+    },
+    {
+      "rawTitle": "IN THE TALL GRASS",
+      "notionGenre": "Mystery / Thriller",
+      "type": "movie",
+      "displayTitle": "In the Tall Grass"
+    },
+    {
+      "rawTitle": "NO MERCY",
+      "notionGenre": "Mystery / Thriller",
+      "type": "movie",
+      "displayTitle": "No Mercy"
+    },
+    {
+      "rawTitle": "THE SIXTH SENSE",
+      "notionGenre": "Mystery / Thriller",
+      "type": "movie",
+      "displayTitle": "The Sixth Sense"
+    },
+    {
+      "rawTitle": "CONFESSIONS",
+      "notionGenre": "Mystery / Thriller",
+      "type": "movie",
+      "displayTitle": "Confessions"
+    },
+    {
+      "rawTitle": "THE PLATFORM S1 - S2",
+      "notionGenre": "Mystery / Thriller",
+      "type": "movie",
+      "displayTitle": "The Platform S1 - S2"
+    },
+    {
+      "rawTitle": "MAHARAJA",
+      "notionGenre": "Mystery / Thriller",
+      "type": "movie",
+      "displayTitle": "Maharaja"
+    },
+    {
+      "rawTitle": "CADDO LAKE",
+      "notionGenre": "Mystery / Thriller",
+      "type": "movie",
+      "displayTitle": "Caddo Lake"
+    },
+    {
+      "rawTitle": "A PLACE CALLED SILENCE",
+      "notionGenre": "Mystery / Thriller",
+      "type": "movie",
+      "displayTitle": "A Place Called Silence"
+    },
+    {
+      "rawTitle": "EXTERRITORIAL",
+      "notionGenre": "Mystery / Thriller",
+      "type": "movie",
+      "displayTitle": "Exterritorial"
+    },
+    {
+      "rawTitle": "THE VOYEURS",
+      "notionGenre": "Mystery / Thriller",
+      "type": "movie",
+      "displayTitle": "The Voyeurs"
+    },
+    {
+      "rawTitle": "SILENT PARADE",
+      "notionGenre": "Mystery / Thriller",
+      "type": "movie",
+      "displayTitle": "Silent Parade"
+    },
+    {
+      "rawTitle": "NOW YOU SEE ME S1 - S3",
+      "notionGenre": "Action / Thriller",
+      "type": "movie",
+      "displayTitle": "Now You See Me S1 - S3"
+    },
+    {
+      "rawTitle": "CROW ZERO S1 - S3",
+      "notionGenre": "Action / Thriller",
+      "type": "movie",
+      "displayTitle": "Crow Zero S1 - S3"
+    },
+    {
+      "rawTitle": "JOHN WICK S1 - S4",
+      "notionGenre": "Action / Thriller",
+      "type": "movie",
+      "displayTitle": "John Wick S1 - S4"
+    },
+    {
+      "rawTitle": "EDGE OF TOMORROW",
+      "notionGenre": "Action / Thriller",
+      "type": "movie",
+      "displayTitle": "Edge of Tomorrow"
+    },
+    {
+      "rawTitle": "FISTFUL OF VENGEANCE",
+      "notionGenre": "Action / Thriller",
+      "type": "movie",
+      "displayTitle": "Fistful of Vengeance"
+    },
+    {
+      "rawTitle": "V FOR VENDETTA",
+      "notionGenre": "Action / Thriller",
+      "type": "movie",
+      "displayTitle": "V for Vendetta"
+    },
+    {
+      "rawTitle": "BATTLE ROYALE",
+      "notionGenre": "Action / Thriller",
+      "type": "movie",
+      "displayTitle": "Battle Royale"
+    },
+    {
+      "rawTitle": "THE SUICIDE SQUAD",
+      "notionGenre": "Action / Thriller",
+      "type": "movie",
+      "displayTitle": "The Suicide Squad"
+    },
+    {
+      "rawTitle": "SNOWDEN",
+      "notionGenre": "Action / Thriller",
+      "type": "movie",
+      "displayTitle": "Snowden"
+    },
+    {
+      "rawTitle": "YAKSHA: RUTHLESS OPERATIONS",
+      "notionGenre": "Action / Thriller",
+      "type": "movie",
+      "displayTitle": "Yaksha: Ruthless Operations"
+    },
+    {
+      "rawTitle": "MORBIUS",
+      "notionGenre": "Action / Thriller",
+      "type": "movie",
+      "displayTitle": "Morbius"
+    },
+    {
+      "rawTitle": "IP MAN S1 - S4",
+      "notionGenre": "Action / Thriller",
+      "type": "movie",
+      "displayTitle": "Ip Man S1 - S4"
+    },
+    {
+      "rawTitle": "4 KING",
+      "notionGenre": "Action / Thriller",
+      "type": "movie",
+      "displayTitle": "4 King"
+    },
+    {
+      "rawTitle": "IP MAN : THE AWAKENING",
+      "notionGenre": "Action / Thriller",
+      "type": "movie",
+      "displayTitle": "Ip Man : The Awakening"
+    },
+    {
+      "rawTitle": "FAST X",
+      "notionGenre": "Action / Thriller",
+      "type": "movie",
+      "displayTitle": "Fast X"
+    },
+    {
+      "rawTitle": "MIDNIGHT",
+      "notionGenre": "Action / Thriller",
+      "type": "movie",
+      "displayTitle": "Midnight"
+    },
+    {
+      "rawTitle": "REMEMBER",
+      "notionGenre": "Action / Thriller",
+      "type": "movie",
+      "displayTitle": "Remember"
+    },
+    {
+      "rawTitle": "JUMPER",
+      "notionGenre": "Action / Thriller",
+      "type": "movie",
+      "displayTitle": "Jumper"
+    },
+    {
+      "rawTitle": "UPGRADE",
+      "notionGenre": "Action / Thriller",
+      "type": "movie",
+      "displayTitle": "Upgrade"
+    },
+    {
+      "rawTitle": "CATCH ME IF YOU CAN",
+      "notionGenre": "Action / Thriller",
+      "type": "movie",
+      "displayTitle": "Catch Me If You Can"
+    },
+    {
+      "rawTitle": "ARMY OF THIEVES",
+      "notionGenre": "Action / Thriller",
+      "type": "movie",
+      "displayTitle": "Army of Thieves"
+    },
+    {
+      "rawTitle": "MENCURI RADEN SALEH",
+      "notionGenre": "Action / Thriller",
+      "type": "movie",
+      "displayTitle": "Mencuri Raden Saleh"
+    },
+    {
+      "rawTitle": "BADLAND HUNTERS",
+      "notionGenre": "Action / Thriller",
+      "type": "movie",
+      "displayTitle": "Badland Hunters"
+    },
+    {
+      "rawTitle": "LIFT",
+      "notionGenre": "Action / Thriller",
+      "type": "movie",
+      "displayTitle": "Lift"
+    },
+    {
+      "rawTitle": "THE OUTLAWS",
+      "notionGenre": "Action / Thriller",
+      "type": "movie",
+      "displayTitle": "The Outlaws"
+    },
+    {
+      "rawTitle": "CONCRETE UTOPIA",
+      "notionGenre": "Action / Thriller",
+      "type": "movie",
+      "displayTitle": "Concrete Utopia"
+    },
+    {
+      "rawTitle": "NOBODY",
+      "notionGenre": "Action / Thriller",
+      "type": "movie",
+      "displayTitle": "Nobody"
+    },
+    {
+      "rawTitle": "THE ROUNDUP: PUNISHMENT",
+      "notionGenre": "Action / Thriller",
+      "type": "movie",
+      "displayTitle": "The Roundup: Punishment"
+    },
+    {
+      "rawTitle": "FOLLOWING",
+      "notionGenre": "Action / Thriller",
+      "type": "movie",
+      "displayTitle": "Following"
+    },
+    {
+      "rawTitle": "PROJECT SILENCE",
+      "notionGenre": "Action / Thriller",
+      "type": "movie",
+      "displayTitle": "Project Silence"
+    },
+    {
+      "rawTitle": "EXTREME JOB",
+      "notionGenre": "Action / Thriller",
+      "type": "movie",
+      "displayTitle": "Extreme Job"
+    },
+    {
+      "rawTitle": "THE SHADOW STRAYS",
+      "notionGenre": "Action / Thriller",
+      "type": "movie",
+      "displayTitle": "The Shadow Strays"
+    },
+    {
+      "rawTitle": "COLD EYES",
+      "notionGenre": "Action / Thriller",
+      "type": "movie",
+      "displayTitle": "Cold Eyes"
+    },
+    {
+      "rawTitle": "PENGEPUNGAN DI BUKIT DURI",
+      "notionGenre": "Action / Thriller",
+      "type": "movie",
+      "displayTitle": "Pengepungan Di Bukit Duri"
+    },
+    {
+      "rawTitle": "DEMON CITY",
+      "notionGenre": "Action / Thriller",
+      "type": "movie",
+      "displayTitle": "Demon City"
+    },
+    {
+      "rawTitle": "FABRICATED CITY",
+      "notionGenre": "Action / Thriller",
+      "type": "movie",
+      "displayTitle": "Fabricated City"
+    },
+    {
+      "rawTitle": "THE SHADOW’S EDGE",
+      "notionGenre": "Action / Thriller",
+      "type": "movie",
+      "displayTitle": "The Shadow’s Edge"
+    },
+    {
+      "rawTitle": "RE:BORN",
+      "notionGenre": "Action / Thriller",
+      "type": "movie",
+      "displayTitle": "Re:Born"
+    },
+    {
+      "rawTitle": "TIMUR",
+      "notionGenre": "Action / Thriller",
+      "type": "movie",
+      "displayTitle": "Timur"
+    },
+    {
+      "rawTitle": "GHOST IN THE CELL",
+      "notionGenre": "Action / Thriller",
+      "type": "movie",
+      "displayTitle": "Ghost in the Cell"
+    },
+    {
+      "rawTitle": "APEX",
+      "notionGenre": "Action / Thriller",
+      "type": "movie",
+      "displayTitle": "Apex"
+    },
+    {
+      "rawTitle": "THE RED LINE",
+      "notionGenre": "Action / Thriller",
+      "type": "movie",
+      "displayTitle": "The Red Line"
+    },
+    {
+      "rawTitle": "UANG PANAI’",
+      "notionGenre": "Comedy",
+      "type": "movie",
+      "displayTitle": "Uang Panai’"
+    },
+    {
+      "rawTitle": "FREE GUY",
+      "notionGenre": "Comedy",
+      "type": "movie",
+      "displayTitle": "Free Guy"
+    },
+    {
+      "rawTitle": "THE DICTATOR",
+      "notionGenre": "Comedy",
+      "type": "movie",
+      "displayTitle": "The Dictator"
+    },
+    {
+      "rawTitle": "SEOUL VIBE",
+      "notionGenre": "Comedy",
+      "type": "movie",
+      "displayTitle": "Seoul Vibe"
+    },
+    {
+      "rawTitle": "THE BIG FOUR",
+      "notionGenre": "Comedy",
+      "type": "movie",
+      "displayTitle": "The Big Four"
+    },
+    {
+      "rawTitle": "THE MURDERER",
+      "notionGenre": "Comedy",
+      "type": "movie",
+      "displayTitle": "The Murderer"
+    },
+    {
+      "rawTitle": "ALKHALLAT+",
+      "notionGenre": "Comedy",
+      "type": "movie",
+      "displayTitle": "Alkhallat+"
+    },
+    {
+      "rawTitle": "SI JUKI THE MOVIE: HARTA PULAU MONYET",
+      "notionGenre": "Comedy",
+      "type": "movie",
+      "displayTitle": "Si Juki the Movie: Harta Pulau Monyet"
+    },
+    {
+      "rawTitle": "KELUAR MAIN 1994",
+      "notionGenre": "Comedy",
+      "type": "movie",
+      "displayTitle": "Keluar Main 1994"
+    },
+    {
+      "rawTitle": "UANG PANAI’ 2",
+      "notionGenre": "Comedy",
+      "type": "movie",
+      "displayTitle": "Uang Panai’ 2"
+    },
+    {
+      "rawTitle": "GJLS : IBUKU IBU-IBU",
+      "notionGenre": "Comedy",
+      "type": "movie",
+      "displayTitle": "Gjls : Ibuku Ibu-Ibu"
+    },
+    {
+      "rawTitle": "THE MEDIUM",
+      "notionGenre": "Horror / Thriller",
+      "type": "movie",
+      "displayTitle": "The Medium"
+    },
+    {
+      "rawTitle": "KKN DI DESA PENARI",
+      "notionGenre": "Horror / Thriller",
+      "type": "movie",
+      "displayTitle": "Kkn Di Desa Penari"
+    },
+    {
+      "rawTitle": "MIDSOMMAR",
+      "notionGenre": "Horror / Thriller",
+      "type": "movie",
+      "displayTitle": "Midsommar"
+    },
+    {
+      "rawTitle": "FALL",
+      "notionGenre": "Horror / Thriller",
+      "type": "movie",
+      "displayTitle": "Fall"
+    },
+    {
+      "rawTitle": "THE MENU",
+      "notionGenre": "Horror / Thriller",
+      "type": "movie",
+      "displayTitle": "The Menu"
+    },
+    {
+      "rawTitle": "US",
+      "notionGenre": "Horror / Thriller",
+      "type": "movie",
+      "displayTitle": "Us"
+    },
+    {
+      "rawTitle": "THE RITUAL",
+      "notionGenre": "Horror / Thriller",
+      "type": "movie",
+      "displayTitle": "The Ritual"
+    },
+    {
+      "rawTitle": "THE INNOCENT",
+      "notionGenre": "Horror / Thriller",
+      "type": "movie",
+      "displayTitle": "The Innocent"
+    },
+    {
+      "rawTitle": "THE CALL",
+      "notionGenre": "Horror / Thriller",
+      "type": "movie",
+      "displayTitle": "The Call"
+    },
+    {
+      "rawTitle": "MARUI VIDEO",
+      "notionGenre": "Horror / Thriller",
+      "type": "movie",
+      "displayTitle": "Marui Video"
+    },
+    {
+      "rawTitle": "THE WAILING",
+      "notionGenre": "Horror / Thriller",
+      "type": "movie",
+      "displayTitle": "The Wailing"
+    },
+    {
+      "rawTitle": "EXHUMA",
+      "notionGenre": "Horror / Thriller",
+      "type": "movie",
+      "displayTitle": "Exhuma"
+    },
+    {
+      "rawTitle": "WHAT YOU WISH FOR",
+      "notionGenre": "Horror / Thriller",
+      "type": "movie",
+      "displayTitle": "What You Wish For"
+    },
+    {
+      "rawTitle": "QODRAT 2",
+      "notionGenre": "Horror / Thriller",
+      "type": "movie",
+      "displayTitle": "Qodrat 2"
+    },
+    {
+      "rawTitle": "INCANTATION",
+      "notionGenre": "Horror / Thriller",
+      "type": "movie",
+      "displayTitle": "Incantation"
+    },
+    {
+      "rawTitle": "HOLY NIGHT: DEMON HUNTERS",
+      "notionGenre": "Horror / Thriller",
+      "type": "movie",
+      "displayTitle": "Holy Night: Demon Hunters"
+    },
+    {
+      "rawTitle": "PAMALI : TUMBAL",
+      "notionGenre": "Horror / Thriller",
+      "type": "movie",
+      "displayTitle": "Pamali : Tumbal"
+    },
+    {
+      "rawTitle": "WEAPONS",
+      "notionGenre": "Horror / Thriller",
+      "type": "movie",
+      "displayTitle": "Weapons"
+    },
+    {
+      "rawTitle": "SPREE",
+      "notionGenre": "Horror / Thriller",
+      "type": "movie",
+      "displayTitle": "Spree"
+    },
+    {
+      "rawTitle": "2037",
+      "notionGenre": "Drama",
+      "type": "movie",
+      "displayTitle": "2037"
+    },
+    {
+      "rawTitle": "ONE WEEK FRIENDS",
+      "notionGenre": "Drama",
+      "type": "movie",
+      "displayTitle": "One Week Friends"
+    },
+    {
+      "rawTitle": "THE BLUE SKIES AT YOUR FEET",
+      "notionGenre": "Drama",
+      "type": "movie",
+      "displayTitle": "The Blue Skies at Your Feet"
+    },
+    {
+      "rawTitle": "THE LAST 10 YEARS",
+      "notionGenre": "Drama",
+      "type": "movie",
+      "displayTitle": "The Last 10 Years"
+    },
+    {
+      "rawTitle": "CODA",
+      "notionGenre": "Drama",
+      "type": "movie",
+      "displayTitle": "Coda"
+    },
+    {
+      "rawTitle": "A BEAUTIFUL MIND",
+      "notionGenre": "Drama",
+      "type": "movie",
+      "displayTitle": "A Beautiful Mind"
+    },
+    {
+      "rawTitle": "MAN IN LOVE",
+      "notionGenre": "Drama",
+      "type": "movie",
+      "displayTitle": "Man in Love"
+    },
+    {
+      "rawTitle": "THE LOST LOTTERIES",
+      "notionGenre": "Drama",
+      "type": "movie",
+      "displayTitle": "The Lost Lotteries"
+    },
+    {
+      "rawTitle": "PERFECT STRANGER",
+      "notionGenre": "Drama",
+      "type": "movie",
+      "displayTitle": "Perfect Stranger"
+    },
+    {
+      "rawTitle": "NOT FRIENDS",
+      "notionGenre": "Drama",
+      "type": "movie",
+      "displayTitle": "Not Friends"
+    },
+    {
+      "rawTitle": "THE SOCIAL NETWORK",
+      "notionGenre": "Drama",
+      "type": "movie",
+      "displayTitle": "The Social Network"
+    },
+    {
+      "rawTitle": "THE IMITATION GAME",
+      "notionGenre": "Drama",
+      "type": "movie",
+      "displayTitle": "The Imitation Game"
+    },
+    {
+      "rawTitle": "DRAWING CLOSER",
+      "notionGenre": "Drama",
+      "type": "movie",
+      "displayTitle": "Drawing Closer"
+    },
+    {
+      "rawTitle": "\"LOVE ME",
+      "notionGenre": "LOVE ME NOT\",Drama",
+      "type": "movie",
+      "displayTitle": "\"love Me"
+    },
+    {
+      "rawTitle": "YOU ARE THE APPLE OF MY EYE",
+      "notionGenre": "Drama",
+      "type": "movie",
+      "displayTitle": "You Are the Apple of My Eye"
+    },
+    {
+      "rawTitle": "500 DAYS OF SUMMER",
+      "notionGenre": "Drama",
+      "type": "movie",
+      "displayTitle": "500 Days of Summer"
+    },
+    {
+      "rawTitle": "KAKA BOSS",
+      "notionGenre": "Drama",
+      "type": "movie",
+      "displayTitle": "Kaka Boss"
+    },
+    {
+      "rawTitle": "EVEN IF THIS LOVE DISAPPEARS FROM THE WORLD",
+      "notionGenre": "Drama",
+      "type": "movie",
+      "displayTitle": "Even If This Love Disappears from the World"
+    },
+    {
+      "rawTitle": "YOUR EYES TELL",
+      "notionGenre": "Drama",
+      "type": "movie",
+      "displayTitle": "Your Eyes Tell"
+    },
+    {
+      "rawTitle": "18x2 BEYOND YOUTHFUL DAYS",
+      "notionGenre": "Drama",
+      "type": "movie",
+      "displayTitle": "18x2 Beyond Youthful Days"
+    },
+    {
+      "rawTitle": "FORGET ME NOT",
+      "notionGenre": "Drama",
+      "type": "movie",
+      "displayTitle": "Forget Me Not"
+    },
+    {
+      "rawTitle": "OMG! OH MY GIRL",
+      "notionGenre": "Drama",
+      "type": "movie",
+      "displayTitle": "Omg! Oh My Girl"
+    },
+    {
+      "rawTitle": "BETTER DAYS",
+      "notionGenre": "Drama",
+      "type": "movie",
+      "displayTitle": "Better Days"
+    },
+    {
+      "rawTitle": "20TH CENTURY GIRL",
+      "notionGenre": "Drama",
+      "type": "movie",
+      "displayTitle": "20th Century Girl"
+    },
+    {
+      "rawTitle": "MONSTER",
+      "notionGenre": "Drama",
+      "type": "movie",
+      "displayTitle": "Monster"
+    },
+    {
+      "rawTitle": "366 DAYS",
+      "notionGenre": "Drama",
+      "type": "movie",
+      "displayTitle": "366 Days"
+    },
+    {
+      "rawTitle": "TOMORROW I WILL DATE WITH YESTERDAY’S YOU",
+      "notionGenre": "Drama",
+      "type": "movie",
+      "displayTitle": "Tomorrow I Will Date with Yesterday’s You"
+    },
+    {
+      "rawTitle": "LOVE LETTER",
+      "notionGenre": "Drama",
+      "type": "movie",
+      "displayTitle": "Love Letter"
+    },
+    {
+      "rawTitle": "DEAD POETS SOCIETY",
+      "notionGenre": "Drama",
+      "type": "movie",
+      "displayTitle": "Dead Poets Society"
+    },
+    {
+      "rawTitle": "TUNGGU AKU SUKSES NANTI",
+      "notionGenre": "Drama",
+      "type": "movie",
+      "displayTitle": "Tunggu Aku Sukses Nanti"
+    },
+    {
+      "rawTitle": "TINGGAL MENINGGAL",
+      "notionGenre": "Drama",
+      "type": "movie",
+      "displayTitle": "Tinggal Meninggal"
+    },
+    {
+      "rawTitle": "INTERSTELLAR",
+      "notionGenre": "Sci‑Fi",
+      "type": "movie",
+      "displayTitle": "Interstellar"
+    },
+    {
+      "rawTitle": "UANG PASSOLO",
+      "notionGenre": "Drama",
+      "type": "movie",
+      "displayTitle": "Uang Passolo"
+    },
+    {
+      "rawTitle": "PARADISE",
+      "notionGenre": "Sci‑Fi",
+      "type": "movie",
+      "displayTitle": "Paradise"
+    },
+    {
+      "rawTitle": "TENET",
+      "notionGenre": "Sci‑Fi",
+      "type": "movie",
+      "displayTitle": "Tenet"
+    },
+    {
+      "rawTitle": "THE MOON",
+      "notionGenre": "Sci‑Fi",
+      "type": "movie",
+      "displayTitle": "The Moon"
+    },
+    {
+      "rawTitle": "TOMORROWLAND",
+      "notionGenre": "Sci‑Fi",
+      "type": "movie",
+      "displayTitle": "Tomorrowland"
+    },
+    {
+      "rawTitle": "THE BUTTERFLY EFFECT",
+      "notionGenre": "Sci‑Fi",
+      "type": "movie",
+      "displayTitle": "The Butterfly Effect"
+    },
+    {
+      "rawTitle": "LOOPER",
+      "notionGenre": "Sci‑Fi",
+      "type": "movie",
+      "displayTitle": "Looper"
+    },
+    {
+      "rawTitle": "DONNIE DARKO",
+      "notionGenre": "Sci‑Fi",
+      "type": "movie",
+      "displayTitle": "Donnie Darko"
+    },
+    {
+      "rawTitle": "HYPNOTIC",
+      "notionGenre": "Sci‑Fi",
+      "type": "movie",
+      "displayTitle": "Hypnotic"
+    },
+    {
+      "rawTitle": "INCEPTION",
+      "notionGenre": "Sci‑Fi",
+      "type": "movie",
+      "displayTitle": "Inception"
+    },
+    {
+      "rawTitle": "SOURCE CODE",
+      "notionGenre": "Sci‑Fi",
+      "type": "movie",
+      "displayTitle": "Source Code"
+    },
+    {
+      "rawTitle": "MICKEY 17",
+      "notionGenre": "Sci‑Fi",
+      "type": "movie",
+      "displayTitle": "Mickey 17"
+    },
+    {
+      "rawTitle": "ARRIVAL",
+      "notionGenre": "Sci‑Fi",
+      "type": "movie",
+      "displayTitle": "Arrival"
+    },
+    {
+      "rawTitle": "TIMECRIMES",
+      "notionGenre": "Sci‑Fi",
+      "type": "movie",
+      "displayTitle": "Timecrimes"
+    },
+    {
+      "rawTitle": "THE GREAT FLOOD",
+      "notionGenre": "Sci‑Fi",
+      "type": "movie",
+      "displayTitle": "The Great Flood"
+    },
+    {
+      "rawTitle": "TIME TRAP",
+      "notionGenre": "Sci‑Fi",
+      "type": "movie",
+      "displayTitle": "Time Trap"
+    },
+    {
+      "rawTitle": "COHERENCE",
+      "notionGenre": "Mystery / Thriller",
+      "type": "movie",
+      "displayTitle": "Coherence"
+    },
+    {
+      "rawTitle": "EXIT 8",
+      "notionGenre": "Mystery / Thriller",
+      "type": "movie",
+      "displayTitle": "Exit 8"
+    },
+    {
+      "rawTitle": "THE FURIOUS",
+      "notionGenre": "Action / Thriller",
+      "type": "movie",
+      "displayTitle": "The Furious"
+    },
+    {
+      "rawTitle": "",
+      "notionGenre": "Mystery / Thriller",
+      "type": "movie",
+      "displayTitle": ""
+    },
+    {
+      "rawTitle": "THE LAST HOUSE",
+      "notionGenre": "Sci‑Fi",
+      "type": "movie",
+      "displayTitle": "The Last House"
+    },
+    {
+      "rawTitle": "DARK S1 - S3 ⭐",
+      "notionGenre": "Mystery / Thriller",
+      "type": "tv",
+      "displayTitle": "Dark S1 - S3 ⭐"
+    },
+    {
+      "rawTitle": "BEHIND HER EYES S1",
+      "notionGenre": "Mystery / Thriller",
+      "type": "tv",
+      "displayTitle": "Behind Her Eyes S1"
+    },
+    {
+      "rawTitle": "ALICE IN BORDERLAND S1 - S3",
+      "notionGenre": "Mystery / Thriller",
+      "type": "tv",
+      "displayTitle": "Alice in Borderland S1 - S3"
+    },
+    {
+      "rawTitle": "MONSTROUS S1",
+      "notionGenre": "Mystery / Thriller",
+      "type": "tv",
+      "displayTitle": "Monstrous S1"
+    },
+    {
+      "rawTitle": "FROM S1 - S3",
+      "notionGenre": "Mystery / Thriller",
+      "type": "tv",
+      "displayTitle": "From S1 - S3"
+    },
+    {
+      "rawTitle": "INVISIBLE CITY S1",
+      "notionGenre": "Mystery / Thriller",
+      "type": "tv",
+      "displayTitle": "Invisible City S1"
+    },
+    {
+      "rawTitle": "MIDNIGHT MASS S1",
+      "notionGenre": "Mystery / Thriller",
+      "type": "tv",
+      "displayTitle": "Midnight Mass S1"
+    },
+    {
+      "rawTitle": "BIG MOUSE S1",
+      "notionGenre": "Mystery / Thriller",
+      "type": "tv",
+      "displayTitle": "Big Mouse S1"
+    },
+    {
+      "rawTitle": "1899 S1",
+      "notionGenre": "Mystery / Thriller",
+      "type": "tv",
+      "displayTitle": "1899 S1"
+    },
+    {
+      "rawTitle": "GIRL FROM NOWHERE S1 - S2",
+      "notionGenre": "Mystery / Thriller",
+      "type": "tv",
+      "displayTitle": "Girl from Nowhere S1 - S2"
+    },
+    {
+      "rawTitle": "WEDNESDAY S1",
+      "notionGenre": "Mystery / Thriller",
+      "type": "tv",
+      "displayTitle": "Wednesday S1"
+    },
+    {
+      "rawTitle": "CLASS OF LIES S1",
+      "notionGenre": "Mystery / Thriller",
+      "type": "tv",
+      "displayTitle": "Class of Lies S1"
+    },
+    {
+      "rawTitle": "365 : REPEAT THE YEAR S1",
+      "notionGenre": "Mystery / Thriller",
+      "type": "tv",
+      "displayTitle": "365 : Repeat the Year S1"
+    },
+    {
+      "rawTitle": "NIGHT HAS COME S1",
+      "notionGenre": "Mystery / Thriller",
+      "type": "tv",
+      "displayTitle": "Night Has Come S1"
+    },
+    {
+      "rawTitle": "TELL ME WHAT YOU SAW S1",
+      "notionGenre": "Mystery / Thriller",
+      "type": "tv",
+      "displayTitle": "Tell Me What You Saw S1"
+    },
+    {
+      "rawTitle": "PARALLELS S1",
+      "notionGenre": "Mystery / Thriller",
+      "type": "tv",
+      "displayTitle": "Parallels S1"
+    },
+    {
+      "rawTitle": "STRANGER THINGS S1 - S5",
+      "notionGenre": "Mystery / Thriller",
+      "type": "tv",
+      "displayTitle": "Stranger Things S1 - S5"
+    },
+    {
+      "rawTitle": "MARE OF EASTTOWN S1",
+      "notionGenre": "Mystery / Thriller",
+      "type": "tv",
+      "displayTitle": "Mare of Easttown S1"
+    },
+    {
+      "rawTitle": "TREASON S1",
+      "notionGenre": "Mystery / Thriller",
+      "type": "tv",
+      "displayTitle": "Treason S1"
+    },
+    {
+      "rawTitle": "BLIND S1",
+      "notionGenre": "Mystery / Thriller",
+      "type": "tv",
+      "displayTitle": "Blind S1"
+    },
+    {
+      "rawTitle": "REVENGE OF OTHERS S1",
+      "notionGenre": "Mystery / Thriller",
+      "type": "tv",
+      "displayTitle": "Revenge of Others S1"
+    },
+    {
+      "rawTitle": "BITCH X RICH S1 - S2",
+      "notionGenre": "Mystery / Thriller",
+      "type": "tv",
+      "displayTitle": "Bitch X Rich S1 - S2"
+    },
+    {
+      "rawTitle": "PYRAMID GAME S1",
+      "notionGenre": "Mystery / Thriller",
+      "type": "tv",
+      "displayTitle": "Pyramid Game S1"
+    },
+    {
+      "rawTitle": "3 BODY PROBLEM S1",
+      "notionGenre": "Mystery / Thriller",
+      "type": "tv",
+      "displayTitle": "3 Body Problem S1"
+    },
+    {
+      "rawTitle": "THE FROG S1",
+      "notionGenre": "Mystery / Thriller",
+      "type": "tv",
+      "displayTitle": "The Frog S1"
+    },
+    {
+      "rawTitle": "MASTER OF THE HOUSE S1",
+      "notionGenre": "Mystery / Thriller",
+      "type": "tv",
+      "displayTitle": "Master of the House S1"
+    },
+    {
+      "rawTitle": "LIGHT SHOP S1",
+      "notionGenre": "Mystery / Thriller",
+      "type": "tv",
+      "displayTitle": "Light Shop S1"
+    },
+    {
+      "rawTitle": "CROSS S1",
+      "notionGenre": "Mystery / Thriller",
+      "type": "tv",
+      "displayTitle": "Cross S1"
+    },
+    {
+      "rawTitle": "KARMA S1",
+      "notionGenre": "Mystery / Thriller",
+      "type": "tv",
+      "displayTitle": "Karma S1"
+    },
+    {
+      "rawTitle": "CONSTELLATION S1",
+      "notionGenre": "Mystery / Thriller",
+      "type": "tv",
+      "displayTitle": "Constellation S1"
+    },
+    {
+      "rawTitle": "DARK MATTER S1",
+      "notionGenre": "Mystery / Thriller",
+      "type": "tv",
+      "displayTitle": "Dark Matter S1"
+    },
+    {
+      "rawTitle": "THE PRICE OF CONFESSION S1",
+      "notionGenre": "Mystery / Thriller",
+      "type": "tv",
+      "displayTitle": "The Price of Confession S1"
+    },
+    {
+      "rawTitle": "BODIES S1",
+      "notionGenre": "Mystery / Thriller",
+      "type": "tv",
+      "displayTitle": "Bodies S1"
+    },
+    {
+      "rawTitle": "SEBASTIAN FITZEK’S THERAPY S1",
+      "notionGenre": "Mystery / Thriller",
+      "type": "tv",
+      "displayTitle": "Sebastian Fitzek’s Therapy S1"
+    },
+    {
+      "rawTitle": "THE GIFTED S1",
+      "notionGenre": "Mystery / Thriller",
+      "type": "tv",
+      "displayTitle": "The Gifted S1"
+    },
+    {
+      "rawTitle": "GIRL FROM NOWHERE : THE RESET S1",
+      "notionGenre": "Mystery / Thriller",
+      "type": "tv",
+      "displayTitle": "Girl from Nowhere : The Reset S1"
+    },
+    {
+      "rawTitle": "IF WISHES COULD KILL S1",
+      "notionGenre": "Mystery / Thriller",
+      "type": "tv",
+      "displayTitle": "If Wishes Could Kill S1"
+    },
+    {
+      "rawTitle": "MONEY HEIST S1 - S5",
+      "notionGenre": "Action / Thriller",
+      "type": "tv",
+      "displayTitle": "Money Heist S1 - S5"
+    },
+    {
+      "rawTitle": "MAJISUKA GAKUEN S1 - S5",
+      "notionGenre": "Action / Thriller",
+      "type": "tv",
+      "displayTitle": "Majisuka Gakuen S1 - S5"
+    },
+    {
+      "rawTitle": "LUPIN S1 - S3",
+      "notionGenre": "Action / Thriller",
+      "type": "tv",
+      "displayTitle": "Lupin S1 - S3"
+    },
+    {
+      "rawTitle": "SQUID GAME S1 - S3",
+      "notionGenre": "Action / Thriller",
+      "type": "tv",
+      "displayTitle": "Squid Game S1 - S3"
+    },
+    {
+      "rawTitle": "WEAK HERO S1",
+      "notionGenre": "Action / Thriller",
+      "type": "tv",
+      "displayTitle": "Weak Hero S1"
+    },
+    {
+      "rawTitle": "BERLIN S1",
+      "notionGenre": "Action / Thriller",
+      "type": "tv",
+      "displayTitle": "Berlin S1"
+    },
+    {
+      "rawTitle": "A SHOP FOR KILLERS S1",
+      "notionGenre": "Action / Thriller",
+      "type": "tv",
+      "displayTitle": "A Shop for Killers S1"
+    },
+    {
+      "rawTitle": "A KILLER PARADOX S1",
+      "notionGenre": "Action / Thriller",
+      "type": "tv",
+      "displayTitle": "A Killer Paradox S1"
+    },
+    {
+      "rawTitle": "HOUSE OF NINJAS S1",
+      "notionGenre": "Action / Thriller",
+      "type": "tv",
+      "displayTitle": "House of Ninjas S1"
+    },
+    {
+      "rawTitle": "THE KING OF PIGS S1",
+      "notionGenre": "Action / Thriller",
+      "type": "tv",
+      "displayTitle": "The King of Pigs S1"
+    },
+    {
+      "rawTitle": "THE PARASYTE : THE GREY S1",
+      "notionGenre": "Action / Thriller",
+      "type": "tv",
+      "displayTitle": "The Parasyte : The Grey S1"
+    },
+    {
+      "rawTitle": "SUPACELL S1",
+      "notionGenre": "Action / Thriller",
+      "type": "tv",
+      "displayTitle": "Supacell S1"
+    },
+    {
+      "rawTitle": "STUDY GROUP S1",
+      "notionGenre": "Action / Thriller",
+      "type": "tv",
+      "displayTitle": "Study Group S1"
+    },
+    {
+      "rawTitle": "FAMILY MATTERS S1",
+      "notionGenre": "Action / Thriller",
+      "type": "tv",
+      "displayTitle": "Family Matters S1"
+    },
+    {
+      "rawTitle": "LAST SAMURAI STANDING S1",
+      "notionGenre": "Action / Thriller",
+      "type": "tv",
+      "displayTitle": "Last Samurai Standing S1"
+    },
+    {
+      "rawTitle": "THE QUEEN'S GAMBIT S1",
+      "notionGenre": "Drama",
+      "type": "tv",
+      "displayTitle": "The Queen's Gambit S1"
+    },
+    {
+      "rawTitle": "MAN VS BEE S1",
+      "notionGenre": "Comedy",
+      "type": "tv",
+      "displayTitle": "Man Vs Bee S1"
+    },
+    {
+      "rawTitle": "THICCA S1",
+      "notionGenre": "Drama",
+      "type": "tv",
+      "displayTitle": "Thicca S1"
+    },
+    {
+      "rawTitle": "THE DAY OF THE JACKAL S1",
+      "notionGenre": "Action / Thriller",
+      "type": "tv",
+      "displayTitle": "The Day of the Jackal S1"
+    },
+    {
+      "rawTitle": "MR. ROBOT S1-S4",
+      "notionGenre": "Mystery / Thriller",
+      "type": "tv",
+      "displayTitle": "Mr. Robot S1-S4"
+    },
+    {
+      "rawTitle": "AGENT KIM S1",
+      "notionGenre": "Action / Thriller",
+      "type": "tv",
+      "displayTitle": "Agent Kim S1"
+    },
+    {
+      "rawTitle": "DETECTIVE CHINATOWN S1",
+      "notionGenre": "Mystery / Thriller",
+      "type": "tv",
+      "displayTitle": "Detective Chinatown S1"
+    }
+  ]
+}
