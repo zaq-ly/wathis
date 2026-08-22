@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getTMDBDetails } from '@/lib/tmdb';
 
+export const runtime = 'edge';
+
 export async function GET(request: NextRequest) {
   const searchParams = request.nextUrl.searchParams;
   const idStr = searchParams.get('id');
