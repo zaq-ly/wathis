@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import { WatchlistItem } from '@/types/watchlist';
 import { useWatchlist } from '@/context/WatchlistContext';
 import { getTMDBImageUrl } from '@/lib/utils';
-import { Trash2, Calendar, Sparkles, Clapperboard, ArrowLeftRight, RefreshCw } from 'lucide-react';
+import { Trash2, Calendar, Sparkles, Clapperboard, ArrowLeftRight } from 'lucide-react';
 import Image from 'next/image';
 import { EditMatchModal } from './EditMatchModal';
 
@@ -15,7 +15,7 @@ interface GridViewProps {
 
 export const GridView: React.FC<GridViewProps> = ({ items, onOpenSearch }) => {
   const [editingItem, setEditingItem] = useState<WatchlistItem | null>(null);
-  const { removeItem, syncCloudToSupabase, user } = useWatchlist();
+  const { removeItem } = useWatchlist();
 
   if (items.length === 0) {
     return (
@@ -28,7 +28,7 @@ export const GridView: React.FC<GridViewProps> = ({ items, onOpenSearch }) => {
             Catalogue is Empty
           </h3>
           <p className="text-[11px] text-zinc-600 leading-relaxed">
-            Your personal account watchlist is empty. Add titles manually or import the curated 240+ title archive.
+            Watchlist akun Anda masih kosong. Cari & tambahkan film/series lewat tombol di bawah atau gunakan fitur import.
           </p>
         </div>
         <div className="flex items-center justify-center space-x-2">
@@ -39,15 +39,6 @@ export const GridView: React.FC<GridViewProps> = ({ items, onOpenSearch }) => {
             <Sparkles className="w-3.5 h-3.5" />
             <span>Add Title</span>
           </button>
-          {user && (
-            <button
-              onClick={() => syncCloudToSupabase()}
-              className="inline-flex items-center space-x-2 text-xs font-mono-code bg-zinc-900 hover:bg-zinc-800 text-zinc-300 border border-white/[0.1] px-3.5 py-2 rounded transition-all"
-            >
-              <RefreshCw className="w-3.5 h-3.5" />
-              <span>Load Archive</span>
-            </button>
-          )}
         </div>
       </div>
     );

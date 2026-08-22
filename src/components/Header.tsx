@@ -3,7 +3,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useWatchlist } from '@/context/WatchlistContext';
 import { Search, Database, LogIn, LogOut, LayoutList, LayoutGrid, RefreshCw, MoreVertical, Film, Tv, Layers } from 'lucide-react';
-import { createClient } from '@/lib/supabase/client';
 
 interface HeaderProps {
   onOpenSearch: () => void;
@@ -28,16 +27,14 @@ export const Header: React.FC<HeaderProps> = ({
     selectedGenre,
     setSelectedGenre,
     genresList,
-    resetToNotionArchive,
+    signOut,
   } = useWatchlist();
-  const [isSynced, setIsSynced] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const mobileMenuRef = useRef<HTMLDivElement>(null);
-  const supabase = createClient();
 
   const handleSignOut = async () => {
-    await supabase.auth.signOut();
     setIsMobileMenuOpen(false);
+    await signOut();
   };
 
   // Close mobile menu on outside click
@@ -53,9 +50,10 @@ export const Header: React.FC<HeaderProps> = ({
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [isMobileMenuOpen]);
 
-  const filmCount = items.filter((i) => i.media_type === 'movie').length;
-  const seriesCount = items.filter((i) => i.media_type === 'tv').length;
+  // Counts
   const totalCount = items.length;
+  const filmCount = items.filter((i) => i.media_type === 'movie').length;
+  const tvCount = items.filter((i) => i.media_type === 'tv').length;
 
   return (
     <header className="sticky top-0 z-40 border-b border-white/[0.06] bg-[#050507]/95 backdrop-blur-xl transition-colors">
@@ -70,8 +68,13 @@ export const Header: React.FC<HeaderProps> = ({
                 setFilterType('all');
                 setSelectedGenre(null);
               }}
-              className="flex items-center font-mono-code font-bold text-base tracking-tight text-white select-none group"
+              className="flex items-center space-x-2.5 font-mono-code font-bold text-base tracking-tight text-white select-none group"
             >
+              <img
+                src="/logo_zoomed.jpg"
+                alt="wathis logo"
+                className="w-6 h-6 rounded-md object-cover scale-110 border border-white/10 group-hover:border-white/30 transition-all shadow-sm"
+              />
               <span className="text-white hover:text-zinc-300 transition-colors">
                 wathis<span className="text-zinc-500 group-hover:text-white transition-colors">.</span>
               </span>
@@ -112,7 +115,7 @@ export const Header: React.FC<HeaderProps> = ({
                 }`}
               >
                 <span>Series</span>
-                <span className="text-[10px] text-zinc-600 font-normal">({seriesCount})</span>
+                <span className="text-[10px] text-zinc-600 font-normal">({tvCount})</span>
                 {filterType === 'tv' && (
                   <span className="absolute bottom-0 left-0 right-0 h-[1.5px] bg-white rounded-full" />
                 )}
@@ -120,23 +123,23 @@ export const Header: React.FC<HeaderProps> = ({
             </nav>
           </div>
 
-          {/* Right Action Controls (Desktop + Mobile Responsive) */}
-          <div className="flex items-center space-x-2">
+          {/* Right Action Icons & Controls */}
+          <div className="flex items-center space-x-2 sm:space-x-3">
             {/* Search Trigger Button */}
             <button
               onClick={onOpenSearch}
-              className="flex items-center space-x-2 text-xs font-mono-code bg-white/[0.04] hover:bg-white/[0.08] text-zinc-300 hover:text-white px-2.5 py-1.5 rounded-md border border-white/[0.08] hover:border-white/[0.2] transition-all"
-              title="Search and Add (Shortcut: /)"
+              className="flex items-center space-x-2 bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.08] hover:border-white/[0.18] text-zinc-400 hover:text-zinc-200 px-2.5 sm:px-3 py-1.5 rounded-md text-xs font-mono-code transition-all"
+              title="Search and Add Movie/Series (Ctrl+K or /)"
             >
-              <Search className="w-3.5 h-3.5" />
-              <span className="hidden sm:inline text-[11px]">Search</span>
-              <kbd className="hidden md:inline text-[9px] bg-white/[0.06] px-1.5 py-0.5 rounded text-zinc-500 border border-white/[0.08]">
+              <Search className="w-3.5 h-3.5 text-zinc-400" />
+              <span className="hidden sm:inline text-[11px] text-zinc-400">Search TMDB...</span>
+              <kbd className="hidden sm:inline-block bg-white/[0.06] border border-white/[0.08] text-[9px] px-1.5 py-0.5 rounded text-zinc-500">
                 /
               </kbd>
             </button>
 
-            {/* View Mode Toggle Switch */}
-            <div className="flex items-center bg-white/[0.04] border border-white/[0.08] rounded-md p-0.5">
+            {/* View Mode Toggle Switch (Table vs Grid) */}
+            <div className="flex items-center bg-white/[0.03] border border-white/[0.06] p-0.5 rounded-md">
               <button
                 onClick={() => setViewMode('table')}
                 className={`p-1.5 rounded transition-colors ${
@@ -157,27 +160,14 @@ export const Header: React.FC<HeaderProps> = ({
               </button>
             </div>
 
-            {/* Desktop Only Tools: Sync, Migrate, Profile */}
+            {/* Desktop Only Tools: Migrate, Profile */}
             <div className="hidden md:flex items-center space-x-1.5 pl-1.5 border-l border-white/[0.06]">
-              <button
-                onClick={() => {
-                  resetToNotionArchive();
-                  setIsSynced(true);
-                  setTimeout(() => setIsSynced(false), 2000);
-                }}
-                className="p-1.5 text-zinc-400 hover:text-white rounded transition-colors"
-                title="Reload TMDB Archive"
-              >
-                <RefreshCw className={`w-3.5 h-3.5 ${isSynced ? 'animate-spin text-white' : ''}`} />
-              </button>
-
               <button
                 onClick={onOpenMigration}
                 className="flex items-center space-x-1.5 text-xs font-mono-code text-zinc-400 hover:text-white px-2 py-1.5 rounded transition-colors"
                 title="Data Import & Migration"
               >
                 <Database className="w-3.5 h-3.5" />
-                <span className="text-[11px]">Import</span>
               </button>
 
               {user ? (
@@ -189,7 +179,7 @@ export const Header: React.FC<HeaderProps> = ({
                       className="w-5 h-5 rounded-full border border-white/[0.2] object-cover"
                     />
                   ) : null}
-                  <span className="text-xs text-zinc-300 font-mono-code truncate max-w-[100px]">
+                  <span className="text-xs text-zinc-300 font-mono-code truncate max-w-[100px]" title={user.email || ''}>
                     {user.user_metadata?.full_name || user.email?.split('@')[0]}
                   </span>
                   <button
@@ -218,24 +208,11 @@ export const Header: React.FC<HeaderProps> = ({
                 className="p-1.5 text-zinc-400 hover:text-white rounded-md bg-white/[0.04] border border-white/[0.08]"
                 title="Menu"
               >
-                <MoreVertical className="w-4 h-4" />
+                <Layers className="w-4 h-4" />
               </button>
 
               {isMobileMenuOpen && (
                 <div className="absolute right-0 mt-2 w-48 bg-[#0e0f13] border border-white/[0.12] rounded-lg shadow-2xl p-1.5 space-y-1 font-mono-code text-xs z-50 animate-in fade-in zoom-in-95 duration-100">
-                  <button
-                    onClick={() => {
-                      resetToNotionArchive();
-                      setIsSynced(true);
-                      setTimeout(() => setIsSynced(false), 2000);
-                      setIsMobileMenuOpen(false);
-                    }}
-                    className="w-full flex items-center space-x-2 px-2.5 py-2 text-zinc-300 hover:text-white hover:bg-white/[0.06] rounded transition-colors text-left"
-                  >
-                    <RefreshCw className={`w-3.5 h-3.5 ${isSynced ? 'animate-spin' : ''}`} />
-                    <span>Sync Archive</span>
-                  </button>
-
                   <button
                     onClick={() => {
                       onOpenMigration();
@@ -316,7 +293,7 @@ export const Header: React.FC<HeaderProps> = ({
               }`}
             >
               <Tv className="w-3 h-3" />
-              <span>Series ({seriesCount})</span>
+              <span>Series ({tvCount})</span>
             </button>
           </div>
         </div>

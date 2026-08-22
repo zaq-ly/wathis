@@ -6,6 +6,16 @@ export const metadata: Metadata = {
   title: 'wathis — Completed Films & Series',
   description: 'Curated personal archive for finished films and series.',
   manifest: '/manifest.json',
+  icons: {
+    icon: [
+      { url: '/favicon.ico' },
+      { url: '/icon-192.png', sizes: '192x192', type: 'image/png' },
+      { url: '/icon.png', sizes: '512x512', type: 'image/png' },
+    ],
+    apple: [
+      { url: '/icon.png' },
+    ],
+  },
 };
 
 export default function RootLayout({

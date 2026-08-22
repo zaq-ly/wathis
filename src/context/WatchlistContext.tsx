@@ -4,7 +4,6 @@ import React, { createContext, useContext, useEffect, useState, useCallback } fr
 import { WatchlistItem, SearchResultItem } from '@/types/watchlist';
 import { createClient, isSupabaseConfigured } from '@/lib/supabase/client';
 import { User } from '@supabase/supabase-js';
-import seedWatchlist from '@/data/seed_watchlist.json';
 
 export type SortOption =
   | 'default'
@@ -25,8 +24,8 @@ interface WatchlistContextType {
   replaceItem: (target: WatchlistItem, replacement: SearchResultItem) => Promise<boolean>;
   isItemInWatchlist: (tmdb_id: number, media_type: 'movie' | 'tv') => boolean;
   refreshItems: () => Promise<void>;
-  resetToNotionArchive: () => void;
-  syncCloudToSupabase: () => Promise<{ success: boolean; count: number }>;
+  clearWatchlist: () => Promise<boolean>;
+  signOut: () => Promise<void>;
   filterType: 'all' | 'movie' | 'tv';
   setFilterType: (type: 'all' | 'movie' | 'tv') => void;
   selectedGenre: string | null;
@@ -58,60 +57,80 @@ export function WatchlistProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     let isMounted = true;
 
-    async function init() {
-      if (isConfigured) {
-        try {
-          const { data: { session } } = await supabase.auth.getSession();
-          if (isMounted) {
-            const initialUser = session?.user ?? null;
-            setUser(initialUser);
-            if (!initialUser) {
-              setItems([]);
-              setIsLoading(false);
-            }
-          }
-
-          const { data: authListener } = supabase.auth.onAuthStateChange((_event, session) => {
-            if (isMounted) {
-              const currentUser = session?.user ?? null;
-              setUser(currentUser);
-              // Clear items on logout or account switch
-              setItems([]);
-              if (!currentUser) {
-                setIsLoading(false);
-              }
-            }
-          });
-
-          return () => {
-            authListener.subscription.unsubscribe();
-          };
-        } catch (e) {
-          console.error('Supabase auth error:', e);
-          setIsLoading(false);
-        }
-      } else {
-        // Unconfigured fallback (offline standalone demo)
-        setItems(seedWatchlist as WatchlistItem[]);
-        setIsLoading(false);
-      }
-    }
-
-    init();
-    return () => {
-      isMounted = false;
-    };
-  }, [isConfigured, supabase]);
-
-  // 2. Fetch Watchlist Items strictly for the Authenticated User
-  const fetchItems = useCallback(async () => {
     if (!isConfigured) {
-      setItems(seedWatchlist as WatchlistItem[]);
+      setItems([]);
       setIsLoading(false);
       return;
     }
 
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (!isMounted) return;
+      const initialUser = session?.user ?? null;
+      setUser(initialUser);
+      if (!initialUser) {
+        setItems([]);
+        setIsLoading(false);
+      }
+    });
+
+    const { data: authListener } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (!isMounted) return;
+      const currentUser = session?.user ?? null;
+      setUser((prevUser) => {
+        if (prevUser?.id !== currentUser?.id) {
+          setItems([]); // Clean slate whenever account changes or logs out
+        }
+        return currentUser;
+      });
+      if (!currentUser) {
+        setItems([]);
+        setIsLoading(false);
+      }
+    });
+
+    return () => {
+      isMounted = false;
+      authListener.subscription.unsubscribe();
+    };
+  }, [isConfigured, supabase]);
+
+  const signOut = async () => {
+    setUser(null);
+    setItems([]);
+    if (isConfigured) {
+      try {
+        await supabase.auth.signOut();
+      } catch (e) {
+        console.error('SignOut error:', e);
+      }
+    }
+    if (typeof window !== 'undefined') {
+      window.location.href = '/';
+    }
+  };
+
+  const clearWatchlist = async (): Promise<boolean> => {
     if (!user) {
+      setItems([]);
+      return true;
+    }
+    try {
+      setIsLoading(true);
+      const { error } = await supabase.from('watchlist_items').delete().eq('user_id', user.id);
+      if (error) throw error;
+      setItems([]);
+      return true;
+    } catch (err) {
+      console.error('Failed to clear watchlist:', err);
+      return false;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // 2. Fetch Watchlist Items strictly for the Authenticated User
+  const fetchItems = useCallback(async () => {
+    if (!isConfigured || !user) {
       setItems([]);
       setIsLoading(false);
       return;
@@ -127,23 +146,7 @@ export function WatchlistProvider({ children }: { children: React.ReactNode }) {
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-
-      if (data && data.length > 0) {
-        const seedMap = new Map((seedWatchlist as WatchlistItem[]).map((i) => [`${i.media_type}-${i.tmdb_id}`, i]));
-        const enriched = data.map((item) => {
-          const seed = seedMap.get(`${item.media_type}-${item.tmdb_id}`);
-          return {
-            ...item,
-            season_label: item.season_label ?? seed?.season_label ?? (item.media_type === 'tv' && item.season_count ? `S${item.season_count}` : null),
-            season_count: item.season_count ?? seed?.season_count ?? (item.media_type === 'tv' ? 1 : null),
-            vote_average: item.vote_average ?? seed?.vote_average ?? null,
-          };
-        });
-        setItems(enriched);
-      } else {
-        // New account has 0 items (clean slate)
-        setItems([]);
-      }
+      setItems(data || []);
     } catch (err: unknown) {
       const errorMessage = err instanceof Error ? err.message : String(err);
       console.warn('Supabase fetch notice:', errorMessage);
@@ -156,64 +159,6 @@ export function WatchlistProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     fetchItems();
   }, [fetchItems]);
-
-  const syncCloudToSupabase = async (): Promise<{ success: boolean; count: number }> => {
-    if (!isConfigured || !user) {
-      setItems(seedWatchlist as WatchlistItem[]);
-      return { success: true, count: seedWatchlist.length };
-    }
-    try {
-      setIsLoading(true);
-      const seen = new Set<string>();
-      const itemsToInsert = (seedWatchlist as WatchlistItem[])
-        .filter((item) => {
-          const key = `${item.media_type}-${item.tmdb_id}`;
-          if (seen.has(key)) return false;
-          seen.add(key);
-          return true;
-        })
-        .map((item) => ({
-          user_id: user.id,
-          tmdb_id: item.tmdb_id,
-          title: item.title,
-          original_title: item.original_title || item.title,
-          media_type: item.media_type,
-          release_year: item.release_year,
-          poster_path: item.poster_path,
-          backdrop_path: item.backdrop_path,
-          genres: item.genres || [],
-          season_count: item.season_count,
-          overview: item.overview,
-        }));
-
-      // Delete existing rows for this user to ensure 100% clean sync with new fixed files
-      await supabase.from('watchlist_items').delete().eq('user_id', user.id);
-
-      const { data, error } = await supabase
-        .from('watchlist_items')
-        .insert(itemsToInsert)
-        .select();
-
-      if (error) throw error;
-      if (data) setItems(data);
-      return { success: true, count: data?.length || 0 };
-    } catch (err: unknown) {
-      const errorMessage = err instanceof Error ? err.message : String(err);
-      console.warn('Sync to Supabase notice:', errorMessage);
-      setItems(seedWatchlist as WatchlistItem[]);
-      return { success: false, count: 0 };
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const resetToNotionArchive = () => {
-    if (user && isConfigured) {
-      syncCloudToSupabase();
-    } else {
-      setItems(seedWatchlist as WatchlistItem[]);
-    }
-  };
 
   // 3. Add Item to Watchlist
   const addItem = async (item: SearchResultItem): Promise<boolean> => {
@@ -395,8 +340,8 @@ export function WatchlistProvider({ children }: { children: React.ReactNode }) {
         replaceItem,
         isItemInWatchlist,
         refreshItems: fetchItems,
-        resetToNotionArchive,
-        syncCloudToSupabase,
+        clearWatchlist,
+        signOut,
         filterType,
         setFilterType,
         selectedGenre,
