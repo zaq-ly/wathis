@@ -4,9 +4,10 @@ import React, { useState } from 'react';
 import { WatchlistItem } from '@/types/watchlist';
 import { useWatchlist } from '@/context/WatchlistContext';
 import { getTMDBImageUrl } from '@/lib/utils';
-import { Trash2, Calendar, Sparkles, Clapperboard, ArrowLeftRight } from 'lucide-react';
+import { Trash2, Calendar, Sparkles, Clapperboard, ArrowLeftRight, Film, Tv } from 'lucide-react';
 import Image from 'next/image';
 import { EditMatchModal } from './EditMatchModal';
+import { ItemDetailModal } from './ItemDetailModal';
 
 interface GridViewProps {
   items: WatchlistItem[];
@@ -14,27 +15,28 @@ interface GridViewProps {
 }
 
 export const GridView: React.FC<GridViewProps> = ({ items, onOpenSearch }) => {
-  const [editingItem, setEditingItem] = useState<WatchlistItem | null>(null);
   const { removeItem } = useWatchlist();
+  const [editingItem, setEditingItem] = useState<WatchlistItem | null>(null);
+  const [selectedDetailItem, setSelectedDetailItem] = useState<WatchlistItem | null>(null);
 
   if (items.length === 0) {
     return (
-      <div className="py-32 text-center space-y-4 max-w-sm mx-auto">
-        <div className="w-12 h-12 rounded-full bg-white/[0.03] border border-white/[0.06] flex items-center justify-center mx-auto text-zinc-600">
-          <Clapperboard className="w-5 h-5" />
+      <div className="py-24 sm:py-32 flex flex-col items-center justify-center text-center space-y-5 my-6">
+        <div className="w-16 h-16 rounded-3xl bg-black/[0.04] dark:bg-white/[0.08] border border-black/[0.04] dark:border-white/[0.06] flex items-center justify-center text-muted-foreground shadow-sm">
+          <Clapperboard className="w-7 h-7" />
         </div>
-        <div className="space-y-1">
-          <h3 className="text-xs font-mono-code uppercase font-semibold text-zinc-300 tracking-wider">
-            Catalogue is Empty
+        <div className="space-y-1.5 max-w-md px-4">
+          <h3 className="text-lg font-semibold text-foreground tracking-tight">
+            Your Cinema Archive is Empty
           </h3>
-          <p className="text-[11px] text-zinc-600 leading-relaxed">
-            Watchlist akun Anda masih kosong. Cari & tambahkan film/series lewat tombol di bawah atau gunakan fitur import.
+          <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">
+            Search and curate films and series you have watched. Powered by TMDB metadata.
           </p>
         </div>
-        <div className="flex items-center justify-center space-x-2">
+        <div className="pt-2">
           <button
             onClick={onOpenSearch}
-            className="inline-flex items-center space-x-2 text-xs font-mono-code bg-white hover:bg-zinc-200 text-zinc-950 font-bold px-3.5 py-2 rounded transition-all shadow-sm"
+            className="flex items-center space-x-2 px-5 py-2.5 rounded-full bg-foreground text-background text-xs font-semibold hover:opacity-90 transition-all shadow-md active:scale-95 cursor-pointer apple-btn-active"
           >
             <Sparkles className="w-3.5 h-3.5" />
             <span>Add Title</span>
@@ -46,90 +48,101 @@ export const GridView: React.FC<GridViewProps> = ({ items, onOpenSearch }) => {
 
   return (
     <>
-      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-2.5 sm:gap-4 pt-2 sm:pt-3">
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 sm:gap-5 pt-2 sm:pt-4">
         {items.map((item, index) => {
           const posterUrl = getTMDBImageUrl(item.poster_path, 'w500');
 
           return (
             <div
               key={item.id || `${item.media_type}-${item.tmdb_id}-${index}`}
-              className="group relative flex flex-col bg-[#0c0d10] border border-white/[0.06] hover:border-white/[0.2] rounded-lg overflow-hidden transition-all duration-300"
+              onClick={() => setSelectedDetailItem(item)}
+              className="group relative flex flex-col bg-card border border-black/[0.06] dark:border-white/[0.08] hover:border-black/[0.15] dark:hover:border-white/[0.2] rounded-2xl overflow-hidden transition-all duration-300 cursor-pointer shadow-sm hover:shadow-xl hover:-translate-y-1 active:scale-[0.98]"
             >
-              {/* Poster Thumbnail */}
-              <div className="relative aspect-[2/3] bg-[#08080a] overflow-hidden">
+              {/* Poster Artwork with Apple 2/3 Aspect */}
+              <div className="relative aspect-[2/3] bg-muted overflow-hidden">
                 {posterUrl ? (
                   <Image
                     src={posterUrl}
                     alt={item.title}
                     fill
                     sizes="(max-width: 640px) 50vw, (max-width: 1024px) 25vw, 16vw"
-                    className="object-cover group-hover:scale-105 transition-transform duration-500 filter brightness-95"
+                    className="object-cover group-hover:scale-105 transition-transform duration-500"
                   />
                 ) : (
-                  <div className="w-full h-full flex flex-col items-center justify-center p-3 text-center bg-[#09090b] text-zinc-600">
-                    <span className="text-[10px] font-mono-code uppercase">No Poster</span>
+                  <div className="w-full h-full flex flex-col items-center justify-center p-3 text-center bg-muted text-muted-foreground">
+                    <span className="text-xs font-medium">No Poster</span>
                   </div>
                 )}
 
-                {/* Type & Season Badge */}
-                <div className="absolute top-2 left-2 px-1.5 py-0.5 rounded bg-black/75 backdrop-blur-sm text-[9px] font-mono-code uppercase text-zinc-200 border border-white/[0.1] font-medium">
-                  {item.media_type === 'movie'
-                    ? item.season_label || 'Film'
-                    : item.season_label || (item.season_count ? `${item.season_count}S` : 'Series')}
+                {/* Apple Gradient Vignette */}
+                <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-black/30 opacity-60 group-hover:opacity-90 transition-opacity duration-300" />
+
+                {/* Top Badge: Type & Season */}
+                <div className="absolute top-2.5 left-2.5 px-2.5 py-0.5 rounded-full bg-black/60 backdrop-blur-xl text-[10px] text-white font-medium border border-white/10 flex items-center space-x-1 shadow-sm">
+                  {item.media_type === 'movie' ? (
+                    <Film className="w-2.5 h-2.5 text-zinc-300" />
+                  ) : (
+                    <Tv className="w-2.5 h-2.5 text-blue-300" />
+                  )}
+                  <span>
+                    {item.media_type === 'movie' ? 'Film' : 'Series'}
+                    {item.season_count ? ` • ${item.season_count > 1 ? `S1-S${item.season_count}` : 'S1'}` : ''}
+                  </span>
                 </div>
 
-                {/* Rating Badge */}
+                {/* Bottom Badge: Rating */}
                 {item.vote_average ? (
-                  <div className="absolute bottom-2 left-2 px-1.5 py-0.5 rounded bg-black/75 backdrop-blur-sm text-[9px] font-mono-code text-amber-400 border border-amber-400/20 font-medium">
-                    ★ {item.vote_average}
+                  <div className="absolute bottom-2.5 left-2.5 px-2 py-0.5 rounded-full bg-black/60 backdrop-blur-xl text-[10px] text-white border border-white/10 font-semibold shadow-sm flex items-center space-x-0.5">
+                    <span className="text-amber-400">★</span>
+                    <span>{item.vote_average}</span>
                   </div>
                 ) : null}
 
-                {/* Action Buttons on Hover / Touch */}
-                <div className="absolute top-2 right-2 flex items-center space-x-1">
+                {/* Quick Action Floating Pills */}
+                <div className="absolute top-2.5 right-2.5 flex items-center space-x-1">
                   <button
                     onClick={(e) => {
                       e.stopPropagation();
                       setEditingItem(item);
                     }}
-                    className="p-1.5 rounded bg-black/80 hover:bg-white hover:text-zinc-950 text-zinc-300 backdrop-blur-sm opacity-70 sm:opacity-0 sm:group-hover:opacity-100 transition-all border border-white/[0.1]"
+                    className="p-1.5 rounded-full bg-black/60 hover:bg-white text-white hover:text-black backdrop-blur-xl opacity-0 group-hover:opacity-100 transition-all duration-200 border border-white/10 shadow-sm cursor-pointer"
                     title="Change / Re-match"
                   >
-                    <ArrowLeftRight className="w-3.5 h-3.5" />
+                    <ArrowLeftRight className="w-3 h-3" />
                   </button>
                   <button
                     onClick={(e) => {
                       e.stopPropagation();
                       removeItem(item.tmdb_id, item.media_type);
                     }}
-                    className="p-1.5 rounded bg-black/80 hover:bg-red-500 text-zinc-400 hover:text-white backdrop-blur-sm opacity-70 sm:opacity-0 sm:group-hover:opacity-100 transition-all border border-white/[0.1]"
-                    title="Remove from wathis"
+                    className="p-1.5 rounded-full bg-black/60 hover:bg-red-500 text-white backdrop-blur-xl opacity-0 group-hover:opacity-100 transition-all duration-200 border border-white/10 shadow-sm cursor-pointer"
+                    title="Remove"
                   >
-                    <Trash2 className="w-3.5 h-3.5" />
+                    <Trash2 className="w-3 h-3" />
                   </button>
                 </div>
               </div>
 
-              {/* Info Section */}
-              <div className="p-2 sm:p-2.5 flex-1 flex flex-col justify-between space-y-1 bg-[#0c0d10]">
+              {/* Title & Metadata Details */}
+              <div className="p-3 flex-1 flex flex-col justify-between space-y-1.5 bg-card">
                 <div>
-                  <h4 className="text-xs font-medium text-zinc-200 group-hover:text-white truncate">
+                  <h4 className="text-xs sm:text-sm font-semibold text-foreground group-hover:text-blue-600 dark:group-hover:text-blue-400 truncate transition-colors">
                     {item.title}
                   </h4>
                   {item.genres && item.genres.length > 0 && (
-                    <p className="text-[10px] text-zinc-600 truncate font-mono-code">
+                    <p className="text-[11px] text-muted-foreground truncate mt-0.5">
                       {item.genres.slice(0, 2).join(', ')}
                     </p>
                   )}
                 </div>
 
-                <div className="pt-1.5 flex items-center justify-between text-[10px] font-mono-code text-zinc-400 border-t border-white/[0.04]">
-                  <span className="flex items-center space-x-1">
-                    <Calendar className="w-2.5 h-2.5 text-zinc-500" />
+                <div className="pt-2 flex items-center justify-between text-xs text-muted-foreground border-t border-black/[0.04] dark:border-white/[0.06]">
+                  <span className="flex items-center space-x-1 font-medium">
+                    <Calendar className="w-3 h-3 text-muted-foreground" />
                     <span>{item.release_year || '—'}</span>
                   </span>
-                  <span className="text-zinc-300 font-medium">
-                    {item.season_label || (item.media_type === 'tv' && item.season_count ? `${item.season_count}S` : '')}
+                  <span className="font-semibold text-foreground/80 text-[11px]">
+                    {item.season_count ? (item.season_count > 1 ? `${item.season_count}S` : '1S') : ''}
                   </span>
                 </div>
               </div>
@@ -137,6 +150,14 @@ export const GridView: React.FC<GridViewProps> = ({ items, onOpenSearch }) => {
           );
         })}
       </div>
+
+      {/* Item Detail Modal */}
+      <ItemDetailModal
+        item={selectedDetailItem ? (items.find((i) => i.tmdb_id === selectedDetailItem.tmdb_id && i.media_type === selectedDetailItem.media_type) || selectedDetailItem) : null}
+        isOpen={Boolean(selectedDetailItem)}
+        onClose={() => setSelectedDetailItem(null)}
+        onOpenEditMatch={(item) => setEditingItem(item)}
+      />
 
       {/* Re-match Edit Modal */}
       <EditMatchModal
@@ -147,3 +168,5 @@ export const GridView: React.FC<GridViewProps> = ({ items, onOpenSearch }) => {
     </>
   );
 };
+
+

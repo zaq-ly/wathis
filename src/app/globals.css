@@ -4,16 +4,29 @@
 
 @layer base {
   :root {
-    --background: #050507;
-    --foreground: #ededef;
-    --card: #0c0d10;
-    --card-foreground: #ededef;
-    --border: rgba(255, 255, 255, 0.06);
-    --border-hover: rgba(255, 255, 255, 0.16);
-    --accent: #ffffff;
-    --accent-foreground: #050507;
-    --muted: #131418;
-    --muted-foreground: #6b6c75;
+    --background: 245 245 247; /* Apple off-white / canvas */
+    --foreground: 29 29 31;    /* Apple deep charcoal */
+    --card: 255 255 255;
+    --card-foreground: 29 29 31;
+    --border: 0 0 0 / 0.08;
+    --accent: 0 113 227;       /* Apple Signature Blue */
+    --accent-foreground: 255 255 255;
+    --muted: 232 232 237;
+    --muted-foreground: 134 134 139; /* Apple secondary gray */
+    --apple-pill: 238 238 242;
+  }
+
+  .dark {
+    --background: 0 0 0;       /* Apple True Deep Black */
+    --foreground: 245 245 247;
+    --card: 18 18 20;          /* Apple Dark Card */
+    --card-foreground: 245 245 247;
+    --border: 255 255 255 / 0.09;
+    --accent: 41 151 255;      /* Apple Dark Blue */
+    --accent-foreground: 255 255 255;
+    --muted: 28 28 32;
+    --muted-foreground: 152 152 157;
+    --apple-pill: 28 28 32;
   }
 }
 
@@ -23,34 +36,47 @@
   padding: 0;
 }
 
+html {
+  min-height: 100%;
+  scrollbar-gutter: stable;
+  scrollbar-width: thin;
+}
+
 body {
-  background-color: var(--background);
-  color: var(--foreground);
-  font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', Roboto, sans-serif;
+  min-height: 100%;
+  background-color: rgb(var(--background));
+  color: rgb(var(--foreground));
+  font-family: var(--font-plus-jakarta), "Plus Jakarta Sans", -apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  overflow-x: hidden;
-  letter-spacing: -0.01em;
+  overflow-x: clip;
+  letter-spacing: -0.015em;
+}
+
+input, select, textarea {
+  color: inherit;
+  background-color: transparent;
 }
 
 .font-mono-code {
-  font-family: 'SF Mono', 'Roboto Mono', 'Space Mono', Menlo, monospace;
+  font-family: "SF Mono", "Menlo", "Courier New", monospace;
+  font-feature-settings: 'tnum' on, 'lnum' on;
 }
 
-/* Minimalist Scrollbar */
+/* Apple Minimalist Scrollbar */
 ::-webkit-scrollbar {
-  width: 4px;
-  height: 4px;
+  width: 5px;
+  height: 5px;
 }
 ::-webkit-scrollbar-track {
-  background: #050507;
+  background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: #1e1f24;
-  border-radius: 2px;
+  background: rgba(var(--muted-foreground) / 0.25);
+  border-radius: 9999px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #32343c;
+  background: rgba(var(--muted-foreground) / 0.45);
 }
 
 /* Hide scrollbar utility */
@@ -62,32 +88,36 @@ body {
   scrollbar-width: none;
 }
 
-/* Smooth Editorial Table Row Animation */
-.editorial-row {
-  position: relative;
-  transition: background-color 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+/* Apple Frosted Glass Utilities */
+.apple-glass {
+  background-color: rgb(var(--card));
+  border: 1px solid rgb(var(--border));
+  box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.3), 0 0 0 1px rgb(var(--border));
 }
 
-.editorial-row::before {
-  content: '';
-  position: absolute;
-  left: 0;
-  top: 0;
-  bottom: 0;
-  width: 2px;
-  background: transparent;
-  transition: background-color 0.2s ease;
+.apple-glass-nav {
+  background-color: rgba(var(--background) / 0.92);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
 }
 
-.editorial-row:hover::before,
-.editorial-row.is-active::before {
-  background: #ffffff;
+.apple-card-hover {
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.25s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.25s ease;
 }
 
-.editorial-row:hover {
-  background-color: rgba(255, 255, 255, 0.025);
+.apple-card-hover:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 14px 30px -10px rgba(0, 0, 0, 0.15), 0 0 0 1px rgba(var(--foreground) / 0.12);
 }
 
-.editorial-row.is-active {
-  background-color: rgba(255, 255, 255, 0.04);
+.dark .apple-card-hover:hover {
+  box-shadow: 0 18px 36px -12px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(255, 255, 255, 0.15);
 }
+
+/* Apple Spring Scale Active Effect */
+.apple-btn-active:active {
+  transform: scale(0.96);
+  transition: transform 0.1s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+

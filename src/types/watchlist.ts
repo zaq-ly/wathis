@@ -53,6 +53,7 @@ export interface TMDBRawDetail {
   backdrop_path?: string | null;
   genres?: TMDBRawGenre[];
   number_of_seasons?: number;
+  belongs_to_collection?: { id: number; name: string } | null;
   overview?: string;
   vote_average?: number;
 }

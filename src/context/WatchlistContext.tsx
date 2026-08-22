@@ -19,9 +19,10 @@ interface WatchlistContextType {
   isLoading: boolean;
   user: User | null;
   isConfigured: boolean;
-  addItem: (item: SearchResultItem) => Promise<boolean>;
+  addItem: (item: SearchResultItem, customSeasonCount?: number | null, customSeasonLabel?: string | null) => Promise<boolean>;
   removeItem: (tmdb_id: number, media_type: 'movie' | 'tv') => Promise<boolean>;
   replaceItem: (target: WatchlistItem, replacement: SearchResultItem) => Promise<boolean>;
+  updateSeason: (tmdb_id: number, media_type: 'movie' | 'tv', season_count: number | null, season_label: string | null) => Promise<boolean>;
   isItemInWatchlist: (tmdb_id: number, media_type: 'movie' | 'tv') => boolean;
   refreshItems: () => Promise<void>;
   clearWatchlist: () => Promise<boolean>;
@@ -36,6 +37,9 @@ interface WatchlistContextType {
   setSearchQuery: (query: string) => void;
   filteredItems: WatchlistItem[];
   genresList: string[];
+  syncAllTitlesWithTMDB: () => Promise<{ updated: number; total: number }>;
+  isSyncing: boolean;
+  syncProgress: { current: number; total: number } | null;
 }
 
 const WatchlistContext = createContext<WatchlistContextType | undefined>(undefined);
@@ -48,8 +52,10 @@ export function WatchlistProvider({ children }: { children: React.ReactNode }) {
 
   const [filterType, setFilterType] = useState<'all' | 'movie' | 'tv'>('all');
   const [selectedGenre, setSelectedGenre] = useState<string | null>(null);
-  const [sortBy, setSortBy] = useState<SortOption>('default');
+  const [sortBy, setSortBy] = useState<SortOption>('year-desc');
   const [searchQuery, setSearchQuery] = useState('');
+  const [isSyncing, setIsSyncing] = useState(false);
+  const [syncProgress, setSyncProgress] = useState<{ current: number; total: number } | null>(null);
 
   const supabase = createClient();
 
@@ -146,7 +152,33 @@ export function WatchlistProvider({ children }: { children: React.ReactNode }) {
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      setItems(data || []);
+      const loadedItems: WatchlistItem[] = data || [];
+      setItems(loadedItems);
+
+      // Background auto-enrichment for items missing vote_average
+      const missingRating = loadedItems.filter((i) => (i.vote_average === null || i.vote_average === undefined) && i.tmdb_id);
+      if (missingRating.length > 0) {
+        Promise.all(
+          missingRating.slice(0, 15).map(async (it) => {
+            try {
+              const res = await fetch(`/api/tmdb/detail?id=${it.tmdb_id}&type=${it.media_type}`);
+              if (res.ok) {
+                const resData = await res.json();
+                const vote = resData?.item?.vote_average;
+                if (vote) {
+                  setItems((prev) =>
+                    prev.map((p) =>
+                      p.tmdb_id === it.tmdb_id && p.media_type === it.media_type
+                        ? { ...p, vote_average: vote }
+                        : p
+                    )
+                  );
+                }
+              }
+            } catch {}
+          })
+        );
+      }
     } catch (err: unknown) {
       const errorMessage = err instanceof Error ? err.message : String(err);
       console.warn('Supabase fetch notice:', errorMessage);
@@ -161,60 +193,157 @@ export function WatchlistProvider({ children }: { children: React.ReactNode }) {
   }, [fetchItems]);
 
   // 3. Add Item to Watchlist
-  const addItem = async (item: SearchResultItem): Promise<boolean> => {
-    if (!user) return false;
-
+  const addItem = async (
+    item: SearchResultItem,
+    customSeasonCount?: number | null,
+    customSeasonLabel?: string | null
+  ): Promise<boolean> => {
     // Check if already in list
     if (items.some((i) => i.tmdb_id === item.tmdb_id && i.media_type === item.media_type)) {
       return false;
     }
 
+    const sCount = customSeasonCount !== undefined ? customSeasonCount : item.season_count;
+    const sLabel = customSeasonLabel !== undefined ? customSeasonLabel : (item.media_type === 'tv' && sCount ? `S${sCount}` : null);
+
     const newItem: WatchlistItem = {
       tmdb_id: item.tmdb_id,
       title: item.title,
+      original_title: item.original_title,
       media_type: item.media_type,
       release_year: item.release_year,
       poster_path: item.poster_path,
       backdrop_path: item.backdrop_path,
       genres: item.genres || [],
-      season_count: item.season_count,
+      season_count: sCount || null,
+      season_label: sLabel || null,
       overview: item.overview,
+      vote_average: item.vote_average,
       created_at: new Date().toISOString(),
     };
 
+    // If not logged in, add to local state
+    if (!user || !isConfigured) {
+      setItems((prev) => [newItem, ...prev]);
+      return true;
+    }
+
     try {
-      const { data, error } = await supabase
+      // 1. Try full insert payload
+      let insertPayload: Record<string, any> = {
+        user_id: user.id,
+        tmdb_id: item.tmdb_id,
+        title: item.title,
+        original_title: item.original_title || null,
+        media_type: item.media_type,
+        release_year: item.release_year || null,
+        poster_path: item.poster_path || null,
+        backdrop_path: item.backdrop_path || null,
+        genres: item.genres || [],
+        season_count: sCount || null,
+        season_label: sLabel || null,
+        overview: item.overview || null,
+        vote_average: item.vote_average || null,
+      };
+
+      let { data, error } = await supabase
         .from('watchlist_items')
-        .insert([{ ...newItem, user_id: user.id }])
+        .insert([insertPayload])
         .select()
         .single();
 
-      if (error) throw error;
-      setItems((prev) => [data, ...prev]);
+      // If column does not exist in user's Supabase table schema, strip optional columns and retry
+      if (error && (error.code === '42703' || error.message?.toLowerCase().includes('column') || error.message?.includes('does not exist'))) {
+        delete insertPayload.season_label;
+        delete insertPayload.vote_average;
+        const retry = await supabase
+          .from('watchlist_items')
+          .insert([insertPayload])
+          .select()
+          .single();
+        data = retry.data;
+        error = retry.error;
+      }
+
+      if (error) {
+        console.warn('Supabase insert notice (using local state):', error.message || error);
+        setItems((prev) => [newItem, ...prev.filter(i => !(i.tmdb_id === newItem.tmdb_id && i.media_type === newItem.media_type))]);
+        return true;
+      }
+
+      setItems((prev) => [
+        { ...newItem, id: data?.id || newItem.id },
+        ...prev.filter((i) => !(i.tmdb_id === newItem.tmdb_id && i.media_type === newItem.media_type)),
+      ]);
       return true;
     } catch (err) {
-      console.error('Failed to add item to Supabase:', err);
-      return false;
+      console.warn('Adding item locally due to network/auth fallback:', err);
+      setItems((prev) => [newItem, ...prev]);
+      return true;
     }
   };
 
-  // 4. Remove Item
-  const removeItem = async (tmdb_id: number, media_type: 'movie' | 'tv'): Promise<boolean> => {
-    if (!user) return false;
+  // 4. Update Season Count & Label
+  const updateSeason = async (
+    tmdb_id: number,
+    media_type: 'movie' | 'tv',
+    season_count: number | null,
+    season_label: string | null
+  ): Promise<boolean> => {
+    setItems((prev) =>
+      prev.map((item) => {
+        if (item.tmdb_id === tmdb_id && item.media_type === media_type) {
+          return {
+            ...item,
+            season_count,
+            season_label,
+          };
+        }
+        return item;
+      })
+    );
 
-    try {
-      const { error } = await supabase
-        .from('watchlist_items')
-        .delete()
-        .match({ tmdb_id, media_type, user_id: user.id });
+    if (user && isConfigured) {
+      try {
+        let updatePayload: Record<string, any> = { season_count, season_label };
+        let { error } = await supabase
+          .from('watchlist_items')
+          .update(updatePayload)
+          .match({ tmdb_id, media_type, user_id: user.id });
 
-      if (error) throw error;
-      setItems((prev) => prev.filter((i) => !(i.tmdb_id === tmdb_id && i.media_type === media_type)));
-      return true;
-    } catch (err) {
-      console.error('Failed to remove item from Supabase:', err);
-      return false;
+        if (error) {
+          console.warn('updateSeason error:', error.code, error.message);
+          if (error.code === '42703' || error.message?.toLowerCase().includes('column') || error.message?.includes('does not exist')) {
+            console.warn('⚠️ Kolom "season_label" tidak ada di tabel Supabase. Season label tidak akan tersimpan permanen. Tambahkan kolom "season_label" (type: text, nullable) ke tabel watchlist_items di Supabase Dashboard.');
+            delete updatePayload.season_label;
+            await supabase
+              .from('watchlist_items')
+              .update(updatePayload)
+              .match({ tmdb_id, media_type, user_id: user.id });
+          }
+        }
+      } catch (err) {
+        console.warn('Supabase update notice:', err);
+      }
     }
+    return true;
+  };
+
+  // 5. Remove Item
+  const removeItem = async (tmdb_id: number, media_type: 'movie' | 'tv'): Promise<boolean> => {
+    setItems((prev) => prev.filter((i) => !(i.tmdb_id === tmdb_id && i.media_type === media_type)));
+
+    if (user && isConfigured) {
+      try {
+        await supabase
+          .from('watchlist_items')
+          .delete()
+          .match({ tmdb_id, media_type, user_id: user.id });
+      } catch (err) {
+        console.warn('Supabase remove notice:', err);
+      }
+    }
+    return true;
   };
 
   // 5. Replace / Re-match Item
@@ -273,6 +402,81 @@ export function WatchlistProvider({ children }: { children: React.ReactNode }) {
     );
 
     return true;
+  };
+
+  const syncAllTitlesWithTMDB = async (): Promise<{ updated: number; total: number }> => {
+    if (items.length === 0 || isSyncing) return { updated: 0, total: items.length };
+
+    setIsSyncing(true);
+    setSyncProgress({ current: 0, total: items.length });
+
+    let updatedCount = 0;
+    const updatedItems = [...items];
+
+    // Process in batches of 4 concurrent requests
+    const batchSize = 4;
+    for (let i = 0; i < items.length; i += batchSize) {
+      const batch = items.slice(i, i + batchSize);
+      await Promise.all(
+        batch.map(async (item) => {
+          try {
+            const res = await fetch(`/api/tmdb/detail?id=${item.tmdb_id}&type=${item.media_type}`);
+            if (!res.ok) return;
+            const data = await res.json();
+            const fresh: SearchResultItem | undefined = data.item;
+            if (!fresh || !fresh.title) return;
+            const titleChanged = fresh.title !== item.title || fresh.original_title !== item.original_title;
+            if (titleChanged || !item.backdrop_path || !item.overview || fresh.season_count !== item.season_count) {
+              const dbPayload = {
+                title: fresh.title,
+                original_title: fresh.original_title || null,
+                backdrop_path: fresh.backdrop_path || item.backdrop_path,
+                poster_path: fresh.poster_path || item.poster_path,
+                overview: item.overview || fresh.overview || null,
+                vote_average: fresh.vote_average || item.vote_average,
+                season_count: fresh.season_count ?? item.season_count ?? null,
+              };
+
+              if (user && isConfigured) {
+                let q = supabase.from('watchlist_items').update(dbPayload);
+                if (item.id) {
+                  q = q.eq('id', item.id);
+                } else {
+                  q = q.eq('user_id', user.id).eq('tmdb_id', item.tmdb_id).eq('media_type', item.media_type);
+                }
+                await q;
+              }
+
+              const idx = updatedItems.findIndex(
+                (x) => (item.id ? x.id === item.id : x.tmdb_id === item.tmdb_id && x.media_type === item.media_type)
+              );
+              if (idx !== -1) {
+                updatedItems[idx] = {
+                  ...updatedItems[idx],
+                  title: fresh.title,
+                  original_title: fresh.original_title || undefined,
+                  backdrop_path: fresh.backdrop_path || item.backdrop_path,
+                  poster_path: fresh.poster_path || item.poster_path,
+                  overview: item.overview || fresh.overview,
+                  vote_average: fresh.vote_average || item.vote_average,
+                  season_count: fresh.season_count ?? item.season_count,
+                };
+              }
+              updatedCount++;
+            }
+          } catch (e) {
+            console.warn('Sync item failed:', item.title, e);
+          }
+        })
+      );
+
+      setSyncProgress({ current: Math.min(i + batchSize, items.length), total: items.length });
+    }
+
+    setItems(updatedItems);
+    setIsSyncing(false);
+    setSyncProgress(null);
+    return { updated: updatedCount, total: items.length };
   };
 
   const isItemInWatchlist = (tmdb_id: number, media_type: 'movie' | 'tv') => {
@@ -338,6 +542,7 @@ export function WatchlistProvider({ children }: { children: React.ReactNode }) {
         addItem,
         removeItem,
         replaceItem,
+        updateSeason,
         isItemInWatchlist,
         refreshItems: fetchItems,
         clearWatchlist,
@@ -352,6 +557,9 @@ export function WatchlistProvider({ children }: { children: React.ReactNode }) {
         setSearchQuery,
         filteredItems,
         genresList,
+        syncAllTitlesWithTMDB,
+        isSyncing,
+        syncProgress,
       }}
     >
       {children}

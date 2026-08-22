@@ -25,7 +25,7 @@ export async function fetchTMDBSearch(query: string): Promise<SearchResultItem[]
   try {
     const directUrl = `${TMDB_BASE_URL}/search/multi?query=${encodeURIComponent(
       query.trim()
-    )}&api_key=${CLIENT_TMDB_KEY}&include_adult=false&language=en-US&page=1`;
+    )}&api_key=${CLIENT_TMDB_KEY}&include_adult=false&language=id-ID&page=1`;
 
     const res = await fetch(directUrl);
     if (!res.ok) return [];

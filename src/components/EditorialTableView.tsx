@@ -4,38 +4,44 @@ import React, { useState } from 'react';
 import { WatchlistItem } from '@/types/watchlist';
 import { useWatchlist } from '@/context/WatchlistContext';
 import { getTMDBImageUrl } from '@/lib/utils';
-import { Trash2, Calendar, Sparkles, ExternalLink, Clapperboard, Film, Tv, ArrowLeftRight } from 'lucide-react';
+import { Trash2, Calendar, Sparkles, ExternalLink, Clapperboard, Film, Tv, ArrowLeftRight, Play } from 'lucide-react';
 import Image from 'next/image';
 import { EditMatchModal } from './EditMatchModal';
+import { ItemDetailModal } from './ItemDetailModal';
 
 interface EditorialTableViewProps {
   items: WatchlistItem[];
   onOpenSearch: () => void;
 }
 
-export const EditorialTableView: React.FC<EditorialTableViewProps> = ({ items, onOpenSearch }) => {
-  const [hoveredItem, setHoveredItem] = useState<WatchlistItem | null>(items[0] || null);
-  const [editingItem, setEditingItem] = useState<WatchlistItem | null>(null);
+export const EditorialTableView: React.FC<EditorialTableViewProps> = ({
+  items,
+  onOpenSearch,
+}) => {
   const { removeItem, setSelectedGenre } = useWatchlist();
+  const [hoveredItem, setHoveredItem] = useState<WatchlistItem | null>(null);
+  const [editingItem, setEditingItem] = useState<WatchlistItem | null>(null);
+  const [selectedDetailItem, setSelectedDetailItem] = useState<WatchlistItem | null>(null);
 
+  // Empty State (Apple Style)
   if (items.length === 0) {
     return (
-      <div className="py-32 text-center space-y-4 max-w-sm mx-auto">
-        <div className="w-12 h-12 rounded-full bg-white/[0.03] border border-white/[0.06] flex items-center justify-center mx-auto text-zinc-600">
-          <Clapperboard className="w-5 h-5" />
+      <div className="py-24 sm:py-32 flex flex-col items-center justify-center text-center space-y-5 my-6">
+        <div className="w-16 h-16 rounded-3xl bg-black/[0.04] dark:bg-white/[0.08] border border-black/[0.04] dark:border-white/[0.06] flex items-center justify-center text-muted-foreground shadow-sm">
+          <Clapperboard className="w-7 h-7" />
         </div>
-        <div className="space-y-1">
-          <h3 className="text-xs font-mono-code uppercase font-semibold text-zinc-300 tracking-wider">
-            Catalogue is Empty
+        <div className="space-y-1.5 max-w-md px-4">
+          <h3 className="text-lg font-semibold text-foreground tracking-tight">
+            Your Cinema Archive is Empty
           </h3>
-          <p className="text-[11px] text-zinc-600 leading-relaxed">
-            Watchlist akun Anda masih kosong. Cari & tambahkan film/series lewat tombol di bawah atau gunakan fitur import.
+          <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">
+            Search and curate films and series you have watched. Powered by TMDB metadata.
           </p>
         </div>
-        <div className="flex items-center justify-center space-x-2">
+        <div className="pt-2">
           <button
             onClick={onOpenSearch}
-            className="inline-flex items-center space-x-2 text-xs font-mono-code bg-white hover:bg-zinc-200 text-zinc-950 font-bold px-3.5 py-2 rounded transition-all shadow-sm"
+            className="flex items-center space-x-2 px-5 py-2.5 rounded-full bg-foreground text-background text-xs font-semibold hover:opacity-90 transition-all shadow-md active:scale-95 cursor-pointer apple-btn-active"
           >
             <Sparkles className="w-3.5 h-3.5" />
             <span>Add Title</span>
@@ -45,94 +51,95 @@ export const EditorialTableView: React.FC<EditorialTableViewProps> = ({ items, o
     );
   }
 
-  const activePreview = hoveredItem || items[0];
-  const activeBackdropUrl = getTMDBImageUrl(activePreview?.backdrop_path || activePreview?.poster_path, 'w1280');
+  // Active item for the left side sticky cinema canvas
+  const activePreview = hoveredItem || items[0] || null;
+  const activeBackdropUrl = getTMDBImageUrl(activePreview?.backdrop_path, 'w1280');
   const activePosterUrl = getTMDBImageUrl(activePreview?.poster_path, 'w500');
 
   return (
     <div>
-      {/* Mobile Rich List View (Clean Cinema Catalogue Cards) */}
-      <div className="block lg:hidden space-y-2">
+      {/* Mobile Apple Media Cards */}
+      <div className="block lg:hidden space-y-2.5">
         {items.map((item, index) => {
           const posterUrl = getTMDBImageUrl(item.poster_path, 'w300');
 
           return (
             <div
               key={item.id || `${item.media_type}-${item.tmdb_id}-${index}`}
-              className="p-2.5 bg-[#0c0d10] border border-white/[0.06] rounded-xl flex items-center justify-between gap-3 hover:border-white/[0.15] transition-all"
+              onClick={() => setSelectedDetailItem(item)}
+              className="p-3 bg-card border border-black/[0.06] dark:border-white/[0.08] rounded-2xl flex items-center justify-between gap-3 shadow-2xs hover:border-black/[0.12] dark:hover:border-white/[0.16] transition-all duration-200 cursor-pointer active:scale-[0.99]"
             >
               {/* Thumbnail + Info */}
-              <div className="flex items-center space-x-2.5 min-w-0 flex-1">
-                {/* Index */}
-                <span className="text-[10px] font-mono-code text-zinc-600 shrink-0 w-5">
-                  {String(index + 1).padStart(2, '0')}
-                </span>
-
-                {/* Mini Poster */}
-                <div className="relative w-11 h-16 bg-zinc-900 rounded-md overflow-hidden shrink-0 border border-white/[0.08] shadow-sm">
+              <div className="flex items-center space-x-3 min-w-0 flex-1">
+                {/* Poster Artwork with Apple shadow */}
+                <div className="relative w-12 h-16 bg-muted rounded-xl overflow-hidden shrink-0 shadow-sm border border-black/5 dark:border-white/10">
                   {posterUrl ? (
                     <Image
                       src={posterUrl}
                       alt={item.title}
                       fill
-                      sizes="44px"
-                      className="object-cover filter brightness-95"
+                      sizes="48px"
+                      className="object-cover"
                     />
                   ) : (
-                    <div className="w-full h-full flex items-center justify-center text-[8px] text-zinc-600 font-mono-code">
-                      NO IMG
+                    <div className="w-full h-full flex items-center justify-center text-[9px] text-muted-foreground">
+                      No Art
                     </div>
                   )}
                 </div>
 
                 {/* Details */}
-                <div className="min-w-0 flex-1 space-y-0.5">
-                  <div className="text-xs font-semibold text-white truncate tracking-tight">
+                <div className="min-w-0 flex-1 space-y-1">
+                  <div className="text-sm font-semibold text-foreground truncate">
                     {item.title}
                   </div>
 
-                  <div className="flex items-center space-x-1.5 text-[10px] font-mono-code text-zinc-400">
-                    <span className="px-1.5 py-0.5 rounded bg-white/[0.06] text-zinc-300 font-medium">
+                  <div className="flex items-center space-x-2 text-xs text-muted-foreground">
+                    <span className="font-medium text-foreground/90">
                       {item.release_year || '—'}
                     </span>
                     <span>•</span>
-                    <span className="text-zinc-300 font-medium">
-                      {item.media_type === 'movie'
-                        ? item.season_label ? `Film (${item.season_label})` : 'Film'
-                        : item.season_label || (item.season_count ? `${item.season_count}S` : 'Series')}
-                    </span>
+                    {item.media_type === 'movie' ? (
+                      <span className={`px-2 py-0.5 rounded-md text-[11px] font-medium ${
+                        item.season_count && item.season_count > 1
+                          ? 'bg-amber-500/10 text-amber-600 dark:text-amber-400 font-semibold'
+                          : 'bg-black/[0.04] dark:bg-white/[0.08] text-foreground/80'
+                      }`}>
+                        Film{item.season_count ? ` • ${item.season_count > 1 ? `S1-S${item.season_count}` : 'S1'}` : ''}
+                      </span>
+                    ) : (
+                      <span className="px-2 py-0.5 rounded-md bg-blue-500/10 text-blue-600 dark:text-blue-400 text-[11px] font-semibold">
+                        Series{item.season_count ? ` • ${item.season_count > 1 ? `S1-S${item.season_count}` : 'S1'}` : ''}
+                      </span>
+                    )}
+                    {item.vote_average ? (
+                      <>
+                        <span>•</span>
+                        <span className="text-amber-500 dark:text-amber-400 font-semibold text-xs flex items-center space-x-0.5">
+                          <span>★</span>
+                          <span>{item.vote_average}</span>
+                        </span>
+                      </>
+                    ) : null}
                   </div>
 
                   {item.genres && item.genres.length > 0 && (
-                    <div className="text-[10px] text-zinc-500 font-mono-code truncate">
-                      {item.genres.slice(0, 3).join(', ')}
+                    <div className="text-[11px] text-muted-foreground truncate">
+                      {item.genres.slice(0, 2).join(', ')}
                     </div>
                   )}
                 </div>
               </div>
 
               {/* Action Buttons */}
-              <div className="shrink-0 flex items-center space-x-1">
+              <div className="shrink-0 flex items-center">
                 <button
-                  onClick={() => setEditingItem(item)}
-                  className="p-1.5 rounded-md text-zinc-400 hover:text-white hover:bg-white/[0.08] transition-colors"
-                  title="Change / Re-match Film or Series"
-                >
-                  <ArrowLeftRight className="w-3.5 h-3.5" />
-                </button>
-                <a
-                  href={`https://www.themoviedb.org/${item.media_type}/${item.tmdb_id}`}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="p-1.5 rounded-md text-zinc-500 hover:text-white hover:bg-white/[0.06] transition-colors"
-                  title="View on TMDB"
-                >
-                  <ExternalLink className="w-3.5 h-3.5" />
-                </a>
-                <button
-                  onClick={() => removeItem(item.tmdb_id, item.media_type)}
-                  className="p-1.5 rounded-md text-zinc-500 hover:text-red-400 hover:bg-red-950/30 transition-colors"
-                  title="Remove from wathis"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    removeItem(item.tmdb_id, item.media_type);
+                  }}
+                  className="p-2 rounded-full text-muted-foreground hover:text-red-500 hover:bg-red-500/10 transition-colors cursor-pointer"
+                  title="Remove"
                 >
                   <Trash2 className="w-3.5 h-3.5" />
                 </button>
@@ -142,134 +149,114 @@ export const EditorialTableView: React.FC<EditorialTableViewProps> = ({ items, o
         })}
       </div>
 
-      {/* Desktop Editorial Canvas + Table (Hidden on Mobile) */}
-      <div className="hidden lg:grid lg:grid-cols-12 gap-8 items-start pt-3">
-        {/* Left Column: Sticky Editorial Preview Canvas (Satoshi Watanabe Inspired) */}
-        <div className="lg:col-span-5 sticky top-24 space-y-4">
-          {/* Canvas Card */}
-          <div className="relative aspect-[16/10] bg-[#0c0d10] rounded-lg overflow-hidden border border-white/[0.06] shadow-2xl transition-all duration-300 group">
+      {/* Desktop Apple TV+ Cinema Showcase + Media Table */}
+      <div className="hidden lg:grid lg:grid-cols-12 gap-8 items-start pt-2">
+        {/* Left Column: Minimalist Cinema Showcase Stage */}
+        <div className="lg:col-span-5 sticky top-20 self-start space-y-3 z-10">
+          {/* Cinema Stage Card with rounded-3xl */}
+          <div
+            onClick={() => activePreview && setSelectedDetailItem(activePreview)}
+            className="relative aspect-[16/10] bg-card rounded-3xl overflow-hidden border border-black/[0.06] dark:border-white/[0.1] shadow-xl hover:shadow-2xl transition-all duration-300 group cursor-pointer"
+          >
             {activeBackdropUrl ? (
               <Image
-                key={`${activePreview.media_type}-${activePreview.tmdb_id}`}
+                key={`backdrop-${activePreview.media_type}-${activePreview.tmdb_id}`}
                 src={activeBackdropUrl}
                 alt={activePreview.title}
                 fill
                 priority
-                sizes="(max-width: 1200px) 45vw, 520px"
-                className="object-cover transition-opacity duration-300 filter brightness-90 contrast-105"
+                sizes="(max-width: 1200px) 45vw, 560px"
+                className="object-cover transition-transform duration-500 group-hover:scale-105"
               />
             ) : activePosterUrl ? (
               <Image
-                key={`${activePreview.media_type}-${activePreview.tmdb_id}`}
+                key={`poster-${activePreview.media_type}-${activePreview.tmdb_id}`}
                 src={activePosterUrl}
                 alt={activePreview.title}
                 fill
                 priority
-                sizes="(max-width: 1200px) 45vw, 520px"
-                className="object-cover transition-opacity duration-300 filter brightness-90"
+                sizes="(max-width: 1200px) 45vw, 560px"
+                className="object-cover transition-transform duration-500 group-hover:scale-105"
               />
             ) : (
-              <div className="w-full h-full flex items-center justify-center bg-[#09090b] text-zinc-700 font-mono-code text-[11px] uppercase tracking-widest">
-                No Preview Image
+              <div className="w-full h-full flex items-center justify-center bg-muted text-muted-foreground text-xs font-medium">
+                No Preview Artwork
               </div>
             )}
 
-            {/* Minimal cinematic gradient overlay */}
-            <div className="absolute inset-0 bg-gradient-to-t from-[#050507] via-[#050507]/40 to-transparent" />
+            {/* Apple TV+ Gradient Masks */}
+            <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/35 to-transparent" />
 
-            {/* Bottom Info Overlay */}
-            <div className="absolute bottom-0 left-0 right-0 p-4 space-y-2">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-2 text-[10px] font-mono-code text-zinc-400">
-                  <span className="px-1.5 py-0.5 rounded bg-white/[0.1] text-zinc-200 uppercase font-medium">
-                    {activePreview.media_type === 'movie'
-                      ? activePreview.season_label ? `Film • ${activePreview.season_label}` : 'Film'
-                      : activePreview.season_label || (activePreview.season_count ? `${activePreview.season_count} Seasons` : 'Series')}
+            {/* Top Bar: TMDB Link (Left) & Rating/Year (Right) */}
+            <div className="absolute top-4 left-4 right-4 flex items-center justify-between z-10">
+              <a
+                href={`https://www.themoviedb.org/${activePreview.media_type}/${activePreview.tmdb_id}`}
+                target="_blank"
+                rel="noreferrer"
+                onClick={(e) => e.stopPropagation()}
+                className="px-3 py-1 rounded-full bg-black/60 hover:bg-white text-zinc-200 hover:text-black backdrop-blur-xl transition-all duration-200 text-xs font-medium border border-white/15 shadow-sm flex items-center space-x-1 cursor-pointer"
+                title="View on TMDB"
+              >
+                <span>TMDB Details</span>
+                <ExternalLink className="w-3 h-3" />
+              </a>
+
+              <div className="flex items-center space-x-1.5">
+                {activePreview.vote_average ? (
+                  <span className="px-2.5 py-1 rounded-full bg-black/60 backdrop-blur-xl text-amber-400 text-xs font-semibold border border-white/15 shadow-sm flex items-center space-x-1">
+                    <span>★</span>
+                    <span className="text-white">{Number(activePreview.vote_average).toFixed(1)}</span>
                   </span>
-                  {activePreview.release_year && (
-                    <span className="flex items-center space-x-1 text-zinc-400">
-                      <Calendar className="w-3 h-3" />
-                      <span>{activePreview.release_year}</span>
-                    </span>
-                  )}
-                  {activePreview.vote_average ? (
-                    <span className="text-amber-400 font-medium">
-                      ★ {activePreview.vote_average}
-                    </span>
-                  ) : null}
-                </div>
+                ) : null}
 
-                <div className="flex items-center space-x-1.5">
-                  <button
-                    onClick={() => setEditingItem(activePreview)}
-                    className="px-2 py-1 rounded bg-black/70 hover:bg-white hover:text-black text-zinc-300 transition-colors border border-white/[0.15] text-[10px] font-mono-code flex items-center space-x-1 shadow-sm"
-                    title="Change / Re-match Film or Series"
-                  >
-                    <ArrowLeftRight className="w-3 h-3" />
-                    <span>Re-match</span>
-                  </button>
+                {activePreview.release_year && (
+                  <span className="px-3 py-1 rounded-full bg-black/60 backdrop-blur-xl text-white text-xs font-medium border border-white/15 shadow-sm">
+                    {activePreview.release_year}
+                  </span>
+                )}
+              </div>
+            </div>
 
-                  <a
-                    href={`https://www.themoviedb.org/${activePreview.media_type}/${activePreview.tmdb_id}`}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="p-1 rounded bg-black/60 hover:bg-white hover:text-black text-zinc-400 transition-colors border border-white/[0.1]"
-                    title="View on TMDB"
-                  >
-                    <ExternalLink className="w-3 h-3" />
-                  </a>
-                </div>
+            {/* Bottom Info: Season, Title & Synopsis */}
+            <div className="absolute bottom-0 left-0 right-0 p-5 sm:p-6 space-y-1.5">
+              {/* Season / Format Badge */}
+              <div className="flex items-center space-x-2">
+                <span className="px-3 py-1 rounded-full bg-white/20 backdrop-blur-xl text-white font-semibold text-xs border border-white/15">
+                  {activePreview.media_type === 'movie' ? 'Film' : 'Series'}
+                  {activePreview.season_count ? ` • ${activePreview.season_count > 1 ? `S1-S${activePreview.season_count}` : 'S1'}` : ''}
+                </span>
               </div>
 
-              <h2 className="text-base font-semibold tracking-tight text-white line-clamp-1">
+              {/* Title */}
+              <h2 className="text-xl sm:text-2xl font-bold tracking-tight text-white line-clamp-1 drop-shadow-md">
                 {activePreview.title}
               </h2>
 
-              {activePreview.genres && activePreview.genres.length > 0 && (
-                <div className="flex flex-wrap gap-1">
-                  {activePreview.genres.map((g) => (
-                    <button
-                      key={g}
-                      type="button"
-                      onClick={() => setSelectedGenre(g)}
-                      className="text-[10px] font-mono-code px-1.5 py-0.5 rounded bg-white/[0.08] hover:bg-white hover:text-zinc-950 text-zinc-300 backdrop-blur-sm transition-colors cursor-pointer"
-                      title={`Filter by ${g}`}
-                    >
-                      {g}
-                    </button>
-                  ))}
-                </div>
+              {/* Synopsis directly on card */}
+              {activePreview.overview && (
+                <p className="text-xs text-zinc-300 leading-relaxed line-clamp-2 sm:line-clamp-3 pt-0.5 drop-shadow-sm">
+                  {activePreview.overview}
+                </p>
               )}
             </div>
           </div>
-
-          {/* Synopsis snippet */}
-          {activePreview.overview && (
-            <div className="p-3.5 rounded-lg bg-[#0c0d10] border border-white/[0.04] space-y-1.5">
-              <div className="text-[10px] font-mono-code uppercase text-zinc-600 tracking-wider">
-                Synopsis
-              </div>
-              <p className="text-xs text-zinc-400 leading-relaxed line-clamp-3">
-                {activePreview.overview}
-              </p>
-            </div>
-          )}
         </div>
 
-        {/* Right Column: Editorial Catalogue Table */}
+        {/* Right Column: Media Table with Fixed Viewport Height */}
         <div className="lg:col-span-7">
-          <div className="border border-white/[0.06] rounded-lg overflow-hidden bg-[#0c0d10]/40">
-            {/* Table Header */}
-            <div className="grid grid-cols-12 px-4 py-2.5 bg-white/[0.02] border-b border-white/[0.06] text-[10px] font-mono-code text-zinc-600 uppercase tracking-wider select-none">
-              <div className="col-span-1">No.</div>
-              <div className="col-span-6">Title</div>
-              <div className="col-span-2">Format / Season</div>
+          <div className="border border-black/[0.06] dark:border-white/[0.08] rounded-3xl overflow-hidden bg-card shadow-sm flex flex-col max-h-[calc(100vh-190px)] min-h-[480px]">
+            {/* Sticky Table Header */}
+            <div className="grid grid-cols-12 gap-x-2 items-center px-6 py-3.5 bg-black/[0.02] dark:bg-white/[0.03] border-b border-black/[0.04] dark:border-white/[0.06] text-xs font-semibold text-muted-foreground tracking-tight select-none shrink-0 z-10">
+              <div className="col-span-1">#</div>
+              <div className="col-span-3">Title</div>
+              <div className="col-span-2">Type</div>
+              <div className="col-span-2">Season</div>
               <div className="col-span-2">Year</div>
-              <div className="col-span-1 text-right">Action</div>
+              <div className="col-span-2 text-right pr-14">Rating</div>
             </div>
 
-            {/* Table Rows */}
-            <div className="divide-y divide-white/[0.03]">
+            {/* Smooth Scrollable Table Rows */}
+            <div className="divide-y divide-black/[0.04] dark:divide-white/[0.05] overflow-y-auto flex-1">
               {items.map((item, index) => {
                 const isCurrentHover =
                   hoveredItem?.tmdb_id === item.tmdb_id && hoveredItem?.media_type === item.media_type;
@@ -278,66 +265,83 @@ export const EditorialTableView: React.FC<EditorialTableViewProps> = ({ items, o
                   <div
                     key={item.id || `${item.media_type}-${item.tmdb_id}-${index}`}
                     onMouseEnter={() => setHoveredItem(item)}
-                    className={`grid grid-cols-12 items-center px-4 py-3 cursor-pointer transition-all editorial-row group ${
-                      isCurrentHover ? 'is-active' : ''
+                    onClick={() => setSelectedDetailItem(item)}
+                    className={`grid grid-cols-12 gap-x-2 items-center px-6 py-3.5 cursor-pointer transition-all duration-200 group ${
+                      isCurrentHover
+                        ? 'bg-blue-500/[0.08] dark:bg-blue-500/[0.12]'
+                        : 'hover:bg-black/[0.02] dark:hover:bg-white/[0.03]'
                     }`}
                   >
-                    {/* Formatted Number 000, 001, 002 */}
-                    <div className="col-span-1 text-xs font-mono-code text-zinc-600 group-hover:text-zinc-300">
-                      {String(index + 1).padStart(3, '0')}
+                    {/* Index */}
+                    <div className="col-span-1 text-xs text-muted-foreground font-medium group-hover:text-foreground">
+                      {index + 1}
                     </div>
 
-                    {/* Title & Genre */}
-                    <div className="col-span-6 min-w-0 pr-2">
-                      <div className="text-xs sm:text-sm font-medium text-zinc-200 group-hover:text-white truncate">
+                    {/* Title & Genres */}
+                    <div className="col-span-3 min-w-0 pr-3">
+                      <div className="text-xs sm:text-sm font-semibold text-card-foreground group-hover:text-blue-600 dark:group-hover:text-blue-400 truncate transition-colors">
                         {item.title}
                       </div>
-                      <div className="text-[11px] text-zinc-600 truncate mt-0.5 font-mono-code">
+                      <div className="text-[11px] text-muted-foreground truncate mt-0.5">
                         {item.genres && item.genres.length > 0
                           ? item.genres.slice(0, 3).join(', ')
-                          : 'TMDB Verified'}
+                          : 'Cinema Archive'}
                       </div>
                     </div>
 
-                    {/* Type / Season Tag */}
-                    <div className="col-span-2 flex items-center text-xs font-mono-code">
+                    {/* Type */}
+                    <div className="col-span-2 flex items-center">
                       {item.media_type === 'movie' ? (
-                        <span className="flex items-center space-x-1 text-zinc-400 text-[11px]">
-                          <Film className="w-3 h-3 text-zinc-500" />
-                          <span>{item.season_label || 'Film'}</span>
+                        <span className="px-2.5 py-0.5 rounded-full bg-amber-500/10 text-amber-600 dark:text-amber-400 text-[11px] font-semibold">
+                          Film
                         </span>
                       ) : (
-                        <span className="flex items-center space-x-1 text-zinc-300 font-medium text-[11px]">
-                          <Tv className="w-3 h-3 text-zinc-400" />
-                          <span>{item.season_label || (item.season_count ? `${item.season_count}S` : 'Series')}</span>
+                        <span className="px-2.5 py-0.5 rounded-full bg-blue-500/10 text-blue-600 dark:text-blue-400 text-[11px] font-semibold">
+                          Series
                         </span>
                       )}
                     </div>
 
-                    {/* Release Year */}
-                    <div className="col-span-2 text-xs font-mono-code text-zinc-500 group-hover:text-zinc-300">
+                    {/* Season */}
+                    <div className="col-span-2 flex items-center">
+                      {item.season_count ? (
+                        <span className={`px-2 py-0.5 rounded-full text-[11px] font-semibold ${
+                          item.media_type === 'movie'
+                            ? 'bg-amber-500/10 text-amber-600 dark:text-amber-400'
+                            : 'bg-blue-500/10 text-blue-600 dark:text-blue-400'
+                        }`}>
+                          {item.season_count > 1 ? `S1-S${item.season_count}` : 'S1'}
+                        </span>
+                      ) : (
+                        <span className="text-[11px] text-muted-foreground">—</span>
+                      )}
+                    </div>
+
+                    {/* Year */}
+                    <div className="col-span-2 text-xs text-muted-foreground group-hover:text-foreground font-medium">
                       {item.release_year || '—'}
                     </div>
 
-                    {/* Action Buttons: Re-match and Remove */}
-                    <div className="col-span-1 flex items-center justify-end space-x-1">
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setEditingItem(item);
-                        }}
-                        className="p-1.5 rounded text-zinc-500 hover:text-white hover:bg-white/[0.08] opacity-0 group-hover:opacity-100 transition-all"
-                        title="Change / Re-match"
-                      >
-                        <ArrowLeftRight className="w-3.5 h-3.5" />
-                      </button>
+                    {/* Rating & Delete Action */}
+                    <div className="col-span-2 flex items-center justify-end relative">
+                      <div className="text-xs font-semibold text-foreground/90 flex items-center space-x-1 pr-14">
+                        {item.vote_average ? (
+                          <>
+                            <span className="text-amber-500 dark:text-amber-400 text-xs">★</span>
+                            <span>{Number(item.vote_average).toFixed(1)}</span>
+                          </>
+                        ) : (
+                          <span className="text-muted-foreground text-xs font-normal">—</span>
+                        )}
+                      </div>
+
                       <button
                         onClick={(e) => {
                           e.stopPropagation();
                           removeItem(item.tmdb_id, item.media_type);
                         }}
-                        className="p-1.5 rounded text-zinc-600 hover:text-red-400 hover:bg-red-950/30 opacity-0 group-hover:opacity-100 transition-all"
-                        title="Remove from wathis"
+                        className="absolute right-0 opacity-0 group-hover:opacity-100 p-1.5 rounded-full text-muted-foreground hover:text-red-500 hover:bg-red-500/10 transition-all cursor-pointer"
+                        title="Hapus"
                       >
                         <Trash2 className="w-3.5 h-3.5" />
                       </button>
@@ -350,6 +354,14 @@ export const EditorialTableView: React.FC<EditorialTableViewProps> = ({ items, o
         </div>
       </div>
 
+      {/* Item Detail Modal */}
+      <ItemDetailModal
+        item={selectedDetailItem ? (items.find((i) => i.tmdb_id === selectedDetailItem.tmdb_id && i.media_type === selectedDetailItem.media_type) || selectedDetailItem) : null}
+        isOpen={Boolean(selectedDetailItem)}
+        onClose={() => setSelectedDetailItem(null)}
+        onOpenEditMatch={(item) => setEditingItem(item)}
+      />
+
       {/* Edit / Re-match Modal */}
       <EditMatchModal
         item={editingItem}
@@ -359,4 +371,5 @@ export const EditorialTableView: React.FC<EditorialTableViewProps> = ({ items, o
     </div>
   );
 };
+
 

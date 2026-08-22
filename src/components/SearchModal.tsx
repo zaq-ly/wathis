@@ -3,9 +3,9 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useWatchlist } from '@/context/WatchlistContext';
 import { SearchResultItem } from '@/types/watchlist';
-import { getTMDBImageUrl } from '@/lib/utils';
 import { fetchTMDBSearch } from '@/lib/searchClient';
-import { Search, X, Check, Plus, Loader2, Film, Tv, Sparkles } from 'lucide-react';
+import { getTMDBImageUrl } from '@/lib/utils';
+import { Search, Plus, Check, Loader2, X, Film, Tv, Sparkles } from 'lucide-react';
 import Image from 'next/image';
 
 interface SearchModalProps {
@@ -14,13 +14,15 @@ interface SearchModalProps {
 }
 
 export const SearchModal: React.FC<SearchModalProps> = ({ isOpen, onClose }) => {
+  const { addItem, isItemInWatchlist } = useWatchlist();
   const [query, setQuery] = useState('');
   const [results, setResults] = useState<SearchResultItem[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [addedIds, setAddedIds] = useState<Record<string, boolean>>({});
-  const { addItem, isItemInWatchlist } = useWatchlist();
+  const [selectedSeasons, setSelectedSeasons] = useState<Record<number, number>>({});
   const inputRef = useRef<HTMLInputElement>(null);
 
+  // Focus input when opened
   useEffect(() => {
     if (isOpen) {
       setTimeout(() => inputRef.current?.focus(), 50);
@@ -30,7 +32,7 @@ export const SearchModal: React.FC<SearchModalProps> = ({ isOpen, onClose }) => 
     }
   }, [isOpen]);
 
-  // Debounced search
+  // Debounced TMDB API Search
   useEffect(() => {
     if (!query.trim()) {
       setResults([]);
@@ -41,25 +43,33 @@ export const SearchModal: React.FC<SearchModalProps> = ({ isOpen, onClose }) => 
     const timer = setTimeout(async () => {
       setIsLoading(true);
       try {
-        const items = await fetchTMDBSearch(query);
-        setResults(items);
+        const data = await fetchTMDBSearch(query);
+        setResults(data);
+        const initialSeasons: Record<number, number> = {};
+        data.forEach((item) => {
+          if (item.media_type === 'tv') {
+            initialSeasons[item.tmdb_id] = item.season_count || 1;
+          }
+        });
+        setSelectedSeasons((prev) => ({ ...initialSeasons, ...prev }));
       } catch (err) {
-        console.warn('Search notice:', err);
-        setResults([]);
+        console.error('TMDB Search error:', err);
       } finally {
         setIsLoading(false);
       }
-    }, 300);
+    }, 280);
 
     return () => clearTimeout(timer);
   }, [query]);
 
-  // Keyboard shortcut ESC to close
+  // Escape key listener
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') onClose();
+      if (e.key === 'Escape' && isOpen) {
+        onClose();
+      }
     };
-    if (isOpen) window.addEventListener('keydown', handleKeyDown);
+    window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [isOpen, onClose]);
 
@@ -67,62 +77,59 @@ export const SearchModal: React.FC<SearchModalProps> = ({ isOpen, onClose }) => 
 
   const handleAdd = async (item: SearchResultItem) => {
     const key = `${item.media_type}_${item.tmdb_id}`;
-    const success = await addItem(item);
+    const seasonCount = item.media_type === 'tv' ? (selectedSeasons[item.tmdb_id] || item.season_count || 1) : null;
+    const seasonLabel = seasonCount ? (seasonCount > 1 ? `S1-S${seasonCount}` : `S${seasonCount}`) : null;
+
+    const success = await addItem(item, seasonCount, seasonLabel);
     if (success) {
       setAddedIds((prev) => ({ ...prev, [key]: true }));
     }
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-start justify-center pt-6 sm:pt-20 px-2.5 sm:px-4 bg-black/85 backdrop-blur-md animate-in fade-in duration-150">
+    <div className="fixed inset-0 z-50 flex items-start justify-center pt-8 sm:pt-20 px-3 sm:px-4 bg-black/80 backdrop-blur-xl animate-in fade-in duration-200">
       <div
-        className="w-full max-w-2xl bg-[#0e0f13] border border-white/[0.1] rounded-lg shadow-2xl overflow-hidden flex flex-col max-h-[92vh] sm:max-h-[85vh]"
+        className="w-full max-w-2xl bg-card border border-black/[0.08] dark:border-white/[0.12] rounded-3xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh] sm:max-h-[82vh] transition-colors"
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Search Input Bar */}
-        <div className="flex items-center px-3 sm:px-4 py-3 sm:py-3.5 border-b border-white/[0.08] bg-zinc-950/80">
-          <Search className="w-4 h-4 text-zinc-400 mr-2.5 sm:mr-3 shrink-0" />
+        {/* Apple Style Search Input Bar */}
+        <div className="flex items-center px-4 sm:px-5 py-3.5 sm:py-4 border-b border-black/[0.06] dark:border-white/[0.08] bg-black/[0.02] dark:bg-white/[0.03]">
+          <Search className="w-4 h-4 text-muted-foreground mr-3 shrink-0" />
           <input
             ref={inputRef}
             type="text"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder="Search TMDB titles (e.g. Inception)..."
-            className="w-full bg-transparent text-zinc-100 placeholder-zinc-500 text-xs sm:text-sm outline-none font-mono-code"
+            placeholder="Search TMDB titles (e.g. Inception, Shogun)..."
+            className="w-full bg-transparent text-foreground placeholder:text-muted-foreground text-sm outline-none font-medium"
           />
-          {isLoading && <Loader2 className="w-4 h-4 text-zinc-400 animate-spin mr-2 shrink-0" />}
-          {query && (
-            <button
-              onClick={() => setQuery('')}
-              className="text-zinc-400 hover:text-zinc-200 p-1 mr-1"
-            >
-              <X className="w-4 h-4" />
-            </button>
-          )}
+          {isLoading && <Loader2 className="w-4 h-4 text-blue-500 animate-spin mr-2 shrink-0" />}
           <button
             onClick={onClose}
-            className="text-[11px] font-mono-code bg-zinc-900 hover:bg-zinc-800 text-zinc-400 px-2 py-0.5 rounded border border-white/[0.08] shrink-0"
+            className="p-1.5 rounded-full text-muted-foreground hover:text-foreground hover:bg-black/5 dark:hover:bg-white/10 transition-colors shrink-0 cursor-pointer"
+            title="Tutup (Esc)"
           >
-            ESC
+            <X className="w-5 h-5" />
           </button>
         </div>
 
         {/* Results Container */}
-        <div className="flex-1 overflow-y-auto divide-y divide-zinc-800/60 p-2">
+        <div className="flex-1 overflow-y-auto divide-y divide-black/[0.04] dark:divide-white/[0.06] p-3 sm:p-4 space-y-2">
           {results.length > 0 ? (
             results.map((item, index) => {
               const alreadyAdded = isItemInWatchlist(item.tmdb_id, item.media_type) || addedIds[`${item.media_type}_${item.tmdb_id}`];
               const posterUrl = getTMDBImageUrl(item.poster_path, 'w300');
+              const currentSeasonChoice = selectedSeasons[item.tmdb_id] || item.season_count || 1;
 
               return (
                 <div
                   key={`${item.media_type}-${item.tmdb_id}-${index}`}
-                  className="p-2 sm:p-3 bg-[#0c0d10] border border-white/[0.06] rounded-lg flex items-center justify-between space-x-2.5 sm:space-x-3 hover:border-white/[0.2] transition-colors"
+                  className="p-3 bg-card border border-black/[0.06] dark:border-white/[0.08] rounded-2xl flex items-center justify-between space-x-3 hover:border-black/[0.12] dark:hover:border-white/[0.16] shadow-2xs transition-all duration-200"
                 >
                   {/* Left info */}
-                  <div className="flex items-center space-x-2.5 sm:space-x-3 min-w-0 pr-2 sm:pr-3">
+                  <div className="flex items-center space-x-3 min-w-0 pr-2">
                     {/* Thumbnail Poster */}
-                    <div className="relative w-10 h-14 sm:w-12 sm:h-16 bg-zinc-800 rounded overflow-hidden shrink-0 border border-zinc-700/50">
+                    <div className="relative w-12 h-16 bg-muted rounded-xl overflow-hidden shrink-0 border border-black/5 dark:border-white/10 shadow-2xs">
                       {posterUrl ? (
                         <Image
                           src={posterUrl}
@@ -132,39 +139,33 @@ export const SearchModal: React.FC<SearchModalProps> = ({ isOpen, onClose }) => 
                           className="object-cover"
                         />
                       ) : (
-                        <div className="w-full h-full flex items-center justify-center text-[10px] text-zinc-500 font-mono">
-                          NO IMG
+                        <div className="w-full h-full flex items-center justify-center text-[8px] text-muted-foreground">
+                          No Art
                         </div>
                       )}
                     </div>
 
                     {/* Metadata */}
-                    <div className="min-w-0">
+                    <div className="min-w-0 space-y-1">
                       <div className="flex items-center space-x-2">
-                        <span className="font-medium text-sm text-zinc-100 truncate">
+                        <span className="font-semibold text-sm text-foreground truncate">
                           {item.title}
                         </span>
                         {item.release_year && (
-                          <span className="text-xs text-zinc-400 font-mono shrink-0">
+                          <span className="text-xs text-muted-foreground font-medium shrink-0">
                             ({item.release_year})
                           </span>
                         )}
                       </div>
 
                       {item.original_title && item.original_title !== item.title && (
-                        <div className="text-[11px] text-zinc-500 font-mono-code truncate">
+                        <div className="text-[11px] text-muted-foreground truncate">
                           {item.original_title}
                         </div>
                       )}
 
-                      <div className="flex items-center space-x-2 mt-1">
-                        <span
-                          className={`inline-flex items-center space-x-1 text-[10px] font-mono-code uppercase px-1.5 py-0.5 rounded border ${
-                            item.media_type === 'movie'
-                              ? 'bg-zinc-800 text-zinc-300 border-white/[0.1]'
-                              : 'bg-zinc-800 text-zinc-300 border-white/[0.1]'
-                          }`}
-                        >
+                      <div className="flex flex-wrap items-center gap-1.5 pt-0.5">
+                        <span className="inline-flex items-center space-x-1 text-[10px] font-medium px-2 py-0.5 rounded-full bg-black/[0.04] dark:bg-white/[0.08] text-muted-foreground">
                           {item.media_type === 'movie' ? (
                             <>
                               <Film className="w-2.5 h-2.5" />
@@ -172,44 +173,58 @@ export const SearchModal: React.FC<SearchModalProps> = ({ isOpen, onClose }) => 
                             </>
                           ) : (
                             <>
-                              <Tv className="w-2.5 h-2.5" />
-                              <span>Series {item.season_count ? `• ${item.season_count}S` : ''}</span>
+                              <Tv className="w-2.5 h-2.5 text-blue-500" />
+                              <span>Series</span>
                             </>
                           )}
                         </span>
 
                         {item.vote_average ? (
-                          <span className="text-[10px] text-amber-400 font-mono-code font-medium bg-amber-400/10 px-1.5 py-0.5 rounded border border-amber-400/20">
+                          <span className="text-[10px] text-amber-500 dark:text-amber-400 font-semibold px-2 py-0.5 rounded-full bg-black/[0.04] dark:bg-white/[0.08]">
                             ★ {item.vote_average}
                           </span>
                         ) : null}
 
                         {item.genres && item.genres.length > 0 && (
-                          <span className="text-xs text-zinc-500 font-mono-code truncate hidden sm:inline">
+                          <span className="text-xs text-muted-foreground truncate hidden sm:inline">
                             {item.genres.slice(0, 3).join(', ')}
                           </span>
                         )}
                       </div>
-
-                      {item.overview && (
-                        <p className="text-[11px] text-zinc-500 font-mono-code line-clamp-1 mt-1 hidden sm:block">
-                          {item.overview}
-                        </p>
-                      )}
                     </div>
                   </div>
 
-                  {/* Add Button Action */}
-                  <div className="shrink-0">
+                  {/* Right Actions: Season Picker & Add Button */}
+                  <div className="shrink-0 flex items-center space-x-2">
+                    {item.media_type === 'tv' && !alreadyAdded && (
+                      <div className="flex items-center space-x-1">
+                        <select
+                          value={currentSeasonChoice}
+                          onChange={(e) => {
+                            const val = Number(e.target.value);
+                            setSelectedSeasons((prev) => ({ ...prev, [item.tmdb_id]: val }));
+                          }}
+                          className="bg-black/[0.04] dark:bg-white/[0.08] border border-black/[0.06] dark:border-white/[0.08] text-foreground text-xs font-medium rounded-full px-3 py-1.5 focus:outline-none cursor-pointer"
+                          title="Select watched seasons"
+                        >
+                          {Array.from({ length: Math.max(item.season_count || 1, 1) }, (_, i) => i + 1).map((s) => (
+                            <option key={s} value={s} className="bg-card text-foreground">
+                              {s === 1 ? 'Season 1' : `Seasons 1-${s}`}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                    )}
+
                     {alreadyAdded ? (
-                      <span className="inline-flex items-center space-x-1 text-xs font-mono-code text-white bg-zinc-800 border border-white/[0.1] px-3 py-1.5 rounded">
-                        <Check className="w-3.5 h-3.5" />
+                      <span className="inline-flex items-center space-x-1 text-xs font-medium text-muted-foreground bg-black/[0.04] dark:bg-white/[0.08] px-3.5 py-1.5 rounded-full">
+                        <Check className="w-3.5 h-3.5 text-blue-500" />
                         <span className="hidden sm:inline">Saved</span>
                       </span>
                     ) : (
                       <button
                         onClick={() => handleAdd(item)}
-                        className="inline-flex items-center space-x-1 text-xs font-mono-code bg-white hover:bg-zinc-200 text-zinc-950 font-bold px-3 py-1.5 rounded transition-all active:scale-95 shadow-sm"
+                        className="inline-flex items-center space-x-1 text-xs font-semibold bg-foreground hover:opacity-90 text-background px-4 py-1.5 rounded-full transition-all active:scale-95 shadow-sm cursor-pointer apple-btn-active"
                       >
                         <Plus className="w-3.5 h-3.5" />
                         <span>Add</span>
@@ -220,24 +235,21 @@ export const SearchModal: React.FC<SearchModalProps> = ({ isOpen, onClose }) => 
               );
             })
           ) : query.trim() && !isLoading ? (
-            <div className="py-12 text-center text-zinc-500 font-mono-code text-xs">
-              No results found for &ldquo;{query}&rdquo;
+            <div className="py-12 text-center text-muted-foreground text-xs font-medium">
+              No cinema titles found for &ldquo;{query}&rdquo;
             </div>
           ) : !query.trim() ? (
-            <div className="py-12 text-center text-zinc-500 font-mono-code text-xs flex flex-col items-center">
-              <Sparkles className="w-5 h-5 text-zinc-600 mb-2" />
-              <span>Search TMDB database for any completed movie or TV series</span>
-              <span className="text-zinc-600 text-[10px] mt-1">Enriched with official genres, release year & posters</span>
+            <div className="py-16 text-center text-muted-foreground text-xs flex flex-col items-center space-y-2">
+              <div className="w-12 h-12 rounded-2xl bg-black/[0.04] dark:bg-white/[0.08] flex items-center justify-center text-muted-foreground mb-1">
+                <Sparkles className="w-6 h-6" />
+              </div>
+              <span className="text-foreground font-semibold text-sm">Search the TMDB Cinema Archive</span>
+              <span className="text-muted-foreground text-xs">Curate your finished films and multi-season TV series</span>
             </div>
           ) : null}
-        </div>
-
-        {/* Footer info */}
-        <div className="px-4 py-2.5 bg-zinc-950 border-t border-white/[0.08] flex items-center justify-between text-[10px] font-mono-code text-zinc-500">
-          <span>Powered by TMDB API</span>
-          <span>Only completed titles</span>
         </div>
       </div>
     </div>
   );
 };
+
