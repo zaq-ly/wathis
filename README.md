@@ -1,24 +1,30 @@
 <div align="center">
-  <img src="public/logo_zoomed.jpg" alt="wathis. logo" width="120" style="border-radius: 12px; margin-bottom: 16px;" />
+  <img src="public/logo_zoomed.jpg" alt="Logo wathis." width="120" style="border-radius: 12px; margin-bottom: 16px; box-shadow: 0 8px 24px rgba(0,0,0,0.12);" />
   
   # wathis.
 
-  **A premium, minimalist personal cinema archive.**
+  **Arsip sinema personal yang premium, minimalis, dan elegan.**
 </div>
 
 <br />
 
-wathis. is a sleek and modern web application designed to help you securely synchronize, manage, and curate your watched films and TV series across all your devices. Built with an uncompromising focus on aesthetics, it features an Apple-inspired glassmorphism interface, ultra-smooth micro-interactions, and a distraction-free environment for your cinema collection.
+**wathis.** adalah aplikasi web modern yang dirancang untuk membantumu menyinkronkan, mengelola, dan menyimpan riwayat tontonan Film dan TV Series secara aman di semua perangkat. Dibangun dengan fokus utama pada estetika, wathis menampilkan antarmuka *glassmorphism* ala Apple, animasi mikro yang mulus, dan lingkungan yang bebas gangguan untuk koleksi sinemamu.
 
-## ✨ Features
+---
 
-- **Premium Interface:** A visually stunning, Apple-esque UI with dynamic glassmorphism, responsive grid/table views, and polished dark mode support.
-- **TMDB Synchronization:** Automatically standardizes your archive by fetching official metadata, posters, and exact season counts directly from The Movie Database (TMDB).
-- **Unified Tracking:** Manage both single-run films and multi-season TV series in one centralized, beautifully categorized archive.
-- **Secure Cloud Sync:** Powered by enterprise-grade infrastructure with PostgreSQL Row Level Security (RLS) ensuring your data is private and synced across all your devices.
-- **Seamless Data Migration:** Built-in bulk CSV import capabilities to effortlessly migrate your watch history from other platforms.
+## ✨ Fitur Utama
+
+- **Antarmuka Premium:** UI yang sangat memanjakan mata dengan gaya *Apple-esque*, efek *glassmorphism* dinamis, tampilan *Grid* maupun *Table* yang responsif, serta dukungan *Dark Mode* yang memukau.
+- **Sinkronisasi TMDB:** Otomatis menstandarkan arsipmu dengan menarik metadata resmi, poster kualitas tinggi, dan jumlah *season* akurat langsung dari The Movie Database (TMDB).
+- **Satu Tempat Terpusat:** Kelola Film dan TV Series multi-musim dalam satu arsip terpadu yang dikategorikan dengan rapi dan mudah difilter.
+- **Cloud Sync Aman:** Didukung oleh infrastruktur *enterprise-grade* dengan PostgreSQL *Row Level Security* (RLS), memastikan datamu selalu aman dan tersinkronisasi di semua perangkatmu.
+- **Migrasi Data Mudah:** Dilengkapi fitur *bulk import* CSV bawaan untuk memudahkan migrasi riwayat tontonan dari *platform* lain ke dalam wathis.
+
+---
 
 ## 🛠 Tech Stack
+
+Aplikasi ini dibangun menggunakan teknologi web modern terbaik saat ini:
 
 - **Framework:** [Next.js 15](https://nextjs.org/) (App Router)
 - **Library:** [React 19](https://react.dev/)
@@ -30,5 +36,5 @@ wathis. is a sleek and modern web application designed to help you securely sync
 <br />
 
 <div align="center">
-  <sub>Built with precision and minimal noise.</sub>
+  <sub>Dibuat dengan presisi tanpa kerumitan.</sub>
 </div>
