@@ -104,7 +104,8 @@ export const Header: React.FC<HeaderProps> = ({
   const animeCount = items.filter((i) => isAnimeItem(i)).length;
 
   return (
-    <header className="sticky top-0 z-40 apple-glass-nav border-b border-black/[0.06] dark:border-white/[0.08] transition-colors">
+    <>
+      <header className="sticky top-0 z-40 apple-glass-nav border-b border-black/[0.06] dark:border-white/[0.08] transition-colors">
       <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8">
         {/* Main Apple Navbar */}
         <div className="flex items-center justify-between h-14 sm:h-16">
@@ -527,41 +528,59 @@ export const Header: React.FC<HeaderProps> = ({
             </button>
           </div>
         </div>
+      </div>
+    </header>
 
-      {/* Toast Notification */}
+      {/* Toast Notification (Mobile-Friendly Placement) */}
       {toastMessage && (
-        <div className="fixed bottom-6 right-6 z-[100] bg-black/90 dark:bg-white text-white dark:text-black px-4 py-3 rounded-2xl shadow-2xl text-sm font-semibold flex items-center space-x-2 animate-in fade-in slide-in-from-bottom-5 duration-300 border border-white/10 dark:border-black/10">
-          <Sparkles className="w-4 h-4 text-amber-400" />
-          <span>{toastMessage}</span>
+        <div className="fixed bottom-5 inset-x-4 sm:inset-x-auto sm:right-6 z-[100] max-w-sm mx-auto bg-black/90 dark:bg-zinc-900/95 text-white dark:text-white px-4 py-3 rounded-2xl shadow-2xl text-xs sm:text-sm font-semibold flex items-center space-x-2.5 animate-in fade-in slide-in-from-bottom-5 duration-300 border border-white/15 backdrop-blur-xl">
+          <Sparkles className="w-4 h-4 text-amber-400 shrink-0" />
+          <span className="truncate">{toastMessage}</span>
         </div>
       )}
 
-      {/* Custom Logout Confirmation Modal */}
+      {/* Custom Logout Confirmation Modal (Responsive Apple Dialog) */}
       {showLogoutConfirm && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-md animate-in fade-in duration-200">
-          <div className="bg-card border border-black/[0.08] dark:border-white/[0.12] rounded-3xl shadow-2xl w-full max-w-sm p-6 overflow-hidden">
-            <h3 className="text-lg font-bold text-foreground mb-2">Konfirmasi Logout</h3>
-            <p className="text-sm text-muted-foreground mb-6">
-              Apakah Anda yakin ingin keluar dari akun ini? Anda harus login kembali untuk menyinkronkan data.
-            </p>
-            <div className="flex justify-end space-x-3">
+        <div
+          className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/70 backdrop-blur-md animate-in fade-in duration-200"
+          onClick={() => setShowLogoutConfirm(false)}
+        >
+          <div
+            className="bg-card border border-black/10 dark:border-white/12 rounded-3xl shadow-2xl w-full max-w-[340px] sm:max-w-sm p-5 sm:p-6 overflow-hidden space-y-3.5 text-center animate-in zoom-in-95 duration-150"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="w-12 h-12 rounded-2xl bg-red-500/10 text-red-500 flex items-center justify-center mx-auto mb-1">
+              <LogOut className="w-6 h-6" />
+            </div>
+
+            <div className="space-y-1.5">
+              <h3 className="text-base sm:text-lg font-bold text-foreground tracking-tight">
+                {t.logoutConfirmTitle}
+              </h3>
+              <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">
+                {t.logoutConfirmDesc}
+              </p>
+            </div>
+
+            <div className="grid grid-cols-2 gap-2.5 pt-2">
               <button
+                type="button"
                 onClick={() => setShowLogoutConfirm(false)}
-                className="px-4 py-2 text-sm font-medium text-foreground bg-black/5 hover:bg-black/10 dark:bg-white/10 dark:hover:bg-white/20 rounded-full transition-colors cursor-pointer apple-btn-active"
+                className="py-2.5 px-3 text-xs sm:text-sm font-semibold text-foreground bg-black/5 hover:bg-black/10 dark:bg-white/10 dark:hover:bg-white/15 rounded-full transition-all cursor-pointer apple-btn-active"
               >
-                Batal
+                {t.cancel}
               </button>
               <button
+                type="button"
                 onClick={handleSignOut}
-                className="px-4 py-2 text-sm font-semibold text-white bg-red-500 hover:bg-red-600 rounded-full transition-colors shadow-sm cursor-pointer apple-btn-active"
+                className="py-2.5 px-3 text-xs sm:text-sm font-semibold text-white bg-red-500 hover:bg-red-600 rounded-full transition-all shadow-md active:scale-95 cursor-pointer apple-btn-active"
               >
-                Ya, Keluar
+                {t.signOut}
               </button>
             </div>
           </div>
         </div>
       )}
-      </div>
-    </header>
+    </>
   );
 };
