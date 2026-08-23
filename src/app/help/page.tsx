@@ -37,8 +37,8 @@ const FAQ_LIST: FAQItem[] = [
     icon: Cloud,
     qId: 'Bagaimana cara menyimpan dan menyinkronkan data arsip?',
     qEn: 'How do I save and sync my cinema archive across devices?',
-    aId: 'Cukup masuk menggunakan akun Google (Sign In). Seluruh judul film, serial, dan anime yang kamu tambahkan akan otomatis tersimpan di cloud database (Supabase) secara realtime. Kamu bisa mengakses arsipmu dari perangkat mana saja kapan pun.',
-    aEn: 'Simply sign in with your Google account. All added films, series, and anime will be automatically and securely saved to the cloud database (Supabase) in realtime. You can access your archive from any device anytime.',
+    aId: 'Cukup masuk menggunakan akun Google (Sign In). Seluruh judul film, serial, dan anime yang kamu tambahkan akan otomatis tersimpan aman secara realtime. Kamu bisa mengakses arsipmu dari perangkat mana saja kapan pun.',
+    aEn: 'Simply sign in with your Google account. All added films, series, and anime will be automatically and securely saved in realtime. You can access your archive from any device anytime.',
   },
   {
     id: 'search',
@@ -46,22 +46,22 @@ const FAQ_LIST: FAQItem[] = [
     qId: 'Bagaimana cara menambahkan Film, Serial, atau Anime?',
     qEn: 'How do I add films, series, or anime to my archive?',
     aId: 'Gunakan bilah pencarian di bagian atas atau tekan tombol pintasan Ctrl + K (atau tombol / pada keyboard). Ketik judul yang ingin dicari, lalu klik tombol "+" untuk memasukkannya ke dalam daftar arsip.',
-    aEn: 'Use the dedicated search bar at the top or press Ctrl + K (or / key). Search for your desired title and click the "+" button to add it to your personal archive.',
+    aEn: 'Use the search bar at the top or press Ctrl + K (or / key). Search for your desired title, then click the "+" button to add it to your personal archive.',
   },
   {
     id: 'import',
     icon: Database,
     qId: 'Bagaimana cara memindahkan daftar tontonan dari CSV / file lama?',
-    qEn: 'How do I import existing watchlists from CSV or text files?',
-    aId: 'Buka menu profil di kanan atas, lalu pilih "Import Data (CSV)". Kamu bisa mengunggah file CSV atau menempelkan teks daftar judul secara langsung. Sistem pintar wathis akan mencocokkan judul secara otomatis dengan data TMDB.',
-    aEn: 'Open your profile menu at the top right and select "Import Data (CSV)". You can upload a CSV file or paste raw text lists. wathis will automatically match and import metadata from TMDB.',
+    qEn: 'How do I import an existing watchlist from CSV or text files?',
+    aId: 'Buka menu profil di kanan atas, lalu pilih "Import Data (CSV)". Kamu bisa mengunggah file CSV atau menempelkan teks daftar judul secara langsung. Sistem wathis akan mencocokkan metadata judul secara otomatis dengan data TMDB.',
+    aEn: 'Open the profile menu at the top right and select "Import Data (CSV)". You can upload a CSV file or paste raw text lists. wathis will automatically match and import metadata from TMDB.',
   },
   {
     id: 'share',
     icon: Share2,
     qId: 'Bagaimana cara membagikan koleksi arsip saya ke teman?',
     qEn: 'How do I share my archive collection with friends?',
-    aId: 'Klik tombol "Share" di navigasi atas untuk menyalin tautan publik arsipmu. Siapa pun yang membuka tautan tersebut dapat melihat koleksi film dan serialmu dalam mode baca (read-only) yang aman tanpa bisa mengubah isinya.',
+    aId: 'Klik tombol "Share" di navigasi atas untuk menyalin tautan publik arsipmu. Siapa pun yang membuka tautan tersebut dapat melihat koleksi film dan serialmu dalam mode baca (read-only) tanpa bisa mengubah isinya.',
     aEn: 'Click the "Share" button on the top navigation bar to copy your public share link. Anyone with the link can explore your curated collection in a secure, elegant read-only mode.',
   },
   {
@@ -69,7 +69,7 @@ const FAQ_LIST: FAQItem[] = [
     icon: RefreshCw,
     qId: 'Apa fungsi dari tombol "Sinkronkan Judul"?',
     qEn: 'What does the "Sync Titles" feature do?',
-    aId: 'Fitur "Sinkronkan Judul" berguna untuk memperbarui informasi judul di arsipmu (seperti poster resolusi tinggi, rating terbaru, genre, dan sinopsis) langsung dari database global TMDB.',
+    aId: 'Fitur "Sinkronkan Judul" berfungsi memperbarui metadata seluruh judul di arsipmu (seperti poster resolusi tinggi, rating terbaru, genre, dan sinopsis) langsung dari database global TMDB.',
     aEn: '"Sync Titles" refreshes all metadata in your collection (such as updated ratings, high-res posters, genres, and overviews) directly from the global TMDB database.',
   },
 ];
@@ -219,9 +219,8 @@ export default function HelpPage() {
                         </span>
                       </div>
                       <ChevronDown
-                        className={`w-4 h-4 text-muted-foreground shrink-0 transition-transform duration-200 ${
-                          isOpen ? 'rotate-180 text-foreground' : ''
-                        }`}
+                        className={`w-4 h-4 text-muted-foreground shrink-0 transition-transform duration-200 ${isOpen ? 'rotate-180 text-foreground' : ''
+                          }`}
                       />
                     </button>
                     {isOpen && (
