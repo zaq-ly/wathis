@@ -1,8 +1,22 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { createClient, isSupabaseConfigured } from '@/lib/supabase/client';
 import { X, Loader2, AlertCircle } from 'lucide-react';
+
+declare global {
+  interface Window {
+    google?: {
+      accounts?: {
+        id?: {
+          initialize: (config: any) => void;
+          renderButton: (parent: HTMLElement, options: any) => void;
+          prompt: (notification?: any) => void;
+        };
+      };
+    };
+  }
+}
 
 interface AuthModalProps {
   isOpen: boolean;
@@ -12,13 +26,85 @@ interface AuthModalProps {
 export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [gisLoaded, setGisLoaded] = useState(false);
+  const googleBtnRef = useRef<HTMLDivElement>(null);
 
   const supabaseConfigured = isSupabaseConfigured();
   const supabase = createClient();
+  const googleClientId =
+    process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID ||
+    '93881926588-di7t1c3bqnt15d1rll5kvim5nuc5hn0k.apps.googleusercontent.com';
+
+  const handleCredentialResponse = useCallback(
+    async (response: { credential: string }) => {
+      setIsLoading(true);
+      setErrorMessage(null);
+      try {
+        const { error } = await supabase.auth.signInWithIdToken({
+          provider: 'google',
+          token: response.credential,
+        });
+        if (error) throw error;
+        onClose();
+      } catch (err: unknown) {
+        const message = err instanceof Error ? err.message : 'Google sign-in failed';
+        setErrorMessage(message);
+      } finally {
+        setIsLoading(false);
+      }
+    },
+    [supabase, onClose]
+  );
+
+  useEffect(() => {
+    if (!isOpen) return;
+
+    // Pastikan script GIS termuat
+    if (!document.getElementById('google-gsi-script')) {
+      const script = document.createElement('script');
+      script.id = 'google-gsi-script';
+      script.src = 'https://accounts.google.com/gsi/client';
+      script.async = true;
+      script.defer = true;
+      document.body.appendChild(script);
+    }
+
+    let retryCount = 0;
+    const maxRetries = 50;
+
+    const initGis = () => {
+      if (window.google?.accounts?.id && googleBtnRef.current) {
+        window.google.accounts.id.initialize({
+          client_id: googleClientId,
+          callback: handleCredentialResponse,
+          auto_select: false,
+          cancel_on_tap_outside: true,
+        });
+
+        const isDark = document.documentElement.classList.contains('dark');
+        googleBtnRef.current.innerHTML = '';
+        window.google.accounts.id.renderButton(googleBtnRef.current, {
+          type: 'standard',
+          theme: isDark ? 'filled_black' : 'outline',
+          size: 'large',
+          text: 'continue_with',
+          shape: 'pill',
+          width: 320,
+          logo_alignment: 'left',
+        });
+        setGisLoaded(true);
+      } else if (retryCount < maxRetries) {
+        retryCount++;
+        setTimeout(initGis, 100);
+      }
+    };
+
+    initGis();
+  }, [isOpen, googleClientId, handleCredentialResponse]);
 
   if (!isOpen) return null;
 
-  const handleGoogleSignIn = async () => {
+  const handleFallbackGoogleSignIn = async () => {
     setErrorMessage(null);
     if (!supabaseConfigured) {
       setErrorMessage('Supabase is not configured yet in .env.local.');
@@ -76,17 +162,30 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
           </div>
         )}
 
-        <div className="space-y-3">
-          {/* Primary Google Login Button */}
-          <button
-            type="button"
-            onClick={handleGoogleSignIn}
-            disabled={isLoading}
-            className="w-full bg-white dark:bg-zinc-900 hover:bg-zinc-50 dark:hover:bg-zinc-800 text-zinc-800 dark:text-zinc-100 font-semibold py-3 px-4 rounded-2xl text-xs transition-all disabled:opacity-50 flex items-center justify-center space-x-2.5 shadow-sm border border-zinc-200 dark:border-zinc-700 active:scale-98 cursor-pointer apple-btn-active"
-          >
-            {isLoading ? (
-              <Loader2 className="w-4 h-4 animate-spin text-zinc-600 dark:text-zinc-400" />
-            ) : (
+        <div className="space-y-3 flex flex-col items-center">
+          {isLoading && (
+            <div className="flex items-center justify-center py-2 space-x-2 text-xs text-muted-foreground">
+              <Loader2 className="w-4 h-4 animate-spin" />
+              <span>Menghubungkan akun Google...</span>
+            </div>
+          )}
+
+          {/* Official Google Identity Button (Origin Domain) */}
+          <div
+            ref={googleBtnRef}
+            className={`min-h-[44px] flex items-center justify-center transition-all ${
+              isLoading ? 'opacity-50 pointer-events-none' : ''
+            } ${!gisLoaded && googleClientId ? 'hidden' : ''}`}
+          />
+
+          {/* Fallback Button jika GIS belum termuat atau Client ID belum disetel */}
+          {(!gisLoaded || !googleClientId) && !isLoading && (
+            <button
+              type="button"
+              onClick={handleFallbackGoogleSignIn}
+              disabled={isLoading}
+              className="w-full max-w-[320px] bg-white dark:bg-zinc-900 hover:bg-zinc-50 dark:hover:bg-zinc-800 text-zinc-800 dark:text-zinc-100 font-semibold py-3 px-4 rounded-full text-xs transition-all disabled:opacity-50 flex items-center justify-center space-x-2.5 shadow-sm border border-zinc-200 dark:border-zinc-700 active:scale-98 cursor-pointer apple-btn-active"
+            >
               <svg className="w-4 h-4 shrink-0" viewBox="0 0 24 24">
                 <path
                   fill="#4285F4"
@@ -105,9 +204,9 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
                   d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
                 />
               </svg>
-            )}
-            <span>Continue with Google</span>
-          </button>
+              <span>Continue with Google</span>
+            </button>
+          )}
         </div>
 
         <div className="mt-8 pt-6 border-t border-black/[0.04] dark:border-white/[0.08]">
