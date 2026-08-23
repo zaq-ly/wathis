@@ -1,11 +1,12 @@
 'use client';
 
 import React, { useState, useRef, useEffect } from 'react';
+import Link from 'next/link';
 import { createPortal } from 'react-dom';
 import { useWatchlist } from '@/context/WatchlistContext';
 import { useTheme } from '@/context/ThemeContext';
 import { useLanguage } from '@/context/LanguageContext';
-import { Search, Database, LogIn, LogOut, LayoutList, LayoutGrid, Film, Tv, Sparkles, Monitor, Moon, Sun, ChevronRight, RefreshCw, Loader2, Share2, CheckCircle2, Download, Globe } from 'lucide-react';
+import { Search, Database, LogIn, LogOut, LayoutList, LayoutGrid, Film, Tv, Sparkles, Monitor, Moon, Sun, ChevronRight, RefreshCw, Loader2, Share2, CheckCircle2, Download, Globe, HelpCircle } from 'lucide-react';
 import { isAnimeItem } from '@/lib/utils';
 
 interface HeaderProps {
@@ -440,6 +441,16 @@ export const Header: React.FC<HeaderProps> = ({
                         <span>{t.exportCSV}</span>
                       </button>
 
+                      {/* Section: Bantuan */}
+                      <Link
+                        href="/help"
+                        onClick={() => setIsMobileMenuOpen(false)}
+                        className="w-full flex items-center space-x-2.5 px-3 py-2 text-foreground hover:bg-black/5 dark:hover:bg-white/10 rounded-xl transition-colors text-left cursor-pointer text-xs font-medium group"
+                      >
+                        <HelpCircle className="w-4 h-4 text-muted-foreground group-hover:text-foreground shrink-0" />
+                        <span>{t.help}</span>
+                      </Link>
+
                       {/* Section: Logout */}
                       <div className="my-1 border-t border-black/[0.06] dark:border-white/[0.08]" />
                       <button
@@ -473,6 +484,13 @@ export const Header: React.FC<HeaderProps> = ({
                 >
                   {theme === 'dark' ? <Sun className="w-3.5 h-3.5 sm:w-4 sm:h-4" /> : <Moon className="w-3.5 h-3.5 sm:w-4 sm:h-4" />}
                 </button>
+                <Link
+                  href="/help"
+                  className="h-7 w-7 sm:h-8 sm:w-8 rounded-full flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-black/5 dark:hover:bg-white/10 transition-colors cursor-pointer"
+                  title={t.help}
+                >
+                  <HelpCircle className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                </Link>
                 <button
                   onClick={onOpenAuth}
                   className="h-7 sm:h-8 px-3 sm:px-4 rounded-full text-xs font-semibold bg-foreground text-background hover:opacity-90 transition-opacity shadow-sm flex items-center space-x-1.5 cursor-pointer apple-btn-active shrink-0"
