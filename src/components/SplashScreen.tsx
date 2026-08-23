@@ -8,17 +8,34 @@ export function SplashScreen() {
   const [shouldRender, setShouldRender] = useState(true);
 
   useEffect(() => {
-    setMounted(true);
+    try {
+      const navEntry = performance.getEntriesByType?.('navigation')?.[0] as PerformanceNavigationTiming | undefined;
+      const isReload = navEntry?.type === 'reload';
+      const hasShown = sessionStorage.getItem('wathis_splash_shown');
 
-    // Fade out after 1.2s
+      if (hasShown && !isReload) {
+        setMounted(true);
+        setShouldRender(false);
+        return;
+      }
+
+      sessionStorage.setItem('wathis_splash_shown', 'true');
+    } catch {
+      // ignore storage errors
+    }
+
+    setMounted(true);
+    setShouldRender(true);
+
+    // Fade out after 1.1s
     const timerExit = setTimeout(() => {
       setIsClosing(true);
-    }, 1200);
+    }, 1100);
 
-    // Remove from DOM after 1.6s
+    // Remove from DOM after 1.5s
     const timerUnmount = setTimeout(() => {
       setShouldRender(false);
-    }, 1600);
+    }, 1500);
 
     return () => {
       clearTimeout(timerExit);

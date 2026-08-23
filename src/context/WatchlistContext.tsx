@@ -111,9 +111,6 @@ export function WatchlistProvider({ children }: { children: React.ReactNode }) {
         console.error('SignOut error:', e);
       }
     }
-    if (typeof window !== 'undefined') {
-      window.location.href = '/';
-    }
   };
 
   const clearWatchlist = async (): Promise<boolean> => {

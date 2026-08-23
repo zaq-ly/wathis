@@ -118,14 +118,11 @@ export const Header: React.FC<HeaderProps> = ({
         <div className="flex items-center justify-between h-14 sm:h-16">
           {/* Left: Brand Logo & Segmented Navigation */}
           <div className="flex items-center space-x-4 sm:space-x-8 min-w-0">
-            {/* Brand Logo with Page Reload */}
-            <button
-              type="button"
-              onClick={() => {
-                window.location.href = '/';
-              }}
+            {/* Brand Logo */}
+            <Link
+              href="/"
               className="flex items-center space-x-2 sm:space-x-2.5 font-semibold text-sm sm:text-base tracking-tight text-foreground select-none group cursor-pointer apple-btn-active shrink-0"
-              title="Refresh / Beranda"
+              title="Beranda wathis"
             >
               <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-md overflow-hidden flex items-center justify-center shrink-0">
                 <img
@@ -137,7 +134,7 @@ export const Header: React.FC<HeaderProps> = ({
               <span className="font-semibold tracking-tight text-foreground">
                 wathis<span className="text-zinc-400">.</span>
               </span>
-            </button>
+            </Link>
 
             {/* Apple Segmented Pill Switcher (Desktop) */}
             <nav className="hidden md:flex items-center p-1 rounded-full bg-black/[0.05] dark:bg-white/[0.08] border border-black/10 dark:border-white/10 shrink-0">
