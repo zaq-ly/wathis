@@ -97,12 +97,12 @@ export default function HelpPage() {
     <div className="min-h-screen flex flex-col bg-background text-foreground transition-colors duration-300">
       {/* Apple Frosted Navbar */}
       <header className="sticky top-0 z-40 apple-glass-nav border-b border-black/[0.06] dark:border-white/[0.08] transition-colors">
-        <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 h-14 sm:h-16 flex items-center justify-between">
-          {/* Left: Brand Logo & Distinct Back Button */}
-          <div className="flex items-center space-x-2.5 sm:space-x-3">
+        <div className="max-w-[1440px] mx-auto px-3 sm:px-6 lg:px-8 h-14 sm:h-16 flex items-center justify-between gap-2">
+          {/* Left: Brand Logo & Responsive Back Button */}
+          <div className="flex items-center space-x-1.5 sm:space-x-3 min-w-0">
             <Link
               href="/"
-              className="flex items-center space-x-2 font-bold text-sm sm:text-base tracking-tight text-foreground select-none group cursor-pointer apple-btn-active shrink-0"
+              className="flex items-center space-x-1.5 sm:space-x-2 font-bold text-xs sm:text-base tracking-tight text-foreground select-none group cursor-pointer apple-btn-active shrink-0"
               title="wathis."
             >
               <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg overflow-hidden flex items-center justify-center shrink-0 border border-black/10 dark:border-white/10 shadow-xs">
@@ -112,39 +112,41 @@ export default function HelpPage() {
                   className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                 />
               </div>
-              <span>wathis<span className="text-zinc-400">.</span></span>
+              <span className="hidden xs:inline sm:inline">wathis<span className="text-zinc-400">.</span></span>
             </Link>
 
-            <span className="text-black/15 dark:text-white/20 text-xs font-light">/</span>
+            <span className="text-black/15 dark:text-white/20 text-xs font-light hidden xs:inline sm:inline">/</span>
 
             <Link
               href="/"
-              className="inline-flex items-center space-x-1.5 px-3 py-1.5 rounded-full bg-black/5 dark:bg-white/10 hover:bg-black/10 dark:hover:bg-white/15 text-foreground font-semibold text-xs transition-all border border-black/5 dark:border-white/10 shadow-2xs group cursor-pointer apple-btn-active"
+              className="inline-flex items-center space-x-1 sm:space-x-1.5 px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-full bg-black/5 dark:bg-white/10 hover:bg-black/10 dark:hover:bg-white/15 text-foreground font-semibold text-xs whitespace-nowrap transition-all border border-black/5 dark:border-white/10 shadow-2xs group cursor-pointer apple-btn-active shrink-0"
             >
               <ArrowLeft className="w-3.5 h-3.5 text-foreground group-hover:-translate-x-0.5 transition-transform" />
-              <span>{isId ? 'Kembali ke Arsip' : 'Back to Archive'}</span>
+              <span>{isId ? 'Kembali' : 'Back'}</span>
+              <span className="hidden sm:inline">{isId ? ' ke Arsip' : ' to Archive'}</span>
             </Link>
           </div>
 
-          {/* Right: Language & Theme Controls */}
-          <div className="flex items-center space-x-2 shrink-0">
+          {/* Right: Compact Mobile Language & Theme Controls */}
+          <div className="flex items-center space-x-1.5 sm:space-x-2 shrink-0">
             <button
               onClick={() => setLanguage(language === 'id' ? 'en' : 'id')}
-              className="h-8 px-3 rounded-full flex items-center justify-center text-xs font-semibold text-foreground bg-black/5 dark:bg-white/10 hover:bg-black/10 dark:hover:bg-white/15 transition-all cursor-pointer border border-black/10 dark:border-white/10 space-x-1.5 shadow-2xs active:scale-95"
+              className="h-7 px-2.5 sm:h-8 sm:px-3 rounded-full flex items-center justify-center text-xs font-semibold text-foreground bg-black/5 dark:bg-white/10 hover:bg-black/10 dark:hover:bg-white/15 transition-all cursor-pointer border border-black/10 dark:border-white/10 space-x-1 shadow-2xs active:scale-95 whitespace-nowrap"
               title={language === 'id' ? 'Switch to English' : 'Ganti ke Bahasa Indonesia'}
             >
               <Globe className="w-3.5 h-3.5 text-muted-foreground" />
-              <span>{language === 'id' ? 'Indonesia' : 'English'}</span>
+              <span className="inline sm:hidden">{language.toUpperCase()}</span>
+              <span className="hidden sm:inline">{language === 'id' ? 'Indonesia' : 'English'}</span>
             </button>
             <button
               onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
-              className="h-8 w-8 rounded-full flex items-center justify-center text-foreground bg-black/5 dark:bg-white/10 hover:bg-black/10 dark:hover:bg-white/15 transition-all cursor-pointer border border-black/10 dark:border-white/10 shadow-2xs active:scale-95"
+              className="h-7 w-7 sm:h-8 sm:w-8 rounded-full flex items-center justify-center text-foreground bg-black/5 dark:bg-white/10 hover:bg-black/10 dark:hover:bg-white/15 transition-all cursor-pointer border border-black/10 dark:border-white/10 shadow-2xs active:scale-95 shrink-0"
               title={theme === 'dark' ? 'Mode Terang' : 'Mode Gelap'}
             >
               {theme === 'dark' ? (
-                <Sun className="w-4 h-4 text-amber-400" />
+                <Sun className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-amber-400" />
               ) : (
-                <Moon className="w-4 h-4 text-foreground" />
+                <Moon className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-foreground" />
               )}
             </button>
           </div>
