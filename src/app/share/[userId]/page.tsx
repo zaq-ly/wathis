@@ -14,7 +14,8 @@ import { isAnimeItem, normalizeWatchlistItems } from '@/lib/utils';
 
 export default function SharePage() {
   const params = useParams();
-  const userId = typeof params?.userId === 'string' ? params.userId : Array.isArray(params?.userId) ? params.userId[0] : '';
+  const rawUserId = typeof params?.userId === 'string' ? params.userId : Array.isArray(params?.userId) ? params.userId[0] : '';
+  const userId = decodeURIComponent(rawUserId || '');
 
   const [items, setItems] = useState<WatchlistItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -40,7 +41,10 @@ export default function SharePage() {
           .eq('user_id', userId)
           .order('created_at', { ascending: false });
 
-        if (!error && data) {
+        if (error) {
+          console.error('Supabase RLS/Query Error fetching shared items:', error);
+          setItems([]);
+        } else if (data) {
           setItems(normalizeWatchlistItems(data));
         } else {
           setItems([]);
