@@ -1,18 +1,18 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { WatchlistItem } from '@/types/watchlist';
 import { useWatchlist } from '@/context/WatchlistContext';
 import { useLanguage } from '@/context/LanguageContext';
 import { getTMDBImageUrl, formatSeasonDisplay, parseSeasonInput, isAnimeItem } from '@/lib/utils';
 import {
   X,
-  ExternalLink,
-  Calendar,
   ArrowLeftRight,
   Trash2,
   Tv,
   Film,
+  Sparkles,
   Check,
   Edit2
 } from 'lucide-react';
@@ -39,6 +39,11 @@ export const ItemDetailModal: React.FC<ItemDetailModalProps> = ({
   const [customSeasonLabel, setCustomSeasonLabel] = useState<string>('');
   const [isEditingLabel, setIsEditingLabel] = useState(false);
   const [isSaved, setIsSaved] = useState(false);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   useEffect(() => {
     if (item) {
@@ -59,7 +64,7 @@ export const ItemDetailModal: React.FC<ItemDetailModalProps> = ({
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [isOpen, onClose]);
 
-  if (!isOpen || !item) return null;
+  if (!isOpen || !item || !mounted) return null;
 
   const backdropUrl = getTMDBImageUrl(item.backdrop_path, 'original') || getTMDBImageUrl(item.poster_path, 'w500');
 
@@ -95,8 +100,11 @@ export const ItemDetailModal: React.FC<ItemDetailModalProps> = ({
   const standardLabels = Array.from({ length: quickSeasonMax }, (_, i) => i === 0 ? 'S1' : `S1-S${i + 1}`);
   const isCustomSelected = Boolean(customSeasonLabel && !standardLabels.includes(customSeasonLabel));
 
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-5 bg-black/80 backdrop-blur-xl animate-in fade-in duration-200">
+  return createPortal(
+    <div
+      onClick={onClose}
+      className="fixed inset-0 z-[100] flex items-center justify-center p-3 sm:p-5 bg-black/80 backdrop-blur-xl animate-in fade-in duration-200"
+    >
       <div
         className="w-full max-w-2xl bg-card border border-black/[0.08] dark:border-white/[0.12] rounded-3xl shadow-2xl overflow-hidden flex flex-col max-h-[92vh] transition-colors relative"
         onClick={(e) => e.stopPropagation()}
@@ -119,7 +127,7 @@ export const ItemDetailModal: React.FC<ItemDetailModalProps> = ({
               fill
               priority
               sizes="(max-width: 768px) 100vw, 768px"
-              className="object-cover filter brightness-[0.85]"
+              className="object-cover"
             />
           ) : (
             <div className="w-full h-full flex items-center justify-center text-muted-foreground text-xs font-medium">
@@ -127,39 +135,39 @@ export const ItemDetailModal: React.FC<ItemDetailModalProps> = ({
             </div>
           )}
 
-          {/* Apple Gradient Overlay */}
-          <div className="absolute inset-0 bg-gradient-to-t from-card via-card/30 to-transparent" />
+          {/* Cinematic Gradient Overlay */}
+          <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/25 to-black/40" />
 
           {/* Type Badge & Rating Badge */}
           <div className="absolute bottom-4 left-5 sm:left-6 flex items-center space-x-2">
-            <span className="inline-flex items-center space-x-1 text-xs font-semibold px-3 py-1 rounded-full bg-black/70 backdrop-blur-xl text-white border border-white/20">
+            <span className="inline-flex items-center space-x-1.5 text-xs font-semibold px-3 py-1 rounded-full bg-black/60 backdrop-blur-xl text-white border border-white/20 shadow-sm">
               {isAnimeItem(item) ? (
                 <>
-                  <span className="w-2.5 h-2.5 rounded-full bg-orange-500" />
+                  <Sparkles className="w-3 h-3 text-rose-400" />
                   <span>Anime{formatSeasonDisplay(item) ? ` • ${formatSeasonDisplay(item)}` : ''}</span>
                 </>
               ) : item.media_type === 'movie' ? (
                 <>
-                  <Film className="w-3 h-3 text-zinc-300" />
+                  <Film className="w-3 h-3 text-sky-400" />
                   <span>Film{formatSeasonDisplay(item) ? ` • ${formatSeasonDisplay(item)}` : ''}</span>
                 </>
               ) : (
                 <>
-                  <Tv className="w-3 h-3 text-blue-400" />
+                  <Tv className="w-3 h-3 text-indigo-400" />
                   <span>Series{formatSeasonDisplay(item) ? ` • ${formatSeasonDisplay(item)}` : ''}</span>
                 </>
               )}
             </span>
 
             {item.vote_average ? (
-              <span className="text-xs font-semibold bg-black/70 backdrop-blur-xl text-white border border-white/20 px-3 py-1 rounded-full flex items-center space-x-1">
+              <span className="text-xs font-semibold bg-black/60 backdrop-blur-xl text-white border border-white/20 px-3 py-1 rounded-full flex items-center space-x-1 shadow-sm">
                 <span className="text-amber-400">★</span>
                 <span>{item.vote_average}</span>
               </span>
             ) : null}
 
             {item.release_year && (
-              <span className="text-xs font-medium bg-black/60 backdrop-blur-xl text-zinc-300 border border-white/15 px-3 py-1 rounded-full">
+              <span className="text-xs font-medium bg-black/60 backdrop-blur-xl text-zinc-300 border border-white/15 px-3 py-1 rounded-full shadow-sm">
                 {item.release_year}
               </span>
             )}
@@ -295,6 +303,7 @@ export const ItemDetailModal: React.FC<ItemDetailModalProps> = ({
           </div>
         )}
       </div>
-    </div>
+    </div>,
+    document.body
   );
 };

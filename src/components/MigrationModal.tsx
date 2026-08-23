@@ -1,6 +1,7 @@
 'use client';
 
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { useWatchlist } from '@/context/WatchlistContext';
 import { SearchResultItem } from '@/types/watchlist';
 import { getTMDBImageUrl, isAnimeItem } from '@/lib/utils';
@@ -26,7 +27,12 @@ export const MigrationModal: React.FC<MigrationModalProps> = ({ isOpen, onClose 
   const [uploadedFileName, setUploadedFileName] = useState<string | null>(null);
   const [isDragging, setIsDragging] = useState(false);
   const [selectedSeasons, setSelectedSeasons] = useState<Record<number, number>>({});
+  const [mounted, setMounted] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const [isAdding, setIsAdding] = useState(false);
 
@@ -287,12 +293,14 @@ export const MigrationModal: React.FC<MigrationModalProps> = ({ isOpen, onClose 
     }
   };
 
+  if (!isOpen || !mounted) return null;
+
   const currentItem = itemsToProcess[currentIndex];
 
-  return (
+  return createPortal(
     <div
       onClick={handleClose}
-      className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-5 bg-black/80 backdrop-blur-xl animate-in fade-in duration-200"
+      className="fixed inset-0 z-[100] flex items-center justify-center p-3 sm:p-5 bg-black/80 backdrop-blur-xl animate-in fade-in duration-200"
     >
       <div
         className="w-full max-w-xl bg-card border border-black/[0.08] dark:border-white/[0.12] rounded-3xl shadow-2xl overflow-hidden flex flex-col max-h-[86vh] transition-colors"
@@ -707,7 +715,8 @@ export const MigrationModal: React.FC<MigrationModalProps> = ({ isOpen, onClose 
           </div>
         )}
       </div>
-    </div>
+    </div>,
+    document.body
   );
 };
 

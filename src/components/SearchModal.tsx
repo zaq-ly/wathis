@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import { useWatchlist } from '@/context/WatchlistContext';
 import { useLanguage } from '@/context/LanguageContext';
 import { SearchResultItem } from '@/types/watchlist';
@@ -24,7 +25,12 @@ export const SearchModal: React.FC<SearchModalProps> = ({ isOpen, onClose, onOpe
   const [addedIds, setAddedIds] = useState<Record<string, boolean>>({});
   const [selectedSeasons, setSelectedSeasons] = useState<Record<number, number>>({});
   const [searchHistory, setSearchHistory] = useState<string[]>([]);
+  const [mounted, setMounted] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   // Load history from localStorage
   useEffect(() => {
@@ -174,8 +180,13 @@ export const SearchModal: React.FC<SearchModalProps> = ({ isOpen, onClose, onOpe
     }
   };
 
-  return (
-    <div className="fixed inset-0 z-50 flex items-start justify-center pt-8 sm:pt-20 px-3 sm:px-4 bg-black/80 backdrop-blur-xl animate-in fade-in duration-200">
+  if (!isOpen || !mounted) return null;
+
+  return createPortal(
+    <div
+      onClick={onClose}
+      className="fixed inset-0 z-[100] flex items-start justify-center pt-8 sm:pt-20 px-3 sm:px-4 bg-black/80 backdrop-blur-xl animate-in fade-in duration-200"
+    >
       <div
         className="w-full max-w-2xl bg-card border border-black/[0.08] dark:border-white/[0.12] rounded-3xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh] sm:max-h-[82vh] transition-colors"
         onClick={(e) => e.stopPropagation()}
@@ -252,7 +263,13 @@ export const SearchModal: React.FC<SearchModalProps> = ({ isOpen, onClose, onOpe
 
                       {/* Meta badges: Type & Rating & Season */}
                       <div className="flex items-center space-x-2 mt-1 flex-wrap gap-y-1">
-                        <span className="text-[10px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded-md bg-black/[0.04] dark:bg-white/[0.08] text-muted-foreground">
+                        <span className={`text-[10px] font-semibold tracking-wide px-2 py-0.5 rounded-md ${
+                          isAnimeItem(item)
+                            ? 'bg-rose-500/10 text-rose-600 dark:text-rose-400'
+                            : item.media_type === 'movie'
+                            ? 'bg-sky-500/10 text-sky-600 dark:text-sky-400'
+                            : 'bg-indigo-500/10 text-indigo-600 dark:text-indigo-400'
+                        }`}>
                           {isAnimeItem(item) ? t.anime : item.media_type === 'movie' ? t.films : t.series}
                         </span>
                         {item.vote_average ? (
@@ -363,6 +380,7 @@ export const SearchModal: React.FC<SearchModalProps> = ({ isOpen, onClose, onOpe
           ) : null}
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 };

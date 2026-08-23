@@ -84,11 +84,11 @@ export const GridView: React.FC<GridViewProps> = ({ items, onOpenSearch, readonl
 
                 <div className="absolute top-2.5 left-2.5 px-2.5 py-0.5 rounded-full bg-black/60 backdrop-blur-xl text-[10px] text-white font-medium border border-white/10 flex items-center space-x-1 shadow-sm">
                   {isAnimeItem(item) ? (
-                    <span className="w-2.5 h-2.5 rounded-full bg-orange-500" />
+                    <Sparkles className="w-2.5 h-2.5 text-rose-400" />
                   ) : item.media_type === 'movie' ? (
-                    <Film className="w-2.5 h-2.5 text-zinc-300" />
+                    <Film className="w-2.5 h-2.5 text-sky-400" />
                   ) : (
-                    <Tv className="w-2.5 h-2.5 text-blue-300" />
+                    <Tv className="w-2.5 h-2.5 text-indigo-400" />
                   )}
                   <span>
                     {isAnimeItem(item) ? 'Anime' : item.media_type === 'movie' ? 'Film' : 'Series'}

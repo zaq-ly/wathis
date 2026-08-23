@@ -106,15 +106,15 @@ export const EditorialTableView: React.FC<EditorialTableViewProps> = ({
                     </span>
                     <span>•</span>
                     {isAnimeItem(item) ? (
-                      <span className="px-2 py-0.5 rounded-md bg-orange-500/10 text-orange-600 dark:text-orange-400 text-[11px] font-semibold">
+                      <span className="px-2 py-0.5 rounded-md bg-rose-500/10 text-rose-600 dark:text-rose-400 text-[11px] font-semibold">
                         Anime{formatSeasonDisplay(item) ? ` • ${formatSeasonDisplay(item)}` : ''}
                       </span>
                     ) : item.media_type === 'movie' ? (
-                      <span className="px-2 py-0.5 rounded-md bg-amber-500/10 text-amber-600 dark:text-amber-400 text-[11px] font-semibold">
+                      <span className="px-2 py-0.5 rounded-md bg-sky-500/10 text-sky-600 dark:text-sky-400 text-[11px] font-semibold">
                         Film{formatSeasonDisplay(item) ? ` • ${formatSeasonDisplay(item)}` : ''}
                       </span>
                     ) : (
-                      <span className="px-2 py-0.5 rounded-md bg-blue-500/10 text-blue-600 dark:text-blue-400 text-[11px] font-semibold">
+                      <span className="px-2 py-0.5 rounded-md bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 text-[11px] font-semibold">
                         Series{formatSeasonDisplay(item) ? ` • ${formatSeasonDisplay(item)}` : ''}
                       </span>
                     )}
@@ -229,9 +229,18 @@ export const EditorialTableView: React.FC<EditorialTableViewProps> = ({
             <div className="absolute bottom-0 left-0 right-0 p-5 sm:p-6 space-y-1.5">
               {/* Season / Format Badge */}
               <div className="flex items-center space-x-2">
-                <span className="px-3 py-1 rounded-full bg-white/20 backdrop-blur-xl text-white font-semibold text-xs border border-white/15">
-                  {isAnimeItem(activePreview) ? 'Anime' : activePreview.media_type === 'movie' ? 'Film' : 'Series'}
-                  {formatSeasonDisplay(activePreview) ? ` • ${formatSeasonDisplay(activePreview)}` : ''}
+                <span className="px-3 py-1 rounded-full bg-black/60 backdrop-blur-xl text-white font-semibold text-xs border border-white/15 flex items-center space-x-1.5 shadow-sm">
+                  {isAnimeItem(activePreview) ? (
+                    <Sparkles className="w-3 h-3 text-rose-400" />
+                  ) : activePreview.media_type === 'movie' ? (
+                    <Film className="w-3 h-3 text-sky-400" />
+                  ) : (
+                    <Tv className="w-3 h-3 text-indigo-400" />
+                  )}
+                  <span>
+                    {isAnimeItem(activePreview) ? 'Anime' : activePreview.media_type === 'movie' ? 'Film' : 'Series'}
+                    {formatSeasonDisplay(activePreview) ? ` • ${formatSeasonDisplay(activePreview)}` : ''}
+                  </span>
                 </span>
               </div>
 
@@ -300,15 +309,15 @@ export const EditorialTableView: React.FC<EditorialTableViewProps> = ({
                     {/* Type */}
                     <div className="col-span-2 flex items-center">
                       {isAnimeItem(item) ? (
-                        <span className="px-2.5 py-0.5 rounded-full bg-orange-500/10 text-orange-600 dark:text-orange-400 text-[11px] font-semibold">
+                        <span className="px-2.5 py-0.5 rounded-full bg-rose-500/10 text-rose-600 dark:text-rose-400 text-[11px] font-semibold">
                           Anime
                         </span>
                       ) : item.media_type === 'movie' ? (
-                        <span className="px-2.5 py-0.5 rounded-full bg-amber-500/10 text-amber-600 dark:text-amber-400 text-[11px] font-semibold">
+                        <span className="px-2.5 py-0.5 rounded-full bg-sky-500/10 text-sky-600 dark:text-sky-400 text-[11px] font-semibold">
                           Film
                         </span>
                       ) : (
-                        <span className="px-2.5 py-0.5 rounded-full bg-blue-500/10 text-blue-600 dark:text-blue-400 text-[11px] font-semibold">
+                        <span className="px-2.5 py-0.5 rounded-full bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 text-[11px] font-semibold">
                           Series
                         </span>
                       )}
@@ -319,10 +328,10 @@ export const EditorialTableView: React.FC<EditorialTableViewProps> = ({
                       {formatSeasonDisplay(item) ? (
                         <span className={`px-2 py-0.5 rounded-full text-[11px] font-semibold ${
                           isAnimeItem(item)
-                            ? 'bg-orange-500/10 text-orange-600 dark:text-orange-400'
+                            ? 'bg-rose-500/10 text-rose-600 dark:text-rose-400'
                             : item.media_type === 'movie'
-                            ? 'bg-amber-500/10 text-amber-600 dark:text-amber-400'
-                            : 'bg-blue-500/10 text-blue-600 dark:text-blue-400'
+                            ? 'bg-sky-500/10 text-sky-600 dark:text-sky-400'
+                            : 'bg-indigo-500/10 text-indigo-600 dark:text-indigo-400'
                         }`}>
                           {formatSeasonDisplay(item)}
                         </span>

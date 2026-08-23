@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { useWatchlist } from '@/context/WatchlistContext';
 import { WathisItem, SearchResultItem } from '@/types/watchlist';
 import { getTMDBImageUrl, isAnimeItem } from '@/lib/utils';
@@ -19,8 +20,13 @@ export const EditMatchModal: React.FC<EditMatchModalProps> = ({ item, isOpen, on
   const [results, setResults] = useState<SearchResultItem[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [isUpdating, setIsUpdating] = useState(false);
+  const [mounted, setMounted] = useState(false);
 
   const { replaceItem } = useWatchlist();
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   // Reset and prefill query when item opens
   useEffect(() => {
@@ -61,12 +67,12 @@ export const EditMatchModal: React.FC<EditMatchModalProps> = ({ item, isOpen, on
     }
   };
 
-  if (!isOpen || !item) return null;
+  if (!isOpen || !item || !mounted) return null;
 
-  return (
+  return createPortal(
     <div
       onClick={onClose}
-      className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-5 bg-black/80 backdrop-blur-xl animate-in fade-in duration-200"
+      className="fixed inset-0 z-[100] flex items-center justify-center p-3 sm:p-5 bg-black/80 backdrop-blur-xl animate-in fade-in duration-200"
     >
       <div
         className="w-full max-w-xl bg-card border border-black/[0.08] dark:border-white/[0.12] rounded-3xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh] transition-colors"
@@ -97,7 +103,13 @@ export const EditMatchModal: React.FC<EditMatchModalProps> = ({ item, isOpen, on
               <span className="text-sm font-semibold text-foreground truncate pr-2">
                 {item.title} {item.release_year ? `(${item.release_year})` : ''}
               </span>
-              <span className="text-xs px-2.5 py-0.5 rounded-full bg-black/[0.05] dark:bg-white/[0.1] text-muted-foreground shrink-0 font-medium">
+              <span className={`text-xs px-2.5 py-0.5 rounded-full shrink-0 font-medium ${
+                isAnimeItem(item)
+                  ? 'bg-rose-500/10 text-rose-600 dark:text-rose-400'
+                  : item.media_type === 'movie'
+                  ? 'bg-sky-500/10 text-sky-600 dark:text-sky-400'
+                  : 'bg-indigo-500/10 text-indigo-600 dark:text-indigo-400'
+              }`}>
                 {isAnimeItem(item) ? 'Anime' : item.media_type === 'movie' ? 'Film' : 'Series'}
               </span>
             </div>
@@ -177,10 +189,14 @@ export const EditMatchModal: React.FC<EditMatchModalProps> = ({ item, isOpen, on
                             </span>
                           )}
                         </div>
-                        <div className="flex items-center space-x-2 text-xs text-muted-foreground mt-0.5">
-                          <span>{result.release_year || '—'}</span>
-                          <span>•</span>
-                          <span>
+                        <div className="flex items-center space-x-2 text-[11px] text-muted-foreground mt-0.5">
+                          <span className={`font-semibold px-2 py-0.5 rounded-md text-[10px] ${
+                            isAnimeItem(result)
+                              ? 'bg-rose-500/10 text-rose-600 dark:text-rose-400'
+                              : result.media_type === 'movie'
+                              ? 'bg-sky-500/10 text-sky-600 dark:text-sky-400'
+                              : 'bg-indigo-500/10 text-indigo-600 dark:text-indigo-400'
+                          }`}>
                             {isAnimeItem(result) ? 'Anime' : result.media_type === 'movie' ? 'Film' : 'Series'}
                           </span>
                           {result.vote_average && (
@@ -242,7 +258,8 @@ export const EditMatchModal: React.FC<EditMatchModalProps> = ({ item, isOpen, on
           </button>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 };
 
