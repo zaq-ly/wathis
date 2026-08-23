@@ -92,3 +92,74 @@ export function getTMDBImageUrl(path: string | null | undefined, size: 'w300' | 
   if (path.startsWith('http')) return path;
   return `https://image.tmdb.org/t/p/${size}${path}`;
 }
+
+export function formatSeasonDisplay(item?: {
+  season_count?: number | null;
+  season_label?: string | null;
+  genres?: string[];
+  media_type?: string;
+  title?: string;
+  original_title?: string;
+} | null): string {
+  if (!item) return '';
+  if (item.season_label) return item.season_label;
+  if (!item.season_count) return '';
+
+  const isAnime = isAnimeItem(item);
+  if (item.season_count > 10 || (isAnime && item.season_count > 6)) {
+    return `Eps ${item.season_count}`;
+  }
+
+  if (item.season_count > 1) {
+    return `S1-S${item.season_count}`;
+  }
+
+  return 'S1';
+}
+
+export function parseSeasonInput(input: string): { count: number | null; label: string | null } {
+  const trimmed = input.trim();
+  if (!trimmed) return { count: null, label: null };
+
+  const digitsMatch = trimmed.match(/\d+/);
+  const num = digitsMatch ? parseInt(digitsMatch[0], 10) : null;
+
+  if (num && num > 10) {
+    return { count: num, label: `Eps ${num}` };
+  }
+
+  if (num && /^(eps?|episode)\s*\d+$/i.test(trimmed)) {
+    return { count: num, label: `Eps ${num}` };
+  }
+
+  return { count: num || 1, label: trimmed };
+}
+
+export function isAnimeItem(item?: {
+  genres?: string[];
+  title?: string;
+  original_title?: string;
+  media_type?: string;
+} | null): boolean {
+  if (!item) return false;
+  if (item.genres && item.genres.includes('Anime')) return true;
+  if (item.genres && (item.genres.includes('Animation') || item.genres.includes('Animasi'))) {
+    if (/[\u3040-\u30ff\u3400-\u4dbf\u4e00-\u9fff]/.test(item.original_title || '')) return true;
+    if (/[\u3040-\u30ff\u3400-\u4dbf\u4e00-\u9fff]/.test(item.title || '')) return true;
+    if (/anime/i.test(item.title || '')) return true;
+    if (/anime/i.test(item.original_title || '')) return true;
+  }
+  return false;
+}
+
+export function normalizeWatchlistItems<T extends { genres?: string[]; original_title?: string; title?: string; media_type?: string }>(items: T[]): T[] {
+  return (items || []).map((it) => {
+    if (isAnimeItem(it)) {
+      const currentGenres = it.genres || [];
+      if (!currentGenres.includes('Anime')) {
+        return { ...it, genres: ['Anime', ...currentGenres] };
+      }
+    }
+    return it;
+  });
+}

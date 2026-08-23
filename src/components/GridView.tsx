@@ -3,7 +3,8 @@
 import React, { useState } from 'react';
 import { WatchlistItem } from '@/types/watchlist';
 import { useWatchlist } from '@/context/WatchlistContext';
-import { getTMDBImageUrl } from '@/lib/utils';
+import { useLanguage } from '@/context/LanguageContext';
+import { getTMDBImageUrl, formatSeasonDisplay, isAnimeItem } from '@/lib/utils';
 import { Trash2, Calendar, Sparkles, Clapperboard, ArrowLeftRight, Film, Tv } from 'lucide-react';
 import Image from 'next/image';
 import { EditMatchModal } from './EditMatchModal';
@@ -12,10 +13,12 @@ import { ItemDetailModal } from './ItemDetailModal';
 interface GridViewProps {
   items: WatchlistItem[];
   onOpenSearch: () => void;
+  readonly?: boolean;
 }
 
-export const GridView: React.FC<GridViewProps> = ({ items, onOpenSearch }) => {
+export const GridView: React.FC<GridViewProps> = ({ items, onOpenSearch, readonly = false }) => {
   const { removeItem } = useWatchlist();
+  const { t } = useLanguage();
   const [editingItem, setEditingItem] = useState<WatchlistItem | null>(null);
   const [selectedDetailItem, setSelectedDetailItem] = useState<WatchlistItem | null>(null);
 
@@ -27,20 +30,22 @@ export const GridView: React.FC<GridViewProps> = ({ items, onOpenSearch }) => {
         </div>
         <div className="space-y-1.5 max-w-md px-4">
           <h3 className="text-lg font-semibold text-foreground tracking-tight">
-            Your Cinema Archive is Empty
+            {t.emptyArchive}
           </h3>
           <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">
-            Search and curate films and series you have watched. Powered by TMDB metadata.
+            {t.emptyArchiveDesc}
           </p>
         </div>
         <div className="pt-2">
-          <button
-            onClick={onOpenSearch}
-            className="flex items-center space-x-2 px-5 py-2.5 rounded-full bg-foreground text-background text-xs font-semibold hover:opacity-90 transition-all shadow-md active:scale-95 cursor-pointer apple-btn-active"
-          >
-            <Sparkles className="w-3.5 h-3.5" />
-            <span>Add Title</span>
-          </button>
+          {!readonly && (
+            <button
+              onClick={onOpenSearch}
+              className="flex items-center space-x-2 px-5 py-2.5 rounded-full bg-foreground text-background text-xs font-semibold hover:opacity-90 transition-all shadow-md active:scale-95 cursor-pointer apple-btn-active"
+            >
+              <Sparkles className="w-3.5 h-3.5" />
+              <span>{t.addFirstTitle}</span>
+            </button>
+          )}
         </div>
       </div>
     );
@@ -77,16 +82,17 @@ export const GridView: React.FC<GridViewProps> = ({ items, onOpenSearch }) => {
                 {/* Apple Gradient Vignette */}
                 <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-black/30 opacity-60 group-hover:opacity-90 transition-opacity duration-300" />
 
-                {/* Top Badge: Type & Season */}
                 <div className="absolute top-2.5 left-2.5 px-2.5 py-0.5 rounded-full bg-black/60 backdrop-blur-xl text-[10px] text-white font-medium border border-white/10 flex items-center space-x-1 shadow-sm">
-                  {item.media_type === 'movie' ? (
+                  {isAnimeItem(item) ? (
+                    <span className="w-2.5 h-2.5 rounded-full bg-orange-500" />
+                  ) : item.media_type === 'movie' ? (
                     <Film className="w-2.5 h-2.5 text-zinc-300" />
                   ) : (
                     <Tv className="w-2.5 h-2.5 text-blue-300" />
                   )}
                   <span>
-                    {item.media_type === 'movie' ? 'Film' : 'Series'}
-                    {item.season_count ? ` • ${item.season_count > 1 ? `S1-S${item.season_count}` : 'S1'}` : ''}
+                    {isAnimeItem(item) ? 'Anime' : item.media_type === 'movie' ? 'Film' : 'Series'}
+                    {formatSeasonDisplay(item) ? ` • ${formatSeasonDisplay(item)}` : ''}
                   </span>
                 </div>
 
@@ -99,28 +105,30 @@ export const GridView: React.FC<GridViewProps> = ({ items, onOpenSearch }) => {
                 ) : null}
 
                 {/* Quick Action Floating Pills */}
-                <div className="absolute top-2.5 right-2.5 flex items-center space-x-1">
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setEditingItem(item);
-                    }}
-                    className="p-1.5 rounded-full bg-black/60 hover:bg-white text-white hover:text-black backdrop-blur-xl opacity-0 group-hover:opacity-100 transition-all duration-200 border border-white/10 shadow-sm cursor-pointer"
-                    title="Change / Re-match"
-                  >
-                    <ArrowLeftRight className="w-3 h-3" />
-                  </button>
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      removeItem(item.tmdb_id, item.media_type);
-                    }}
-                    className="p-1.5 rounded-full bg-black/60 hover:bg-red-500 text-white backdrop-blur-xl opacity-0 group-hover:opacity-100 transition-all duration-200 border border-white/10 shadow-sm cursor-pointer"
-                    title="Remove"
-                  >
-                    <Trash2 className="w-3 h-3" />
-                  </button>
-                </div>
+                {!readonly && (
+                  <div className="absolute top-2.5 right-2.5 flex items-center space-x-1">
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setEditingItem(item);
+                      }}
+                      className="p-1.5 rounded-full bg-black/60 hover:bg-white text-white hover:text-black backdrop-blur-xl opacity-0 group-hover:opacity-100 transition-all duration-200 border border-white/10 shadow-sm cursor-pointer"
+                      title="Change / Re-match"
+                    >
+                      <ArrowLeftRight className="w-3 h-3" />
+                    </button>
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        removeItem(item.tmdb_id, item.media_type);
+                      }}
+                      className="p-1.5 rounded-full bg-black/60 hover:bg-red-500 text-white backdrop-blur-xl opacity-0 group-hover:opacity-100 transition-all duration-200 border border-white/10 shadow-sm cursor-pointer"
+                      title="Remove"
+                    >
+                      <Trash2 className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                )}
               </div>
 
               {/* Title & Metadata Details */}
@@ -142,7 +150,7 @@ export const GridView: React.FC<GridViewProps> = ({ items, onOpenSearch }) => {
                     <span>{item.release_year || '—'}</span>
                   </span>
                   <span className="font-semibold text-foreground/80 text-[11px]">
-                    {item.season_count ? (item.season_count > 1 ? `${item.season_count}S` : '1S') : ''}
+                    {formatSeasonDisplay(item)}
                   </span>
                 </div>
               </div>
@@ -151,12 +159,12 @@ export const GridView: React.FC<GridViewProps> = ({ items, onOpenSearch }) => {
         })}
       </div>
 
-      {/* Item Detail Modal */}
       <ItemDetailModal
         item={selectedDetailItem ? (items.find((i) => i.tmdb_id === selectedDetailItem.tmdb_id && i.media_type === selectedDetailItem.media_type) || selectedDetailItem) : null}
         isOpen={Boolean(selectedDetailItem)}
         onClose={() => setSelectedDetailItem(null)}
         onOpenEditMatch={(item) => setEditingItem(item)}
+        readonly={readonly}
       />
 
       {/* Re-match Edit Modal */}

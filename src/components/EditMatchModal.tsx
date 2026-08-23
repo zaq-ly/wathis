@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { useWatchlist } from '@/context/WatchlistContext';
 import { WathisItem, SearchResultItem } from '@/types/watchlist';
-import { getTMDBImageUrl } from '@/lib/utils';
+import { getTMDBImageUrl, isAnimeItem } from '@/lib/utils';
 import { fetchTMDBSearch } from '@/lib/searchClient';
 import { X, Search, Check, Loader2, ArrowLeftRight, Film, Tv } from 'lucide-react';
 import Image from 'next/image';
@@ -98,7 +98,7 @@ export const EditMatchModal: React.FC<EditMatchModalProps> = ({ item, isOpen, on
                 {item.title} {item.release_year ? `(${item.release_year})` : ''}
               </span>
               <span className="text-xs px-2.5 py-0.5 rounded-full bg-black/[0.05] dark:bg-white/[0.1] text-muted-foreground shrink-0 font-medium">
-                {item.media_type === 'movie' ? 'Film' : 'Series'}
+                {isAnimeItem(item) ? 'Anime' : item.media_type === 'movie' ? 'Film' : 'Series'}
               </span>
             </div>
           </div>
@@ -181,7 +181,7 @@ export const EditMatchModal: React.FC<EditMatchModalProps> = ({ item, isOpen, on
                           <span>{result.release_year || '—'}</span>
                           <span>•</span>
                           <span>
-                            {result.media_type === 'movie' ? 'Film' : 'Series'}
+                            {isAnimeItem(result) ? 'Anime' : result.media_type === 'movie' ? 'Film' : 'Series'}
                           </span>
                           {result.vote_average && (
                             <>

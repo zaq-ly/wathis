@@ -104,7 +104,8 @@ async function executeTMDBSearch(queryText: string, apiKey: string): Promise<TMD
         vote_average: enItem?.vote_average || idItem?.vote_average || primary.vote_average,
         genre_ids: enItem?.genre_ids?.length ? enItem.genre_ids : idItem?.genre_ids || primary.genre_ids,
         first_air_date: enItem?.first_air_date || idItem?.first_air_date || primary.first_air_date,
-        release_date: enItem?.release_date || idItem?.release_date || primary.release_date,
+        original_language: enItem?.original_language || idItem?.original_language || primary.original_language,
+        origin_country: enItem?.origin_country || idItem?.origin_country || primary.origin_country,
       };
       results.push(merged);
     }
@@ -151,6 +152,19 @@ export async function searchTMDB(query: string): Promise<SearchResultItem[]> {
       const origTitle = isTv ? item.original_name : item.original_title;
       const releaseDate = isTv ? item.first_air_date : item.release_date;
       const genres = (item.genre_ids || []).map((id) => TMDB_GENRES[id]).filter(Boolean);
+      
+      // Robust Anime detection
+      const hasJapaneseOrigin =
+        item.original_language === 'ja' ||
+        item.origin_country?.includes('JP') ||
+        /[\u3040-\u30ff\u3400-\u4dbf\u4e00-\u9fff]/.test(origTitle || '') ||
+        /anime/i.test(title || '');
+      const hasAnimationGenre = item.genre_ids?.includes(16) || genres.includes('Animation');
+
+      if (hasAnimationGenre && (hasJapaneseOrigin || item.original_language === 'ja')) {
+        if (!genres.includes('Anime')) genres.unshift('Anime');
+      }
+
       const rating = item.vote_average ? Math.round(item.vote_average * 10) / 10 : null;
 
       return {
@@ -199,6 +213,21 @@ export async function getTMDBDetails(id: number, mediaType: 'movie' | 'tv'): Pro
     const title = enTitle || idTitle || origTitle || 'Untitled';
     const releaseDate = isTv ? (enData.first_air_date || idData.first_air_date) : (enData.release_date || idData.release_date);
     const genres = ((enData.genres && enData.genres.length > 0) ? enData.genres : idData.genres || []).map((g) => g.name);
+    
+    // Robust Anime detection
+    const hasJapaneseOrigin =
+      enData.original_language === 'ja' ||
+      idData.original_language === 'ja' ||
+      enData.origin_country?.includes('JP') ||
+      idData.origin_country?.includes('JP') ||
+      /[\u3040-\u30ff\u3400-\u4dbf\u4e00-\u9fff]/.test(origTitle || '') ||
+      /anime/i.test(title || '');
+    const hasAnimationGenre = genres.includes('Animation') || (enData.genres || []).some(g => g.id === 16) || (idData.genres || []).some(g => g.id === 16);
+
+    if (hasAnimationGenre && (hasJapaneseOrigin || enData.original_language === 'ja' || idData.original_language === 'ja')) {
+      if (!genres.includes('Anime')) genres.unshift('Anime');
+    }
+
     const rating = enData.vote_average || idData.vote_average ? Math.round((enData.vote_average || idData.vote_average || 0) * 10) / 10 : null;
     const overview = idData.overview?.trim() || enData.overview?.trim() || '';
 

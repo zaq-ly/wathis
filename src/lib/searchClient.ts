@@ -48,6 +48,19 @@ export async function fetchTMDBSearch(query: string): Promise<SearchResultItem[]
         const origTitle = isTv ? item.original_name : item.original_title;
         const releaseDate = isTv ? item.first_air_date : item.release_date;
         const genres = (item.genre_ids || []).map((id) => TMDB_GENRES[id]).filter(Boolean);
+        
+        // Robust Anime detection
+        const hasJapaneseOrigin =
+          item.original_language === 'ja' ||
+          item.origin_country?.includes('JP') ||
+          /[\u3040-\u30ff\u3400-\u4dbf\u4e00-\u9fff]/.test(origTitle || '') ||
+          /anime/i.test(title || '');
+        const hasAnimationGenre = item.genre_ids?.includes(16) || genres.includes('Animation');
+
+        if (hasAnimationGenre && (hasJapaneseOrigin || item.original_language === 'ja')) {
+          if (!genres.includes('Anime')) genres.unshift('Anime');
+        }
+
         const rating = item.vote_average ? Math.round(item.vote_average * 10) / 10 : null;
 
         return {

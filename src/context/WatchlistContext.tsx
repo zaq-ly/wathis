@@ -4,6 +4,7 @@ import React, { createContext, useContext, useEffect, useState, useCallback } fr
 import { WatchlistItem, SearchResultItem } from '@/types/watchlist';
 import { createClient, isSupabaseConfigured } from '@/lib/supabase/client';
 import { User } from '@supabase/supabase-js';
+import { isAnimeItem, normalizeWatchlistItems } from '@/lib/utils';
 
 export type SortOption =
   | 'default'
@@ -27,8 +28,8 @@ interface WatchlistContextType {
   refreshItems: () => Promise<void>;
   clearWatchlist: () => Promise<boolean>;
   signOut: () => Promise<void>;
-  filterType: 'all' | 'movie' | 'tv';
-  setFilterType: (type: 'all' | 'movie' | 'tv') => void;
+  filterType: 'all' | 'movie' | 'tv' | 'anime';
+  setFilterType: (type: 'all' | 'movie' | 'tv' | 'anime') => void;
   selectedGenre: string | null;
   setSelectedGenre: (genre: string | null) => void;
   sortBy: SortOption;
@@ -50,7 +51,7 @@ export function WatchlistProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [isConfigured] = useState<boolean>(isSupabaseConfigured());
 
-  const [filterType, setFilterType] = useState<'all' | 'movie' | 'tv'>('all');
+  const [filterType, setFilterType] = useState<'all' | 'movie' | 'tv' | 'anime'>('all');
   const [selectedGenre, setSelectedGenre] = useState<string | null>(null);
   const [sortBy, setSortBy] = useState<SortOption>('year-desc');
   const [searchQuery, setSearchQuery] = useState('');
@@ -152,7 +153,23 @@ export function WatchlistProvider({ children }: { children: React.ReactNode }) {
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      const loadedItems: WatchlistItem[] = data || [];
+      let loadedItems: WatchlistItem[] = normalizeWatchlistItems(data || []);
+
+      // LocalStorage persistence fallback for season_label
+      if (typeof window !== 'undefined') {
+        try {
+          const raw = localStorage.getItem('wathis_season_labels') || '{}';
+          const cachedLabels = JSON.parse(raw);
+          loadedItems = loadedItems.map((it) => {
+            const key = `${it.media_type}_${it.tmdb_id}`;
+            if (!it.season_label && cachedLabels[key]) {
+              return { ...it, season_label: cachedLabels[key] };
+            }
+            return it;
+          });
+        } catch {}
+      }
+
       setItems(loadedItems);
 
       // Background auto-enrichment for items missing vote_average
@@ -222,6 +239,16 @@ export function WatchlistProvider({ children }: { children: React.ReactNode }) {
       created_at: new Date().toISOString(),
     };
 
+    // Always persist to local cache so page refresh never loses custom labels
+    if (typeof window !== 'undefined' && sLabel) {
+      try {
+        const raw = localStorage.getItem('wathis_season_labels') || '{}';
+        const labels = JSON.parse(raw);
+        labels[`${item.media_type}_${item.tmdb_id}`] = sLabel;
+        localStorage.setItem('wathis_season_labels', JSON.stringify(labels));
+      } catch {}
+    }
+
     // If not logged in, add to local state
     if (!user || !isConfigured) {
       setItems((prev) => [newItem, ...prev]);
@@ -290,6 +317,21 @@ export function WatchlistProvider({ children }: { children: React.ReactNode }) {
     season_count: number | null,
     season_label: string | null
   ): Promise<boolean> => {
+    // Persist custom label to localStorage cache
+    if (typeof window !== 'undefined') {
+      try {
+        const raw = localStorage.getItem('wathis_season_labels') || '{}';
+        const labels = JSON.parse(raw);
+        const key = `${media_type}_${tmdb_id}`;
+        if (season_label) {
+          labels[key] = season_label;
+        } else {
+          delete labels[key];
+        }
+        localStorage.setItem('wathis_season_labels', JSON.stringify(labels));
+      } catch {}
+    }
+
     setItems((prev) =>
       prev.map((item) => {
         if (item.tmdb_id === tmdb_id && item.media_type === media_type) {
@@ -314,7 +356,7 @@ export function WatchlistProvider({ children }: { children: React.ReactNode }) {
         if (error) {
           console.warn('updateSeason error:', error.code, error.message);
           if (error.code === '42703' || error.message?.toLowerCase().includes('column') || error.message?.includes('does not exist')) {
-            console.warn('⚠️ Kolom "season_label" tidak ada di tabel Supabase. Season label tidak akan tersimpan permanen. Tambahkan kolom "season_label" (type: text, nullable) ke tabel watchlist_items di Supabase Dashboard.');
+            console.warn('⚠️ Kolom "season_label" tidak ada di tabel Supabase. Season label disimpan di cache browser.');
             delete updatePayload.season_label;
             await supabase
               .from('watchlist_items')
@@ -331,6 +373,15 @@ export function WatchlistProvider({ children }: { children: React.ReactNode }) {
 
   // 5. Remove Item
   const removeItem = async (tmdb_id: number, media_type: 'movie' | 'tv'): Promise<boolean> => {
+    if (typeof window !== 'undefined') {
+      try {
+        const raw = localStorage.getItem('wathis_season_labels') || '{}';
+        const labels = JSON.parse(raw);
+        delete labels[`${media_type}_${tmdb_id}`];
+        localStorage.setItem('wathis_season_labels', JSON.stringify(labels));
+      } catch {}
+    }
+
     setItems((prev) => prev.filter((i) => !(i.tmdb_id === tmdb_id && i.media_type === media_type)));
 
     if (user && isConfigured) {
@@ -491,7 +542,11 @@ export function WatchlistProvider({ children }: { children: React.ReactNode }) {
   // Filtered & Sorted Items logic
   const filteredItems = items
     .filter((item) => {
-      const matchesType = filterType === 'all' || item.media_type === filterType;
+      const isAnime = isAnimeItem(item);
+      const matchesType = filterType === 'all' ||
+        (filterType === 'anime' && isAnime) ||
+        (filterType === 'movie' && item.media_type === 'movie' && !isAnime) ||
+        (filterType === 'tv' && item.media_type === 'tv' && !isAnime);
       const matchesGenre = !selectedGenre || (item.genres && item.genres.includes(selectedGenre));
       const matchesSearch =
         !searchQuery ||

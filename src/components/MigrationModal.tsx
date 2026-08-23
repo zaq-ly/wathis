@@ -3,7 +3,7 @@
 import React, { useState, useRef } from 'react';
 import { useWatchlist } from '@/context/WatchlistContext';
 import { SearchResultItem } from '@/types/watchlist';
-import { getTMDBImageUrl } from '@/lib/utils';
+import { getTMDBImageUrl, isAnimeItem } from '@/lib/utils';
 import { parseUniversalImport, ParsedImportItem } from '@/lib/importParser';
 import { fetchTMDBSearch } from '@/lib/searchClient';
 import { X, Check, Database, ArrowRight, Loader2, RefreshCw, Upload, FileText } from 'lucide-react';
@@ -611,7 +611,7 @@ export const MigrationModal: React.FC<MigrationModalProps> = ({ isOpen, onClose 
                                 {result.title} {result.release_year ? `(${result.release_year})` : ''}
                               </div>
                               <div className="text-[11px] text-muted-foreground truncate mt-0.5">
-                                {result.media_type === 'movie' ? 'Film' : 'Series'} • {result.genres && result.genres.length > 0 ? result.genres.slice(0, 2).join(', ') : 'Cinema'}
+                                {isAnimeItem(result) ? 'Anime' : result.media_type === 'movie' ? 'Film' : 'Series'} • {result.genres && result.genres.length > 0 ? result.genres.slice(0, 2).join(', ') : 'Cinema'}
                               </div>
                             </div>
                           </div>

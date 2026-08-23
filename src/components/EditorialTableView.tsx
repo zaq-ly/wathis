@@ -3,7 +3,8 @@
 import React, { useState } from 'react';
 import { WatchlistItem } from '@/types/watchlist';
 import { useWatchlist } from '@/context/WatchlistContext';
-import { getTMDBImageUrl } from '@/lib/utils';
+import { useLanguage } from '@/context/LanguageContext';
+import { getTMDBImageUrl, formatSeasonDisplay, isAnimeItem } from '@/lib/utils';
 import { Trash2, Calendar, Sparkles, ExternalLink, Clapperboard, Film, Tv, ArrowLeftRight, Play } from 'lucide-react';
 import Image from 'next/image';
 import { EditMatchModal } from './EditMatchModal';
@@ -12,13 +13,16 @@ import { ItemDetailModal } from './ItemDetailModal';
 interface EditorialTableViewProps {
   items: WatchlistItem[];
   onOpenSearch: () => void;
+  readonly?: boolean;
 }
 
 export const EditorialTableView: React.FC<EditorialTableViewProps> = ({
   items,
   onOpenSearch,
+  readonly = false,
 }) => {
   const { removeItem, setSelectedGenre } = useWatchlist();
+  const { t } = useLanguage();
   const [hoveredItem, setHoveredItem] = useState<WatchlistItem | null>(null);
   const [editingItem, setEditingItem] = useState<WatchlistItem | null>(null);
   const [selectedDetailItem, setSelectedDetailItem] = useState<WatchlistItem | null>(null);
@@ -32,20 +36,22 @@ export const EditorialTableView: React.FC<EditorialTableViewProps> = ({
         </div>
         <div className="space-y-1.5 max-w-md px-4">
           <h3 className="text-lg font-semibold text-foreground tracking-tight">
-            Your Cinema Archive is Empty
+            {t.emptyArchive}
           </h3>
           <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">
-            Search and curate films and series you have watched. Powered by TMDB metadata.
+            {t.emptyArchiveDesc}
           </p>
         </div>
         <div className="pt-2">
-          <button
-            onClick={onOpenSearch}
-            className="flex items-center space-x-2 px-5 py-2.5 rounded-full bg-foreground text-background text-xs font-semibold hover:opacity-90 transition-all shadow-md active:scale-95 cursor-pointer apple-btn-active"
-          >
-            <Sparkles className="w-3.5 h-3.5" />
-            <span>Add Title</span>
-          </button>
+          {!readonly && (
+            <button
+              onClick={onOpenSearch}
+              className="flex items-center space-x-2 px-5 py-2.5 rounded-full bg-foreground text-background text-xs font-semibold hover:opacity-90 transition-all shadow-md active:scale-95 cursor-pointer apple-btn-active"
+            >
+              <Sparkles className="w-3.5 h-3.5" />
+              <span>{t.addFirstTitle}</span>
+            </button>
+          )}
         </div>
       </div>
     );
@@ -99,17 +105,17 @@ export const EditorialTableView: React.FC<EditorialTableViewProps> = ({
                       {item.release_year || '—'}
                     </span>
                     <span>•</span>
-                    {item.media_type === 'movie' ? (
-                      <span className={`px-2 py-0.5 rounded-md text-[11px] font-medium ${
-                        item.season_count && item.season_count > 1
-                          ? 'bg-amber-500/10 text-amber-600 dark:text-amber-400 font-semibold'
-                          : 'bg-black/[0.04] dark:bg-white/[0.08] text-foreground/80'
-                      }`}>
-                        Film{item.season_count ? ` • ${item.season_count > 1 ? `S1-S${item.season_count}` : 'S1'}` : ''}
+                    {isAnimeItem(item) ? (
+                      <span className="px-2 py-0.5 rounded-md bg-orange-500/10 text-orange-600 dark:text-orange-400 text-[11px] font-semibold">
+                        Anime{formatSeasonDisplay(item) ? ` • ${formatSeasonDisplay(item)}` : ''}
+                      </span>
+                    ) : item.media_type === 'movie' ? (
+                      <span className="px-2 py-0.5 rounded-md bg-amber-500/10 text-amber-600 dark:text-amber-400 text-[11px] font-semibold">
+                        Film{formatSeasonDisplay(item) ? ` • ${formatSeasonDisplay(item)}` : ''}
                       </span>
                     ) : (
                       <span className="px-2 py-0.5 rounded-md bg-blue-500/10 text-blue-600 dark:text-blue-400 text-[11px] font-semibold">
-                        Series{item.season_count ? ` • ${item.season_count > 1 ? `S1-S${item.season_count}` : 'S1'}` : ''}
+                        Series{formatSeasonDisplay(item) ? ` • ${formatSeasonDisplay(item)}` : ''}
                       </span>
                     )}
                     {item.vote_average ? (
@@ -132,18 +138,20 @@ export const EditorialTableView: React.FC<EditorialTableViewProps> = ({
               </div>
 
               {/* Action Buttons */}
-              <div className="shrink-0 flex items-center">
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    removeItem(item.tmdb_id, item.media_type);
-                  }}
-                  className="p-2 rounded-full text-muted-foreground hover:text-red-500 hover:bg-red-500/10 transition-colors cursor-pointer"
-                  title="Remove"
-                >
-                  <Trash2 className="w-3.5 h-3.5" />
-                </button>
-              </div>
+              {!readonly && (
+                <div className="shrink-0 flex items-center">
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      removeItem(item.tmdb_id, item.media_type);
+                    }}
+                    className="p-2 rounded-full text-muted-foreground hover:text-red-500 hover:bg-red-500/10 transition-colors cursor-pointer"
+                    title="Remove"
+                  >
+                    <Trash2 className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+              )}
             </div>
           );
         })}
@@ -222,8 +230,8 @@ export const EditorialTableView: React.FC<EditorialTableViewProps> = ({
               {/* Season / Format Badge */}
               <div className="flex items-center space-x-2">
                 <span className="px-3 py-1 rounded-full bg-white/20 backdrop-blur-xl text-white font-semibold text-xs border border-white/15">
-                  {activePreview.media_type === 'movie' ? 'Film' : 'Series'}
-                  {activePreview.season_count ? ` • ${activePreview.season_count > 1 ? `S1-S${activePreview.season_count}` : 'S1'}` : ''}
+                  {isAnimeItem(activePreview) ? 'Anime' : activePreview.media_type === 'movie' ? 'Film' : 'Series'}
+                  {formatSeasonDisplay(activePreview) ? ` • ${formatSeasonDisplay(activePreview)}` : ''}
                 </span>
               </div>
 
@@ -247,12 +255,12 @@ export const EditorialTableView: React.FC<EditorialTableViewProps> = ({
           <div className="border border-black/[0.06] dark:border-white/[0.08] rounded-3xl overflow-hidden bg-card shadow-sm flex flex-col max-h-[calc(100vh-190px)] min-h-[480px]">
             {/* Sticky Table Header */}
             <div className="grid grid-cols-12 gap-x-2 items-center px-6 py-3.5 bg-black/[0.02] dark:bg-white/[0.03] border-b border-black/[0.04] dark:border-white/[0.06] text-xs font-semibold text-muted-foreground tracking-tight select-none shrink-0 z-10">
-              <div className="col-span-1">#</div>
-              <div className="col-span-3">Title</div>
-              <div className="col-span-2">Type</div>
-              <div className="col-span-2">Season</div>
-              <div className="col-span-2">Year</div>
-              <div className="col-span-2 text-right pr-14">Rating</div>
+              <div className="col-span-1">{t.tableNo}</div>
+              <div className="col-span-3">{t.tableTitle}</div>
+              <div className="col-span-2">{t.tableType}</div>
+              <div className="col-span-2">{t.seasons}</div>
+              <div className="col-span-2">{t.tableYear}</div>
+              <div className="col-span-2 text-right pr-14">{t.tableRating}</div>
             </div>
 
             {/* Smooth Scrollable Table Rows */}
@@ -291,7 +299,11 @@ export const EditorialTableView: React.FC<EditorialTableViewProps> = ({
 
                     {/* Type */}
                     <div className="col-span-2 flex items-center">
-                      {item.media_type === 'movie' ? (
+                      {isAnimeItem(item) ? (
+                        <span className="px-2.5 py-0.5 rounded-full bg-orange-500/10 text-orange-600 dark:text-orange-400 text-[11px] font-semibold">
+                          Anime
+                        </span>
+                      ) : item.media_type === 'movie' ? (
                         <span className="px-2.5 py-0.5 rounded-full bg-amber-500/10 text-amber-600 dark:text-amber-400 text-[11px] font-semibold">
                           Film
                         </span>
@@ -304,13 +316,15 @@ export const EditorialTableView: React.FC<EditorialTableViewProps> = ({
 
                     {/* Season */}
                     <div className="col-span-2 flex items-center">
-                      {item.season_count ? (
+                      {formatSeasonDisplay(item) ? (
                         <span className={`px-2 py-0.5 rounded-full text-[11px] font-semibold ${
-                          item.media_type === 'movie'
+                          isAnimeItem(item)
+                            ? 'bg-orange-500/10 text-orange-600 dark:text-orange-400'
+                            : item.media_type === 'movie'
                             ? 'bg-amber-500/10 text-amber-600 dark:text-amber-400'
                             : 'bg-blue-500/10 text-blue-600 dark:text-blue-400'
                         }`}>
-                          {item.season_count > 1 ? `S1-S${item.season_count}` : 'S1'}
+                          {formatSeasonDisplay(item)}
                         </span>
                       ) : (
                         <span className="text-[11px] text-muted-foreground">—</span>
@@ -335,16 +349,18 @@ export const EditorialTableView: React.FC<EditorialTableViewProps> = ({
                         )}
                       </div>
 
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          removeItem(item.tmdb_id, item.media_type);
-                        }}
-                        className="absolute right-0 opacity-0 group-hover:opacity-100 p-1.5 rounded-full text-muted-foreground hover:text-red-500 hover:bg-red-500/10 transition-all cursor-pointer"
-                        title="Hapus"
-                      >
-                        <Trash2 className="w-3.5 h-3.5" />
-                      </button>
+                      {!readonly && (
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            removeItem(item.tmdb_id, item.media_type);
+                          }}
+                          className="absolute right-0 opacity-0 group-hover:opacity-100 p-1.5 rounded-full text-muted-foreground hover:text-red-500 hover:bg-red-500/10 transition-all cursor-pointer"
+                          title="Hapus"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
+                      )}
                     </div>
                   </div>
                 );
@@ -360,6 +376,7 @@ export const EditorialTableView: React.FC<EditorialTableViewProps> = ({
         isOpen={Boolean(selectedDetailItem)}
         onClose={() => setSelectedDetailItem(null)}
         onOpenEditMatch={(item) => setEditingItem(item)}
+        readonly={readonly}
       />
 
       {/* Edit / Re-match Modal */}

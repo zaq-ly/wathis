@@ -3,8 +3,9 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useWatchlist } from '@/context/WatchlistContext';
 import { useTheme } from '@/context/ThemeContext';
-import { Search, Database, LogIn, LogOut, LayoutList, LayoutGrid, Layers, Film, Tv, Sparkles, Monitor, Moon, Sun, ChevronRight, RefreshCw, Loader2 } from 'lucide-react';
-import { ThemeToggle } from './ThemeToggle';
+import { useLanguage } from '@/context/LanguageContext';
+import { Search, Database, LogIn, LogOut, LayoutList, LayoutGrid, Film, Tv, Sparkles, Monitor, Moon, Sun, ChevronRight, RefreshCw, Loader2, Share2, CheckCircle2, Download, Globe } from 'lucide-react';
+import { isAnimeItem } from '@/lib/utils';
 
 interface HeaderProps {
   onOpenSearch: () => void;
@@ -33,10 +34,14 @@ export const Header: React.FC<HeaderProps> = ({
     syncProgress,
   } = useWatchlist();
   const { theme, setTheme } = useTheme();
+  const { language, setLanguage, t } = useLanguage();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const mobileMenuRef = useRef<HTMLDivElement>(null);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
+  const [avatarError, setAvatarError] = useState(false);
+
+  const avatarUrl = user?.user_metadata?.avatar_url || user?.user_metadata?.picture;
 
   const showToast = (msg: string) => {
     setToastMessage(msg);
@@ -47,6 +52,38 @@ export const Header: React.FC<HeaderProps> = ({
     setShowLogoutConfirm(false);
     setIsMobileMenuOpen(false);
     await signOut();
+  };
+
+  const handleExportCSV = () => {
+    if (!items || items.length === 0) {
+      showToast(t.noExportData);
+      return;
+    }
+    const headers = ['title', 'media_type', 'release_year', 'vote_average', 'genres', 'poster_path', 'overview', 'season_count', 'season_label', 'tmdb_id'];
+    const rows = items.map(item => [
+      `"${(item.title || '').replace(/"/g, '""')}"`,
+      item.media_type || '',
+      item.release_year || '',
+      item.vote_average || '',
+      `"${(item.genres || []).join(', ')}"`,
+      item.poster_path || '',
+      `"${(item.overview || '').replace(/"/g, '""')}"`,
+      item.season_count || '',
+      item.season_label || '',
+      item.tmdb_id || ''
+    ]);
+    const csvContent = [headers.join(','), ...rows.map(r => r.join(','))].join('\n');
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.setAttribute('href', url);
+    link.setAttribute('download', `wathis_archive_${new Date().toISOString().split('T')[0]}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+    showToast(t.exportFinished);
+    setIsMobileMenuOpen(false);
   };
 
   useEffect(() => {
@@ -62,8 +99,9 @@ export const Header: React.FC<HeaderProps> = ({
   }, [isMobileMenuOpen]);
 
   const totalCount = items.length;
-  const filmCount = items.filter((i) => i.media_type === 'movie').length;
-  const tvCount = items.filter((i) => i.media_type === 'tv').length;
+  const filmCount = items.filter((i) => i.media_type === 'movie' && !isAnimeItem(i)).length;
+  const tvCount = items.filter((i) => i.media_type === 'tv' && !isAnimeItem(i)).length;
+  const animeCount = items.filter((i) => isAnimeItem(i)).length;
 
   return (
     <header className="sticky top-0 z-40 apple-glass-nav border-b border-black/[0.06] dark:border-white/[0.08] transition-colors">
@@ -71,30 +109,30 @@ export const Header: React.FC<HeaderProps> = ({
         {/* Main Apple Navbar */}
         <div className="flex items-center justify-between h-14 sm:h-16">
           {/* Left: Brand Logo & Segmented Navigation */}
-          <div className="flex items-center space-x-6 sm:space-x-8">
+          <div className="flex items-center space-x-4 sm:space-x-8 min-w-0">
             {/* Brand Logo with Page Reload */}
             <button
               type="button"
               onClick={() => {
                 window.location.href = '/';
               }}
-              className="flex items-center space-x-2.5 font-semibold text-base tracking-tight text-foreground select-none group cursor-pointer apple-btn-active"
+              className="flex items-center space-x-2 sm:space-x-2.5 font-semibold text-sm sm:text-base tracking-tight text-foreground select-none group cursor-pointer apple-btn-active shrink-0"
               title="Refresh / Beranda"
             >
-              <div className="w-8 h-8 rounded-md overflow-hidden flex items-center justify-center">
+              <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-md overflow-hidden flex items-center justify-center shrink-0">
                 <img
                   src="/logo_zoomed.jpg"
                   alt="wathis logo"
                   className="w-full h-full object-cover"
                 />
               </div>
-              <span className="font-semibold text-base tracking-tight text-foreground">
+              <span className="font-semibold tracking-tight text-foreground">
                 wathis<span className="text-zinc-400">.</span>
               </span>
             </button>
 
             {/* Apple Segmented Pill Switcher (Desktop) */}
-            <nav className="hidden md:flex items-center p-1 rounded-full bg-black/[0.05] dark:bg-white/[0.08] border border-black/10 dark:border-white/10">
+            <nav className="hidden md:flex items-center p-1 rounded-full bg-black/[0.05] dark:bg-white/[0.08] border border-black/10 dark:border-white/10 shrink-0">
               <button
                 onClick={() => setFilterType('all')}
                 className={`px-3.5 py-1.5 rounded-full text-xs transition-all duration-200 cursor-pointer flex items-center space-x-1.5 ${
@@ -103,7 +141,7 @@ export const Header: React.FC<HeaderProps> = ({
                     : 'text-muted-foreground hover:text-foreground font-medium'
                 }`}
               >
-                <span>All</span>
+                <span>{t.all}</span>
                 <span className="text-[11px] opacity-70">({totalCount})</span>
               </button>
 
@@ -115,7 +153,7 @@ export const Header: React.FC<HeaderProps> = ({
                     : 'text-muted-foreground hover:text-foreground font-medium'
                 }`}
               >
-                <span>Films</span>
+                <span>{t.films}</span>
                 <span className="text-[11px] opacity-70">({filmCount})</span>
               </button>
 
@@ -127,322 +165,323 @@ export const Header: React.FC<HeaderProps> = ({
                     : 'text-muted-foreground hover:text-foreground font-medium'
                 }`}
               >
-                <span>Series</span>
+                <span>{t.series}</span>
                 <span className="text-[11px] opacity-70">({tvCount})</span>
+              </button>
+
+              <button
+                onClick={() => setFilterType('anime')}
+                className={`px-3.5 py-1.5 rounded-full text-xs transition-all duration-200 cursor-pointer flex items-center space-x-1.5 ${
+                  filterType === 'anime'
+                    ? 'bg-foreground text-background font-bold shadow-md'
+                    : 'text-muted-foreground hover:text-foreground font-medium'
+                }`}
+              >
+                <span>{t.anime}</span>
+                <span className="text-[11px] opacity-70">({animeCount})</span>
               </button>
             </nav>
           </div>
 
-          {/* Right: Apple Search Bar Trigger & Controls */}
-          <div className="flex items-center space-x-2 sm:space-x-3">
-            {/* Search Trigger (Icon on mobile, pill on desktop) */}
-            <button
-              onClick={onOpenSearch}
-              className="h-9 px-3 sm:px-4 flex items-center space-x-2 bg-black/[0.04] dark:bg-white/[0.08] hover:bg-black/[0.08] dark:hover:bg-white/[0.12] border border-black/[0.04] dark:border-white/[0.06] text-muted-foreground hover:text-foreground rounded-full text-xs font-medium transition-all duration-200 cursor-pointer apple-btn-active"
-              title="Cari film & series"
-            >
-              <Search className="w-3.5 h-3.5" />
-              <span className="hidden sm:inline text-xs">Cari film atau series...</span>
-            </button>
-
-            {/* Segmented View Toggle (Always in navbar) */}
-            <div className="flex items-center p-1 rounded-full bg-black/[0.05] dark:bg-white/[0.08] border border-black/10 dark:border-white/10">
+          {/* Right: Controls & Actions */}
+          <div className="flex items-center space-x-1.5 sm:space-x-2.5 shrink-0">
+            {/* Tampilan List / Grid Toggle */}
+            <div className="flex items-center p-0.5 sm:p-1 rounded-full bg-black/[0.05] dark:bg-white/[0.08] border border-black/10 dark:border-white/10">
               <button
                 onClick={() => setViewMode('table')}
-                className={`h-7 px-2.5 rounded-full transition-all duration-200 flex items-center justify-center cursor-pointer ${
+                className={`h-7 w-7 sm:w-auto sm:px-2.5 rounded-full transition-all duration-200 flex items-center justify-center cursor-pointer ${
                   viewMode === 'table'
                     ? 'bg-foreground text-background shadow-md'
                     : 'text-muted-foreground hover:text-foreground'
                 }`}
-                title="Tampilan List"
+                title={t.viewList}
               >
                 <LayoutList className="w-3.5 h-3.5" />
               </button>
               <button
                 onClick={() => setViewMode('grid')}
-                className={`h-7 px-2.5 rounded-full transition-all duration-200 flex items-center justify-center cursor-pointer ${
+                className={`h-7 w-7 sm:w-auto sm:px-2.5 rounded-full transition-all duration-200 flex items-center justify-center cursor-pointer ${
                   viewMode === 'grid'
                     ? 'bg-foreground text-background shadow-md'
                     : 'text-muted-foreground hover:text-foreground'
                 }`}
-                title="Tampilan Grid"
+                title={t.viewGrid}
               >
                 <LayoutGrid className="w-3.5 h-3.5" />
               </button>
             </div>
 
-            {/* Theme Toggle Button (Desktop & Tablet only) */}
-            <div className="hidden sm:block">
-              <ThemeToggle />
-            </div>
-
-            {/* Desktop Actions: Import, Sync & Auth */}
-            <div className="hidden md:flex items-center space-x-2 pl-2 border-l border-black/[0.08] dark:border-white/[0.1]">
-              <button
-                onClick={async () => {
-                  const res = await syncAllTitlesWithTMDB();
-                  showToast(`Sinkronisasi selesai! ${res.updated} judul berhasil diperbarui.`);
-                }}
-                disabled={isSyncing}
-                className="h-9 px-3.5 rounded-full text-xs font-medium text-foreground bg-black/[0.04] dark:bg-white/[0.08] hover:bg-black/[0.08] dark:hover:bg-white/[0.12] transition-all flex items-center space-x-1.5 cursor-pointer apple-btn-active disabled:opacity-60"
-                title="Sinkronkan semua judul ke versi standar TMDB"
-              >
-                {isSyncing ? (
-                  <Loader2 className="w-3.5 h-3.5 animate-spin text-blue-500" />
-                ) : (
-                  <RefreshCw className="w-3.5 h-3.5 text-muted-foreground" />
-                )}
-                <span>
-                  {isSyncing
-                    ? `Sync (${syncProgress?.current || 0}/${syncProgress?.total || items.length})...`
-                    : 'Sync TMDB'}
-                </span>
-              </button>
-
-              <button
-                onClick={onOpenMigration}
-                className="h-9 px-3.5 rounded-full text-xs font-medium text-foreground bg-black/[0.04] dark:bg-white/[0.08] hover:bg-black/[0.08] dark:hover:bg-white/[0.12] transition-all flex items-center space-x-1.5 cursor-pointer apple-btn-active"
-                title="Import / Export Data"
-              >
-                <Database className="w-3.5 h-3.5 text-muted-foreground" />
-                <span>Import</span>
-              </button>
-
-              {user ? (
-                <div className="flex items-center space-x-2 pl-2">
-                  {user.user_metadata?.avatar_url ? (
-                    <img
-                      src={user.user_metadata.avatar_url}
-                      alt={user.user_metadata?.full_name || 'User'}
-                      className="w-7 h-7 rounded-full border border-black/10 dark:border-white/15 object-cover"
-                    />
-                  ) : null}
-                  <span className="text-xs text-foreground font-medium whitespace-nowrap max-w-[250px] truncate" title={user.email || ''}>
-                    {user.user_metadata?.full_name || user.email?.split('@')[0]}
-                  </span>
-                  <button
-                    onClick={() => setShowLogoutConfirm(true)}
-                    className="p-1.5 text-muted-foreground hover:text-foreground rounded-full hover:bg-black/5 dark:hover:bg-white/10 transition-colors cursor-pointer"
-                    title="Sign Out"
-                  >
-                    <LogOut className="w-3.5 h-3.5" />
-                  </button>
-                </div>
-              ) : (
+            {/* When Logged In: Share & Profile Popover */}
+            {user ? (
+              <>
+                {/* Share Button */}
                 <button
-                  onClick={onOpenAuth}
-                  className="h-9 px-4 rounded-full text-xs font-medium bg-foreground text-background hover:opacity-90 transition-opacity shadow-sm flex items-center space-x-1.5 cursor-pointer apple-btn-active"
+                  onClick={async () => {
+                    const url = `${window.location.origin}/share/${user.id}`;
+                    if (typeof navigator !== 'undefined' && navigator.share) {
+                      try {
+                        await navigator.share({
+                          title: 'wathis - Personal Cinema Archive',
+                          text: language === 'id' ? 'Lihat koleksi tontonan film & series saya di wathis' : 'Check out my personal cinema & series archive on wathis',
+                          url,
+                        });
+                        return;
+                      } catch (err: any) {
+                        if (err.name === 'AbortError') return;
+                      }
+                    }
+                    try {
+                      if (navigator.clipboard && navigator.clipboard.writeText) {
+                        await navigator.clipboard.writeText(url);
+                      } else {
+                        const textArea = document.createElement('textarea');
+                        textArea.value = url;
+                        textArea.style.position = 'fixed';
+                        textArea.style.opacity = '0';
+                        document.body.appendChild(textArea);
+                        textArea.focus();
+                        textArea.select();
+                        document.execCommand('copy');
+                        document.body.removeChild(textArea);
+                      }
+                      showToast(t.linkCopied);
+                    } catch {
+                      showToast('Link: ' + url);
+                    }
+                  }}
+                  className="h-7 w-7 sm:h-8 sm:w-auto sm:px-3 rounded-full text-xs font-medium bg-blue-500/10 hover:bg-blue-500/20 text-blue-600 dark:text-blue-400 transition-all flex items-center justify-center space-x-1.5 cursor-pointer apple-btn-active shrink-0"
+                  title={t.share}
                 >
-                  <LogIn className="w-3.5 h-3.5" />
-                  <span>Sign In</span>
+                  <Share2 className="w-3.5 h-3.5" />
+                  <span className="hidden sm:inline">{t.share}</span>
                 </button>
-              )}
-            </div>
 
-            {/* Mobile Hamburger Drawer Trigger */}
-            <div className="md:hidden">
-              <button
-                onClick={() => setIsMobileMenuOpen(true)}
-                className="h-9 w-9 flex items-center justify-center text-foreground rounded-full bg-black/[0.04] dark:bg-white/[0.08] border border-black/[0.06] dark:border-white/[0.08] cursor-pointer apple-btn-active"
-                title="Open Navigation Menu"
-              >
-                <Layers className="w-4 h-4" />
-              </button>
-
-              {/* Gmail / iOS Slide-Over Drawer & Backdrop */}
-              {isMobileMenuOpen && (
-                <div className="fixed inset-0 z-50 flex justify-end">
-                  {/* Backdrop with Soft Dark Blur */}
-                  <div
-                    onClick={() => setIsMobileMenuOpen(false)}
-                    className="fixed inset-0 bg-black/50 backdrop-blur-md transition-opacity duration-300 animate-in fade-in"
-                  />
-
-                  {/* Drawer Canvas with Apple Frosted Glass Blur */}
-                  <div
-                    ref={mobileMenuRef}
-                    className="relative w-[300px] max-w-[85vw] h-full bg-white/80 dark:bg-zinc-950/80 backdrop-blur-3xl backdrop-saturate-150 border-l border-black/[0.08] dark:border-white/[0.12] shadow-2xl p-5 flex flex-col justify-between overflow-y-auto z-10 animate-in slide-in-from-right duration-300"
+                {/* Profile Akun Button & Popover Popup Menu */}
+                <div className="relative" ref={mobileMenuRef}>
+                  <button
+                    onClick={() => setIsMobileMenuOpen((prev) => !prev)}
+                    className={`flex items-center p-1 sm:pl-1 sm:pr-3 space-x-0 sm:space-x-2 rounded-full transition-all cursor-pointer apple-btn-active border shrink-0 ${
+                      isMobileMenuOpen
+                        ? 'bg-black/[0.08] dark:bg-white/[0.16] border-black/20 dark:border-white/20'
+                        : 'bg-black/[0.04] dark:bg-white/[0.08] hover:bg-black/[0.08] dark:hover:bg-white/[0.14] border-black/10 dark:border-white/10'
+                    }`}
+                    title="Menu & Settings"
                   >
-                    <div className="space-y-5">
-                      {/* Drawer Header */}
-                      <div className="flex items-center justify-between pb-3 border-b border-black/[0.06] dark:border-white/[0.08]">
-                        <span className="font-bold text-xs uppercase tracking-wider text-muted-foreground">
-                          Menu
-                        </span>
-
-                        <button
-                          onClick={() => setIsMobileMenuOpen(false)}
-                          className="p-1.5 rounded-full text-muted-foreground hover:text-foreground hover:bg-black/5 dark:hover:bg-white/10 transition-colors cursor-pointer"
-                          title="Tutup Menu"
-                        >
-                          <span className="text-base leading-none font-bold">✕</span>
-                        </button>
+                    {avatarUrl && !avatarError ? (
+                      <img
+                        src={avatarUrl}
+                        alt={user.user_metadata?.full_name || 'User'}
+                        referrerPolicy="no-referrer"
+                        crossOrigin="anonymous"
+                        onError={() => setAvatarError(true)}
+                        className="w-7 h-7 rounded-full border border-black/10 dark:border-white/15 object-cover shrink-0"
+                      />
+                    ) : (
+                      <div className="w-7 h-7 rounded-full bg-blue-500/15 text-blue-600 dark:text-blue-400 font-bold flex items-center justify-center shrink-0 text-xs select-none">
+                        {(user.user_metadata?.full_name || user.email || 'U')[0].toUpperCase()}
                       </div>
+                    )}
+                    <span className="hidden sm:inline text-xs text-foreground font-medium whitespace-nowrap">
+                      {user.user_metadata?.full_name || user.email?.split('@')[0]}
+                    </span>
+                  </button>
 
-                      {/* User Card / Authentic Google Login Button */}
-                      {user ? (
-                        <div className="p-3 bg-black/[0.03] dark:bg-white/[0.04] rounded-2xl border border-black/[0.04] dark:border-white/[0.06] flex items-center space-x-3">
-                          {user.user_metadata?.avatar_url ? (
-                            <img
-                              src={user.user_metadata.avatar_url}
-                              alt="User"
-                              className="w-9 h-9 rounded-full border border-black/10 dark:border-white/15 object-cover shrink-0"
-                            />
-                          ) : (
-                            <div className="w-9 h-9 rounded-full bg-blue-500/15 text-blue-600 dark:text-blue-400 font-bold flex items-center justify-center shrink-0 text-xs">
-                              {(user.user_metadata?.full_name || user.email || 'U')[0].toUpperCase()}
-                            </div>
-                          )}
-                          <div className="min-w-0 flex-1">
-                            <div className="font-semibold text-foreground truncate text-xs">
-                              {user.user_metadata?.full_name || 'Akun'}
-                            </div>
-                            <div className="text-[11px] text-muted-foreground truncate">
-                              {user.email}
-                            </div>
+                  {/* Popover Dropdown Menu (Refined Apple Dimensions) */}
+                  {isMobileMenuOpen && (
+                    <div className="absolute right-0 top-full mt-2 w-72 sm:w-76 max-w-[calc(100vw-24px)] bg-card/95 dark:bg-zinc-900/95 backdrop-blur-3xl border border-black/10 dark:border-white/12 rounded-2xl shadow-2xl p-2.5 z-50 animate-in fade-in zoom-in-95 duration-150">
+                      {/* User Info Header */}
+                      <div className="p-2 border-b border-black/[0.06] dark:border-white/[0.08] mb-1.5 flex items-center space-x-2.5">
+                        {avatarUrl && !avatarError ? (
+                          <img
+                            src={avatarUrl}
+                            alt={user.user_metadata?.full_name || 'User'}
+                            referrerPolicy="no-referrer"
+                            crossOrigin="anonymous"
+                            onError={() => setAvatarError(true)}
+                            className="w-8 h-8 rounded-full border border-black/10 dark:border-white/15 object-cover shrink-0"
+                          />
+                        ) : (
+                          <div className="w-8 h-8 rounded-full bg-blue-500/15 text-blue-600 dark:text-blue-400 font-bold flex items-center justify-center shrink-0 text-xs select-none">
+                            {(user.user_metadata?.full_name || user.email || 'U')[0].toUpperCase()}
+                          </div>
+                        )}
+                        <div className="min-w-0 flex-1">
+                          <div className="font-semibold text-foreground truncate text-xs">
+                            {user.user_metadata?.full_name || 'User'}
+                          </div>
+                          <div className="text-[11px] text-muted-foreground truncate" title={user.email || ''}>
+                            {user.email}
                           </div>
                         </div>
-                      ) : (
-                        <button
-                          onClick={() => {
-                            onOpenAuth();
-                            setIsMobileMenuOpen(false);
-                          }}
-                          className="w-full flex items-center justify-center space-x-2.5 p-3 bg-white dark:bg-zinc-900 hover:bg-zinc-50 dark:hover:bg-zinc-800 text-zinc-800 dark:text-zinc-100 font-semibold rounded-2xl border border-zinc-200 dark:border-zinc-700/80 transition-all shadow-xs cursor-pointer apple-btn-active text-xs"
-                        >
-                          <svg className="w-4 h-4 shrink-0" viewBox="0 0 24 24">
-                            <path
-                              fill="#4285F4"
-                              d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
-                            />
-                            <path
-                              fill="#34A853"
-                              d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
-                            />
-                            <path
-                              fill="#FBBC05"
-                              d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"
-                            />
-                            <path
-                              fill="#EA4335"
-                              d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"
-                            />
-                          </svg>
-                          <span>Lanjutkan dengan Google</span>
-                        </button>
-                      )}
+                      </div>
 
                       {/* Section: Tema */}
-                      <div className="space-y-1.5">
-                        <div className="text-[10px] uppercase tracking-wider font-bold text-muted-foreground px-2">Tema</div>
-                        <div className="grid grid-cols-3 p-1 bg-black/[0.04] dark:bg-white/[0.06] rounded-2xl border border-black/[0.04] dark:border-white/[0.06]">
+                      <div className="px-1.5 py-1 space-y-1">
+                        <div className="text-[10px] uppercase font-bold tracking-wider text-muted-foreground px-1">
+                          {t.theme}
+                        </div>
+                        <div className="grid grid-cols-3 p-0.5 bg-black/[0.04] dark:bg-white/[0.06] rounded-xl border border-black/[0.04] dark:border-white/[0.06]">
                           <button
                             onClick={() => setTheme('system')}
-                            className={`py-2 rounded-xl flex items-center justify-center space-x-1 transition-all cursor-pointer ${
-                              theme === 'system' ? 'bg-foreground text-background font-semibold shadow-xs' : 'text-muted-foreground hover:text-foreground'
+                            className={`py-1.5 rounded-lg flex items-center justify-center space-x-1 transition-all cursor-pointer ${
+                              theme === 'system'
+                                ? 'bg-foreground text-background font-semibold shadow-xs'
+                                : 'text-muted-foreground hover:text-foreground'
                             }`}
                           >
-                            <Monitor className="w-3 h-3" />
-                            <span className="text-[11px]">System</span>
-                          </button>
-                          <button
-                            onClick={() => setTheme('dark')}
-                            className={`py-2 rounded-xl flex items-center justify-center space-x-1 transition-all cursor-pointer ${
-                              theme === 'dark' ? 'bg-foreground text-background font-semibold shadow-xs' : 'text-muted-foreground hover:text-foreground'
-                            }`}
-                          >
-                            <Moon className="w-3 h-3" />
-                            <span className="text-[11px]">Dark</span>
+                            <Monitor className="w-3.5 h-3.5" />
+                            <span className="text-[10px]">{t.auto}</span>
                           </button>
                           <button
                             onClick={() => setTheme('light')}
-                            className={`py-2 rounded-xl flex items-center justify-center space-x-1 transition-all cursor-pointer ${
-                              theme === 'light' ? 'bg-foreground text-background font-semibold shadow-xs' : 'text-muted-foreground hover:text-foreground'
+                            className={`py-1.5 rounded-lg flex items-center justify-center space-x-1 transition-all cursor-pointer ${
+                              theme === 'light'
+                                ? 'bg-foreground text-background font-semibold shadow-xs'
+                                : 'text-muted-foreground hover:text-foreground'
                             }`}
                           >
-                            <Sun className="w-3 h-3" />
-                            <span className="text-[11px]">Light</span>
+                            <Sun className="w-3.5 h-3.5" />
+                            <span className="text-[10px]">{t.light}</span>
+                          </button>
+                          <button
+                            onClick={() => setTheme('dark')}
+                            className={`py-1.5 rounded-lg flex items-center justify-center space-x-1 transition-all cursor-pointer ${
+                              theme === 'dark'
+                                ? 'bg-foreground text-background font-semibold shadow-xs'
+                                : 'text-muted-foreground hover:text-foreground'
+                            }`}
+                          >
+                            <Moon className="w-3.5 h-3.5" />
+                            <span className="text-[10px]">{t.dark}</span>
                           </button>
                         </div>
                       </div>
 
-                      {/* Section: Sync TMDB English Titles */}
+                      {/* Section: Bahasa */}
+                      <div className="px-1.5 py-1 space-y-1">
+                        <div className="text-[10px] uppercase font-bold tracking-wider text-muted-foreground px-1">
+                          {t.language}
+                        </div>
+                        <div className="grid grid-cols-2 p-0.5 bg-black/[0.04] dark:bg-white/[0.06] rounded-xl border border-black/[0.04] dark:border-white/[0.06]">
+                          <button
+                            onClick={() => setLanguage('id')}
+                            className={`py-1.5 rounded-lg flex items-center justify-center space-x-1.5 transition-all cursor-pointer ${
+                              language === 'id'
+                                ? 'bg-foreground text-background font-semibold shadow-xs'
+                                : 'text-muted-foreground hover:text-foreground'
+                            }`}
+                          >
+                            <Globe className="w-3.5 h-3.5" />
+                            <span className="text-[10px]">Indonesia</span>
+                          </button>
+                          <button
+                            onClick={() => setLanguage('en')}
+                            className={`py-1.5 rounded-lg flex items-center justify-center space-x-1.5 transition-all cursor-pointer ${
+                              language === 'en'
+                                ? 'bg-foreground text-background font-semibold shadow-xs'
+                                : 'text-muted-foreground hover:text-foreground'
+                            }`}
+                          >
+                            <Globe className="w-3.5 h-3.5" />
+                            <span className="text-[10px]">English</span>
+                          </button>
+                        </div>
+                      </div>
+
+                      <div className="my-1 border-t border-black/[0.06] dark:border-white/[0.08]" />
+
+                      {/* Section: Sinkronkan Judul */}
                       <button
                         onClick={async () => {
-                          const res = await syncAllTitlesWithTMDB();
-                          showToast(`Sinkronisasi selesai! ${res.updated} judul berhasil diperbarui.`);
                           setIsMobileMenuOpen(false);
+                          const res = await syncAllTitlesWithTMDB();
+                          showToast(`${t.syncFinished} ${res.updated} ${t.titlesCount}`);
                         }}
                         disabled={isSyncing}
-                        className="w-full flex items-center justify-between p-3 text-foreground hover:bg-black/5 dark:hover:bg-white/10 rounded-2xl transition-colors text-left cursor-pointer border border-black/[0.04] dark:border-white/[0.06] disabled:opacity-60"
+                        className="w-full flex items-center space-x-2.5 px-3 py-2 text-foreground hover:bg-black/5 dark:hover:bg-white/10 rounded-xl transition-colors text-left cursor-pointer text-xs font-medium disabled:opacity-60 group"
                       >
-                        <div className="flex items-center space-x-2.5 min-w-0">
-                          <div className="w-8 h-8 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0">
-                            {isSyncing ? (
-                              <Loader2 className="w-4 h-4 animate-spin" />
-                            ) : (
-                              <RefreshCw className="w-4 h-4" />
-                            )}
-                          </div>
-                          <div className="min-w-0">
-                            <div className="font-semibold text-xs text-foreground truncate">
-                              {isSyncing
-                                ? `Sinkronisasi (${syncProgress?.current || 0}/${syncProgress?.total || items.length})...`
-                                : 'Sinkronkan Judul Inggris TMDB'}
-                            </div>
-                            <div className="text-[10px] text-muted-foreground truncate">
-                              Perbarui semua judul arsip ke versi resmi TMDB
-                            </div>
-                          </div>
-                        </div>
-                        <ChevronRight className="w-4 h-4 text-muted-foreground shrink-0 ml-2" />
+                        {isSyncing ? (
+                          <Loader2 className="w-4 h-4 animate-spin text-muted-foreground group-hover:text-foreground shrink-0" />
+                        ) : (
+                          <RefreshCw className="w-4 h-4 text-muted-foreground group-hover:text-foreground shrink-0" />
+                        )}
+                        <span className="truncate">
+                          {isSyncing
+                            ? `(${syncProgress?.current || 0}/${syncProgress?.total || items.length})...`
+                            : t.syncTitles}
+                        </span>
                       </button>
 
                       {/* Section: Import Data */}
                       <button
                         onClick={() => {
-                          onOpenMigration();
                           setIsMobileMenuOpen(false);
+                          onOpenMigration();
                         }}
-                        className="w-full flex items-center justify-between p-3 text-foreground hover:bg-black/5 dark:hover:bg-white/10 rounded-2xl transition-colors text-left cursor-pointer border border-black/[0.04] dark:border-white/[0.06]"
+                        className="w-full flex items-center space-x-2.5 px-3 py-2 text-foreground hover:bg-black/5 dark:hover:bg-white/10 rounded-xl transition-colors text-left cursor-pointer text-xs font-medium group"
                       >
-                        <div className="flex items-center space-x-2.5">
-                          <div className="w-8 h-8 rounded-full bg-blue-500/10 text-blue-600 dark:text-blue-400 flex items-center justify-center">
-                            <Database className="w-4 h-4" />
-                          </div>
-                          <span className="font-semibold text-xs">Import Data (CSV)</span>
-                        </div>
-                        <ChevronRight className="w-4 h-4 text-muted-foreground" />
+                        <Database className="w-4 h-4 text-muted-foreground group-hover:text-foreground shrink-0" />
+                        <span>{t.importCSV}</span>
+                      </button>
+
+                      {/* Section: Export Backup CSV */}
+                      <button
+                        onClick={handleExportCSV}
+                        className="w-full flex items-center space-x-2.5 px-3 py-2 text-foreground hover:bg-black/5 dark:hover:bg-white/10 rounded-xl transition-colors text-left cursor-pointer text-xs font-medium group"
+                      >
+                        <Download className="w-4 h-4 text-muted-foreground group-hover:text-foreground shrink-0" />
+                        <span>{t.exportCSV}</span>
+                      </button>
+
+                      {/* Section: Logout */}
+                      <div className="my-1 border-t border-black/[0.06] dark:border-white/[0.08]" />
+                      <button
+                        onClick={() => {
+                          setIsMobileMenuOpen(false);
+                          setShowLogoutConfirm(true);
+                        }}
+                        className="w-full flex items-center space-x-2.5 px-3 py-2 text-red-500 hover:bg-red-500/10 rounded-xl transition-colors text-left cursor-pointer text-xs font-medium"
+                      >
+                        <LogOut className="w-4 h-4 text-red-500 shrink-0" />
+                        <span>{t.signOut}</span>
                       </button>
                     </div>
-
-                    {/* Drawer Footer: Logout & Brand */}
-                    <div className="pt-4 border-t border-black/[0.06] dark:border-white/[0.08] space-y-3">
-                      {user && (
-                        <button
-                          onClick={() => setShowLogoutConfirm(true)}
-                          className="w-full flex items-center space-x-2.5 p-3 text-red-500 hover:bg-red-500/10 rounded-2xl transition-colors text-left cursor-pointer font-semibold text-xs"
-                        >
-                          <div className="w-7 h-7 rounded-full bg-red-500/10 text-red-500 flex items-center justify-center">
-                            <LogOut className="w-3.5 h-3.5" />
-                          </div>
-                          <span>Keluar (Sign Out)</span>
-                        </button>
-                      )}
-                      <div className="text-[10px] text-muted-foreground text-center">
-                        wathis. — Personal Cinema Archive
-                      </div>
-                    </div>
-                  </div>
+                  )}
                 </div>
-              )}
-            </div>
+              </>
+            ) : (
+              /* When Not Logged In: Language Toggle, Theme Toggle & Direct 1-Click Sign In */
+              <div className="flex items-center space-x-1.5 sm:space-x-2 shrink-0">
+                <button
+                  onClick={() => setLanguage(language === 'id' ? 'en' : 'id')}
+                  className="h-7 px-2 sm:h-8 sm:px-2.5 rounded-full flex items-center justify-center text-[11px] font-bold text-muted-foreground hover:text-foreground hover:bg-black/5 dark:hover:bg-white/10 transition-colors cursor-pointer border border-black/10 dark:border-white/10"
+                  title={language === 'id' ? 'Switch to English' : 'Ganti ke Bahasa Indonesia'}
+                >
+                  {language.toUpperCase()}
+                </button>
+                <button
+                  onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+                  className="h-7 w-7 sm:h-8 sm:w-8 rounded-full flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-black/5 dark:hover:bg-white/10 transition-colors cursor-pointer"
+                  title={t.theme}
+                >
+                  {theme === 'dark' ? <Sun className="w-3.5 h-3.5 sm:w-4 sm:h-4" /> : <Moon className="w-3.5 h-3.5 sm:w-4 sm:h-4" />}
+                </button>
+                <button
+                  onClick={onOpenAuth}
+                  className="h-7 sm:h-8 px-3 sm:px-4 rounded-full text-xs font-semibold bg-foreground text-background hover:opacity-90 transition-opacity shadow-sm flex items-center space-x-1.5 cursor-pointer apple-btn-active shrink-0"
+                  title={t.signIn}
+                >
+                  <LogIn className="w-3.5 h-3.5" />
+                  <span>{t.signIn}</span>
+                </button>
+              </div>
+            )}
           </div>
         </div>
 
         {/* Mobile Segmented Category Bar */}
         <div className="flex md:hidden py-2 border-t border-black/[0.06] dark:border-white/[0.08]">
-          <div className="grid grid-cols-3 w-full bg-black/[0.04] dark:bg-white/[0.08] p-1 rounded-full text-xs font-medium border border-black/10 dark:border-white/10">
+          <div className="grid grid-cols-4 w-full bg-black/[0.04] dark:bg-white/[0.08] p-1 rounded-full text-[10px] sm:text-xs font-medium border border-black/10 dark:border-white/10">
             <button
               onClick={() => setFilterType('all')}
               className={`py-1.5 rounded-full text-center flex items-center justify-center space-x-1 transition-all cursor-pointer ${
@@ -451,7 +490,7 @@ export const Header: React.FC<HeaderProps> = ({
                   : 'text-muted-foreground hover:text-foreground'
               }`}
             >
-              <span>All ({totalCount})</span>
+              <span>{t.all} ({totalCount})</span>
             </button>
 
             <button
@@ -462,7 +501,7 @@ export const Header: React.FC<HeaderProps> = ({
                   : 'text-muted-foreground hover:text-foreground'
               }`}
             >
-              <span>Films ({filmCount})</span>
+              <span>{t.films} ({filmCount})</span>
             </button>
 
             <button
@@ -473,7 +512,18 @@ export const Header: React.FC<HeaderProps> = ({
                   : 'text-muted-foreground hover:text-foreground'
               }`}
             >
-              <span>Series ({tvCount})</span>
+              <span>{t.series} ({tvCount})</span>
+            </button>
+
+            <button
+              onClick={() => setFilterType('anime')}
+              className={`py-1.5 rounded-full text-center flex items-center justify-center space-x-1 transition-all cursor-pointer ${
+                filterType === 'anime'
+                  ? 'bg-foreground text-background font-bold shadow-md'
+                  : 'text-muted-foreground hover:text-foreground'
+              }`}
+            >
+              <span>{t.anime} ({animeCount})</span>
             </button>
           </div>
         </div>

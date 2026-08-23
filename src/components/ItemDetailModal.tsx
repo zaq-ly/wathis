@@ -3,7 +3,8 @@
 import React, { useState, useEffect } from 'react';
 import { WatchlistItem } from '@/types/watchlist';
 import { useWatchlist } from '@/context/WatchlistContext';
-import { getTMDBImageUrl } from '@/lib/utils';
+import { useLanguage } from '@/context/LanguageContext';
+import { getTMDBImageUrl, formatSeasonDisplay, parseSeasonInput, isAnimeItem } from '@/lib/utils';
 import {
   X,
   ExternalLink,
@@ -22,6 +23,7 @@ interface ItemDetailModalProps {
   isOpen: boolean;
   onClose: () => void;
   onOpenEditMatch: (item: WatchlistItem) => void;
+  readonly?: boolean;
 }
 
 export const ItemDetailModal: React.FC<ItemDetailModalProps> = ({
@@ -29,8 +31,10 @@ export const ItemDetailModal: React.FC<ItemDetailModalProps> = ({
   isOpen,
   onClose,
   onOpenEditMatch,
+  readonly = false,
 }) => {
   const { updateSeason, removeItem } = useWatchlist();
+  const { t } = useLanguage();
   const [selectedSeasonCount, setSelectedSeasonCount] = useState<number>(1);
   const [customSeasonLabel, setCustomSeasonLabel] = useState<string>('');
   const [isEditingLabel, setIsEditingLabel] = useState(false);
@@ -39,7 +43,7 @@ export const ItemDetailModal: React.FC<ItemDetailModalProps> = ({
   useEffect(() => {
     if (item) {
       setSelectedSeasonCount(item.season_count || 1);
-      setCustomSeasonLabel(item.season_label || '');
+      setCustomSeasonLabel(formatSeasonDisplay(item));
       setIsEditingLabel(false);
       setIsSaved(false);
     }
@@ -70,7 +74,13 @@ export const ItemDetailModal: React.FC<ItemDetailModalProps> = ({
 
   const handleCustomLabelSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    await updateSeason(item.tmdb_id, item.media_type, selectedSeasonCount, customSeasonLabel.trim() || null);
+    const { count, label } = parseSeasonInput(customSeasonLabel);
+    const finalCount = count !== null ? count : selectedSeasonCount;
+    const finalLabel = label || (finalCount > 1 ? `S1-S${finalCount}` : `S1`);
+
+    setSelectedSeasonCount(finalCount);
+    setCustomSeasonLabel(finalLabel);
+    await updateSeason(item.tmdb_id, item.media_type, finalCount, finalLabel);
     setIsEditingLabel(false);
     setIsSaved(true);
     setTimeout(() => setIsSaved(false), 2000);
@@ -81,7 +91,9 @@ export const ItemDetailModal: React.FC<ItemDetailModalProps> = ({
     onClose();
   };
 
-  const maxSeasons = Math.max(item.season_count || 1, 6);
+  const quickSeasonMax = 6;
+  const standardLabels = Array.from({ length: quickSeasonMax }, (_, i) => i === 0 ? 'S1' : `S1-S${i + 1}`);
+  const isCustomSelected = Boolean(customSeasonLabel && !standardLabels.includes(customSeasonLabel));
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-5 bg-black/80 backdrop-blur-xl animate-in fade-in duration-200">
@@ -121,15 +133,20 @@ export const ItemDetailModal: React.FC<ItemDetailModalProps> = ({
           {/* Type Badge & Rating Badge */}
           <div className="absolute bottom-4 left-5 sm:left-6 flex items-center space-x-2">
             <span className="inline-flex items-center space-x-1 text-xs font-semibold px-3 py-1 rounded-full bg-black/70 backdrop-blur-xl text-white border border-white/20">
-              {item.media_type === 'movie' ? (
+              {isAnimeItem(item) ? (
+                <>
+                  <span className="w-2.5 h-2.5 rounded-full bg-orange-500" />
+                  <span>Anime{formatSeasonDisplay(item) ? ` • ${formatSeasonDisplay(item)}` : ''}</span>
+                </>
+              ) : item.media_type === 'movie' ? (
                 <>
                   <Film className="w-3 h-3 text-zinc-300" />
-                  <span>Film{item.season_count ? ` • ${item.season_count > 1 ? `S1-S${item.season_count}` : 'S1'}` : ''}</span>
+                  <span>Film{formatSeasonDisplay(item) ? ` • ${formatSeasonDisplay(item)}` : ''}</span>
                 </>
               ) : (
                 <>
                   <Tv className="w-3 h-3 text-blue-400" />
-                  <span>Series{item.season_count ? ` • ${item.season_count > 1 ? `S1-S${item.season_count}` : 'S1'}` : ''}</span>
+                  <span>Series{formatSeasonDisplay(item) ? ` • ${formatSeasonDisplay(item)}` : ''}</span>
                 </>
               )}
             </span>
@@ -178,105 +195,106 @@ export const ItemDetailModal: React.FC<ItemDetailModalProps> = ({
           )}
 
           {/* Season Selector for Series */}
-          <div className="p-4 rounded-2xl bg-black/[0.03] dark:bg-white/[0.04] border border-black/[0.06] dark:border-white/[0.08] space-y-3">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-2">
-                <Tv className="w-4 h-4 text-blue-500" />
-                <span className="text-xs font-semibold text-foreground">
-                  Progres Season yang Ditonton:
-                </span>
+          {!readonly && (
+            <div className="p-4 rounded-2xl bg-black/[0.03] dark:bg-white/[0.04] border border-black/[0.06] dark:border-white/[0.08] space-y-3">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-2">
+                  <Tv className="w-4 h-4 text-blue-500" />
+                  <span className="text-xs font-semibold text-foreground">
+                    {t.seasons}:
+                  </span>
+                </div>
+                {isSaved && (
+                  <span className="text-xs text-blue-600 dark:text-blue-400 font-semibold flex items-center space-x-1 animate-in fade-in">
+                    <Check className="w-3.5 h-3.5" />
+                    <span>{t.save}</span>
+                  </span>
+                )}
               </div>
-              {isSaved && (
-                <span className="text-xs text-blue-600 dark:text-blue-400 font-semibold flex items-center space-x-1 animate-in fade-in">
-                  <Check className="w-3.5 h-3.5" />
-                  <span>Tersimpan</span>
-                </span>
+
+              {/* Quick Season Pill Buttons */}
+              <div className="flex flex-wrap items-center gap-2">
+                {standardLabels.map((label, index) => {
+                  const seasonNumber = index + 1;
+                  const isActive = !isCustomSelected && (customSeasonLabel === label || (!customSeasonLabel && selectedSeasonCount === seasonNumber));
+
+                  return (
+                    <button
+                      key={label}
+                      type="button"
+                      onClick={() => handleSaveSeason(seasonNumber, label)}
+                      className={`px-3.5 py-1.5 rounded-full text-xs font-medium transition-all duration-200 cursor-pointer apple-btn-active ${
+                        isActive
+                          ? 'bg-foreground text-background font-semibold shadow-sm ring-2 ring-foreground/20'
+                          : 'bg-card hover:bg-black/5 dark:hover:bg-white/10 text-foreground border border-black/[0.06] dark:border-white/[0.08]'
+                      }`}
+                    >
+                      {label}
+                    </button>
+                  );
+                })}
+
+                <button
+                  type="button"
+                  onClick={() => setIsEditingLabel(!isEditingLabel)}
+                  className={`px-3.5 py-1.5 rounded-full text-xs font-medium border flex items-center space-x-1.5 cursor-pointer apple-btn-active transition-colors ${
+                    isCustomSelected || isEditingLabel
+                      ? 'bg-foreground text-background font-semibold shadow-sm ring-2 ring-foreground/20'
+                      : 'bg-card hover:bg-black/5 dark:hover:bg-white/10 text-foreground border-black/[0.06] dark:border-white/[0.08]'
+                  }`}
+                  title="Custom season label"
+                >
+                  <Edit2 className="w-3 h-3" />
+                  <span>{isCustomSelected ? customSeasonLabel : 'Custom'}</span>
+                </button>
+              </div>
+
+              {/* Custom Label Input */}
+              {isEditingLabel && (
+                <form onSubmit={handleCustomLabelSubmit} className="flex items-center space-x-2 pt-1">
+                  <input
+                    type="text"
+                    value={customSeasonLabel}
+                    onChange={(e) => setCustomSeasonLabel(e.target.value)}
+                    placeholder="S2, Season 1-3, Part 2..."
+                    className="flex-1 bg-card border border-black/[0.08] dark:border-white/[0.12] rounded-full px-3.5 py-2 text-xs text-foreground focus:outline-none focus:ring-2 focus:ring-blue-500/30"
+                  />
+                  <button
+                    type="submit"
+                    className="bg-foreground text-background text-xs font-semibold px-4 py-2 rounded-full hover:opacity-90 cursor-pointer apple-btn-active"
+                  >
+                    {t.save}
+                  </button>
+                </form>
               )}
             </div>
-
-            {/* Quick Season Pill Buttons */}
-            <div className="flex flex-wrap items-center gap-2">
-              {Array.from({ length: maxSeasons }, (_, i) => i + 1).map((s) => {
-                const label = s === 1 ? 'S1' : `S1-S${s}`;
-                const currentActiveLabel = customSeasonLabel || (selectedSeasonCount > 1 ? `S1-S${selectedSeasonCount}` : `S${selectedSeasonCount}`);
-                const isActive = currentActiveLabel === label;
-
-                return (
-                  <button
-                    key={s}
-                    type="button"
-                    onClick={() => handleSaveSeason(s, label)}
-                    className={`px-3.5 py-1.5 rounded-full text-xs font-medium transition-all duration-200 cursor-pointer apple-btn-active ${
-                      isActive
-                        ? 'bg-foreground text-background font-semibold shadow-sm ring-2 ring-foreground/20'
-                        : 'bg-card hover:bg-black/5 dark:hover:bg-white/10 text-foreground border border-black/[0.06] dark:border-white/[0.08]'
-                    }`}
-                  >
-                    {label}
-                  </button>
-                );
-              })}
-
-              <button
-                type="button"
-                onClick={() => setIsEditingLabel(!isEditingLabel)}
-                className={`px-3 py-1.5 rounded-full text-xs font-medium border flex items-center space-x-1 cursor-pointer apple-btn-active transition-colors ${
-                  isEditingLabel
-                    ? 'bg-foreground text-background font-semibold'
-                    : 'bg-card hover:bg-black/5 dark:hover:bg-white/10 text-foreground border-black/[0.06] dark:border-white/[0.08]'
-                }`}
-                title="Ketik label custom"
-              >
-                <Edit2 className="w-3 h-3" />
-                <span>Custom</span>
-              </button>
-            </div>
-
-            {/* Custom Label Input */}
-            {isEditingLabel && (
-              <form onSubmit={handleCustomLabelSubmit} className="flex items-center space-x-2 pt-1">
-                <input
-                  type="text"
-                  value={customSeasonLabel}
-                  onChange={(e) => setCustomSeasonLabel(e.target.value)}
-                  placeholder="Contoh: S2 Saja, Season 1-3, Part 2..."
-                  className="flex-1 bg-card border border-black/[0.08] dark:border-white/[0.12] rounded-full px-3.5 py-2 text-xs text-foreground focus:outline-none focus:ring-2 focus:ring-blue-500/30"
-                />
-                <button
-                  type="submit"
-                  className="bg-foreground text-background text-xs font-semibold px-4 py-2 rounded-full hover:opacity-90 cursor-pointer apple-btn-active"
-                >
-                  Simpan
-                </button>
-              </form>
-            )}
-          </div>
+          )}
         </div>
 
         {/* Footer Actions */}
-        <div className="p-4 sm:p-5 border-t border-black/[0.06] dark:border-white/[0.08] bg-black/[0.02] dark:bg-white/[0.03] flex items-center justify-end space-x-2.5">
-          <button
-            onClick={() => {
-              onClose();
-              onOpenEditMatch(item);
-            }}
-            className="inline-flex items-center space-x-1.5 px-4 py-2 rounded-full text-xs font-medium bg-card hover:bg-black/5 dark:hover:bg-white/10 text-foreground border border-black/[0.06] dark:border-white/[0.08] transition-colors cursor-pointer apple-btn-active"
-          >
-            <ArrowLeftRight className="w-3.5 h-3.5" />
-            <span>Ganti Judul</span>
-          </button>
+        {!readonly && (
+          <div className="p-4 sm:p-5 border-t border-black/[0.06] dark:border-white/[0.08] bg-black/[0.02] dark:bg-white/[0.03] flex items-center justify-end space-x-2.5">
+            <button
+              onClick={() => {
+                onClose();
+                onOpenEditMatch(item);
+              }}
+              className="inline-flex items-center space-x-1.5 px-4 py-2 rounded-full text-xs font-medium bg-card hover:bg-black/5 dark:hover:bg-white/10 text-foreground border border-black/[0.06] dark:border-white/[0.08] transition-colors cursor-pointer apple-btn-active"
+            >
+              <ArrowLeftRight className="w-3.5 h-3.5" />
+              <span>{t.editMatch}</span>
+            </button>
 
-          <button
-            onClick={handleDelete}
-            className="inline-flex items-center space-x-1.5 px-4 py-2 rounded-full text-xs font-medium bg-red-500/10 hover:bg-red-500 hover:text-white text-red-500 transition-colors cursor-pointer apple-btn-active"
-          >
-            <Trash2 className="w-3.5 h-3.5" />
-            <span>Hapus</span>
-          </button>
-        </div>
+            <button
+              onClick={handleDelete}
+              className="inline-flex items-center space-x-1.5 px-4 py-2 rounded-full text-xs font-medium bg-red-500/10 hover:bg-red-500 hover:text-white text-red-500 transition-colors cursor-pointer apple-btn-active"
+            >
+              <Trash2 className="w-3.5 h-3.5" />
+              <span>{t.deleteTitle}</span>
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );
 };
-
-

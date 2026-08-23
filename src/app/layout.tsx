@@ -11,8 +11,8 @@ const plusJakartaSans = Plus_Jakarta_Sans({
 });
 
 export const metadata: Metadata = {
-  title: 'wathis — Completed Films & Series',
-  description: 'Curated personal archive for finished films and series.',
+  title: 'wathis - Personal Cinema Archive',
+  description: 'Curated personal archive for films, anime, and series.',
   manifest: '/manifest.json',
   icons: {
     icon: [

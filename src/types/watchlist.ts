@@ -26,6 +26,8 @@ export interface TMDBRawSearchResult {
   name?: string;
   original_title?: string;
   original_name?: string;
+  original_language?: string;
+  origin_country?: string[];
   media_type?: 'movie' | 'tv' | 'person';
   release_date?: string;
   first_air_date?: string;
@@ -47,6 +49,8 @@ export interface TMDBRawDetail {
   name?: string;
   original_title?: string;
   original_name?: string;
+  original_language?: string;
+  origin_country?: string[];
   release_date?: string;
   first_air_date?: string;
   poster_path?: string | null;

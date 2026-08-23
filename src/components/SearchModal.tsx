@@ -2,25 +2,74 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { useWatchlist } from '@/context/WatchlistContext';
+import { useLanguage } from '@/context/LanguageContext';
 import { SearchResultItem } from '@/types/watchlist';
 import { fetchTMDBSearch } from '@/lib/searchClient';
-import { getTMDBImageUrl } from '@/lib/utils';
-import { Search, Plus, Check, Loader2, X, Film, Tv, Sparkles } from 'lucide-react';
+import { getTMDBImageUrl, isAnimeItem } from '@/lib/utils';
+import { Search, Plus, Check, Loader2, X, Film, Tv, Sparkles, Clock, Trash2 } from 'lucide-react';
 import Image from 'next/image';
 
 interface SearchModalProps {
   isOpen: boolean;
   onClose: () => void;
+  onOpenAuth?: () => void;
 }
 
-export const SearchModal: React.FC<SearchModalProps> = ({ isOpen, onClose }) => {
-  const { addItem, isItemInWatchlist } = useWatchlist();
+export const SearchModal: React.FC<SearchModalProps> = ({ isOpen, onClose, onOpenAuth }) => {
+  const { addItem, isItemInWatchlist, user } = useWatchlist();
+  const { language, t } = useLanguage();
   const [query, setQuery] = useState('');
   const [results, setResults] = useState<SearchResultItem[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [addedIds, setAddedIds] = useState<Record<string, boolean>>({});
   const [selectedSeasons, setSelectedSeasons] = useState<Record<number, number>>({});
+  const [searchHistory, setSearchHistory] = useState<string[]>([]);
   const inputRef = useRef<HTMLInputElement>(null);
+
+  // Load history from localStorage
+  useEffect(() => {
+    if (isOpen) {
+      try {
+        const saved = localStorage.getItem('wathis_search_history');
+        if (saved) {
+          const parsed = JSON.parse(saved);
+          if (Array.isArray(parsed)) setSearchHistory(parsed);
+        }
+      } catch {}
+    }
+  }, [isOpen]);
+
+  const saveToHistory = (term: string) => {
+    const clean = term.trim();
+    if (clean.length < 2) return;
+    setSearchHistory((prev) => {
+      const filtered = prev.filter((item) => item.toLowerCase() !== clean.toLowerCase());
+      const updated = [clean, ...filtered].slice(0, 10);
+      try {
+        localStorage.setItem('wathis_search_history', JSON.stringify(updated));
+      } catch {}
+      return updated;
+    });
+  };
+
+  const removeHistoryItem = (term: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    setSearchHistory((prev) => {
+      const updated = prev.filter((item) => item !== term);
+      try {
+        localStorage.setItem('wathis_search_history', JSON.stringify(updated));
+      } catch {}
+      return updated;
+    });
+  };
+
+  const clearAllHistory = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setSearchHistory([]);
+    try {
+      localStorage.removeItem('wathis_search_history');
+    } catch {}
+  };
 
   // Focus input when opened
   useEffect(() => {
@@ -45,6 +94,9 @@ export const SearchModal: React.FC<SearchModalProps> = ({ isOpen, onClose }) => 
       try {
         const data = await fetchTMDBSearch(query);
         setResults(data);
+        if (data.length > 0 && query.trim().length >= 2) {
+          saveToHistory(query);
+        }
         const initialSeasons: Record<number, number> = {};
         data.forEach((item) => {
           if (item.media_type === 'tv') {
@@ -52,6 +104,35 @@ export const SearchModal: React.FC<SearchModalProps> = ({ isOpen, onClose }) => 
           }
         });
         setSelectedSeasons((prev) => ({ ...initialSeasons, ...prev }));
+
+        // Background auto-enrich real season count for TV series
+        const tvItems = data.filter((i) => i.media_type === 'tv');
+        if (tvItems.length > 0) {
+          Promise.all(
+            tvItems.slice(0, 10).map(async (tv) => {
+              try {
+                const res = await fetch(`/api/tmdb/detail?id=${tv.tmdb_id}&type=tv`);
+                if (res.ok) {
+                  const detail = await res.json();
+                  const realCount = detail?.item?.season_count;
+                  if (realCount && realCount > 1) {
+                    setResults((prev) =>
+                      prev.map((p) =>
+                        p.tmdb_id === tv.tmdb_id && p.media_type === 'tv'
+                          ? { ...p, season_count: realCount }
+                          : p
+                      )
+                    );
+                    setSelectedSeasons((prev) => ({
+                      ...prev,
+                      [tv.tmdb_id]: prev[tv.tmdb_id] === 1 ? realCount : prev[tv.tmdb_id],
+                    }));
+                  }
+                }
+              } catch {}
+            })
+          );
+        }
       } catch (err) {
         console.error('TMDB Search error:', err);
       } finally {
@@ -76,6 +157,13 @@ export const SearchModal: React.FC<SearchModalProps> = ({ isOpen, onClose }) => 
   if (!isOpen) return null;
 
   const handleAdd = async (item: SearchResultItem) => {
+    if (!user) {
+      if (onOpenAuth) {
+        onClose();
+        onOpenAuth();
+      }
+      return;
+    }
     const key = `${item.media_type}_${item.tmdb_id}`;
     const seasonCount = item.media_type === 'tv' ? (selectedSeasons[item.tmdb_id] || item.season_count || 1) : null;
     const seasonLabel = seasonCount ? (seasonCount > 1 ? `S1-S${seasonCount}` : `S${seasonCount}`) : null;
@@ -100,7 +188,12 @@ export const SearchModal: React.FC<SearchModalProps> = ({ isOpen, onClose }) => 
             type="text"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder="Search TMDB titles (e.g. Inception, Shogun)..."
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' && query.trim().length >= 2) {
+                saveToHistory(query);
+              }
+            }}
+            placeholder={t.searchTMDBPlaceholder}
             className="w-full bg-transparent text-foreground placeholder:text-muted-foreground text-sm outline-none font-medium"
           />
           {isLoading && <Loader2 className="w-4 h-4 text-blue-500 animate-spin mr-2 shrink-0" />}
@@ -139,62 +232,45 @@ export const SearchModal: React.FC<SearchModalProps> = ({ isOpen, onClose }) => 
                           className="object-cover"
                         />
                       ) : (
-                        <div className="w-full h-full flex items-center justify-center text-[8px] text-muted-foreground">
-                          No Art
+                        <div className="w-full h-full flex items-center justify-center text-muted-foreground">
+                          {item.media_type === 'movie' ? <Film className="w-4 h-4" /> : <Tv className="w-4 h-4" />}
                         </div>
                       )}
                     </div>
 
-                    {/* Metadata */}
-                    <div className="min-w-0 space-y-1">
-                      <div className="flex items-center space-x-2">
-                        <span className="font-semibold text-sm text-foreground truncate">
+                    <div className="min-w-0">
+                      <div className="flex items-center space-x-1.5 flex-wrap">
+                        <span className="font-semibold text-foreground text-sm truncate">
                           {item.title}
                         </span>
                         {item.release_year && (
-                          <span className="text-xs text-muted-foreground font-medium shrink-0">
+                          <span className="text-xs text-muted-foreground shrink-0 font-normal">
                             ({item.release_year})
                           </span>
                         )}
                       </div>
 
-                      {item.original_title && item.original_title !== item.title && (
-                        <div className="text-[11px] text-muted-foreground truncate">
-                          {item.original_title}
-                        </div>
-                      )}
-
-                      <div className="flex flex-wrap items-center gap-1.5 pt-0.5">
-                        <span className="inline-flex items-center space-x-1 text-[10px] font-medium px-2 py-0.5 rounded-full bg-black/[0.04] dark:bg-white/[0.08] text-muted-foreground">
-                          {item.media_type === 'movie' ? (
-                            <>
-                              <Film className="w-2.5 h-2.5" />
-                              <span>Film</span>
-                            </>
-                          ) : (
-                            <>
-                              <Tv className="w-2.5 h-2.5 text-blue-500" />
-                              <span>Series</span>
-                            </>
-                          )}
+                      {/* Meta badges: Type & Rating & Season */}
+                      <div className="flex items-center space-x-2 mt-1 flex-wrap gap-y-1">
+                        <span className="text-[10px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded-md bg-black/[0.04] dark:bg-white/[0.08] text-muted-foreground">
+                          {isAnimeItem(item) ? t.anime : item.media_type === 'movie' ? t.films : t.series}
                         </span>
-
                         {item.vote_average ? (
-                          <span className="text-[10px] text-amber-500 dark:text-amber-400 font-semibold px-2 py-0.5 rounded-full bg-black/[0.04] dark:bg-white/[0.08]">
-                            ★ {item.vote_average}
+                          <span className="text-[11px] font-semibold text-amber-500 flex items-center space-x-0.5">
+                            <span>★</span>
+                            <span>{item.vote_average.toFixed(1)}</span>
                           </span>
                         ) : null}
-
                         {item.genres && item.genres.length > 0 && (
-                          <span className="text-xs text-muted-foreground truncate hidden sm:inline">
-                            {item.genres.slice(0, 3).join(', ')}
+                          <span className="text-[11px] text-muted-foreground truncate max-w-[160px] hidden sm:inline">
+                            {item.genres.slice(0, 2).join(', ')}
                           </span>
                         )}
                       </div>
                     </div>
                   </div>
 
-                  {/* Right Actions: Season Picker & Add Button */}
+                  {/* Right actions: Season selector (if TV) & Add Button */}
                   <div className="shrink-0 flex items-center space-x-2">
                     {item.media_type === 'tv' && !alreadyAdded && (
                       <div className="flex items-center space-x-1">
@@ -207,9 +283,9 @@ export const SearchModal: React.FC<SearchModalProps> = ({ isOpen, onClose }) => 
                           className="bg-black/[0.04] dark:bg-white/[0.08] border border-black/[0.06] dark:border-white/[0.08] text-foreground text-xs font-medium rounded-full px-3 py-1.5 focus:outline-none cursor-pointer"
                           title="Select watched seasons"
                         >
-                          {Array.from({ length: Math.max(item.season_count || 1, 1) }, (_, i) => i + 1).map((s) => (
+                          {Array.from({ length: Math.max(item.season_count || 1, 10) }, (_, i) => i + 1).map((s) => (
                             <option key={s} value={s} className="bg-card text-foreground">
-                              {s === 1 ? 'Season 1' : `Seasons 1-${s}`}
+                              {s === 1 ? `${t.seasons} 1` : `${t.seasons} 1-${s}`}
                             </option>
                           ))}
                         </select>
@@ -219,7 +295,7 @@ export const SearchModal: React.FC<SearchModalProps> = ({ isOpen, onClose }) => 
                     {alreadyAdded ? (
                       <span className="inline-flex items-center space-x-1 text-xs font-medium text-muted-foreground bg-black/[0.04] dark:bg-white/[0.08] px-3.5 py-1.5 rounded-full">
                         <Check className="w-3.5 h-3.5 text-blue-500" />
-                        <span className="hidden sm:inline">Saved</span>
+                        <span className="hidden sm:inline">{t.added}</span>
                       </span>
                     ) : (
                       <button
@@ -227,7 +303,7 @@ export const SearchModal: React.FC<SearchModalProps> = ({ isOpen, onClose }) => 
                         className="inline-flex items-center space-x-1 text-xs font-semibold bg-foreground hover:opacity-90 text-background px-4 py-1.5 rounded-full transition-all active:scale-95 shadow-sm cursor-pointer apple-btn-active"
                       >
                         <Plus className="w-3.5 h-3.5" />
-                        <span>Add</span>
+                        <span>{t.add}</span>
                       </button>
                     )}
                   </div>
@@ -236,15 +312,53 @@ export const SearchModal: React.FC<SearchModalProps> = ({ isOpen, onClose }) => 
             })
           ) : query.trim() && !isLoading ? (
             <div className="py-12 text-center text-muted-foreground text-xs font-medium">
-              No cinema titles found for &ldquo;{query}&rdquo;
+              {t.noTitlesFound} &ldquo;{query}&rdquo;
+            </div>
+          ) : !query.trim() && searchHistory.length > 0 ? (
+            <div className="py-2 px-1 space-y-3">
+              <div className="flex items-center justify-between px-2 text-xs font-semibold text-muted-foreground select-none">
+                <div className="flex items-center space-x-1.5">
+                  <Clock className="w-3.5 h-3.5 text-muted-foreground" />
+                  <span>{t.recentSearches}</span>
+                </div>
+                <button
+                  onClick={clearAllHistory}
+                  className="text-[11px] text-muted-foreground hover:text-red-500 transition-colors cursor-pointer"
+                >
+                  {t.clearHistory}
+                </button>
+              </div>
+
+              <div className="flex flex-wrap gap-2 px-1">
+                {searchHistory.map((item) => (
+                  <div
+                    key={item}
+                    onClick={() => {
+                      setQuery(item);
+                      saveToHistory(item);
+                    }}
+                    className="group inline-flex items-center space-x-2 pl-3.5 pr-2 py-1.5 bg-black/[0.04] dark:bg-white/[0.07] hover:bg-black/[0.08] dark:hover:bg-white/[0.12] border border-black/[0.06] dark:border-white/[0.08] rounded-full text-xs text-foreground cursor-pointer transition-all duration-150 active:scale-95 shadow-2xs"
+                  >
+                    <span className="font-medium">{item}</span>
+                    <button
+                      type="button"
+                      onClick={(e) => removeHistoryItem(item, e)}
+                      className="w-4 h-4 rounded-full flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-black/10 dark:hover:bg-white/20 transition-colors cursor-pointer"
+                      title="Hapus"
+                    >
+                      <X className="w-3 h-3" />
+                    </button>
+                  </div>
+                ))}
+              </div>
             </div>
           ) : !query.trim() ? (
             <div className="py-16 text-center text-muted-foreground text-xs flex flex-col items-center space-y-2">
               <div className="w-12 h-12 rounded-2xl bg-black/[0.04] dark:bg-white/[0.08] flex items-center justify-center text-muted-foreground mb-1">
                 <Sparkles className="w-6 h-6" />
               </div>
-              <span className="text-foreground font-semibold text-sm">Search the TMDB Cinema Archive</span>
-              <span className="text-muted-foreground text-xs">Curate your finished films and multi-season TV series</span>
+              <span className="text-foreground font-semibold text-sm">{t.searchTMDBPlaceholder}</span>
+              <span className="text-muted-foreground text-xs">{t.footerDesc}</span>
             </div>
           ) : null}
         </div>
@@ -252,4 +366,3 @@ export const SearchModal: React.FC<SearchModalProps> = ({ isOpen, onClose }) => 
     </div>
   );
 };
-
