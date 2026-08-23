@@ -132,11 +132,11 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-5 bg-black/80 backdrop-blur-xl animate-in fade-in duration-200"
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 dark:bg-black/60 backdrop-blur-md animate-in fade-in duration-200"
       onClick={onClose}
     >
       <div
-        className="w-full max-w-md bg-card border border-black/[0.08] dark:border-white/[0.12] rounded-[2rem] shadow-2xl overflow-hidden p-8 sm:p-10 relative transition-colors"
+        className="w-full max-w-md bg-card border border-black/10 dark:border-white/10 rounded-[2rem] shadow-2xl p-8 sm:p-10 relative transition-colors"
         onClick={(e) => e.stopPropagation()}
       >
         <button
