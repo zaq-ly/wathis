@@ -12,8 +12,31 @@ const plusJakartaSans = Plus_Jakarta_Sans({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || 'https://wathis.vercel.app'),
   title: 'wathis - Personal Cinema Archive',
   description: 'Curated personal archive for films, anime, and series.',
+  openGraph: {
+    title: 'wathis - Personal Cinema Archive',
+    description: 'Curated personal archive for films, anime, and series.',
+    url: 'https://wathis.vercel.app',
+    siteName: 'wathis',
+    images: [
+      {
+        url: '/logo.jpg',
+        width: 800,
+        height: 800,
+        alt: 'wathis logo',
+      },
+    ],
+    locale: 'id_ID',
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary',
+    title: 'wathis - Personal Cinema Archive',
+    description: 'Curated personal archive for films, anime, and series.',
+    images: ['/logo.jpg'],
+  },
   manifest: '/manifest.json',
   icons: {
     icon: [
