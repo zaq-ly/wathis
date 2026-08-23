@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useRef, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { useWatchlist } from '@/context/WatchlistContext';
 import { useTheme } from '@/context/ThemeContext';
 import { useLanguage } from '@/context/LanguageContext';
@@ -40,6 +41,11 @@ export const Header: React.FC<HeaderProps> = ({
   const [toastMessage, setToastMessage] = useState<string | null>(null);
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
   const [avatarError, setAvatarError] = useState(false);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const avatarUrl = user?.user_metadata?.avatar_url || user?.user_metadata?.picture;
 
@@ -539,10 +545,10 @@ export const Header: React.FC<HeaderProps> = ({
         </div>
       )}
 
-      {/* Custom Logout Confirmation Modal (Responsive Apple Dialog) */}
-      {showLogoutConfirm && (
+      {/* Custom Logout Confirmation Modal (Portal to body for absolute mobile centering) */}
+      {mounted && showLogoutConfirm && createPortal(
         <div
-          className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/70 backdrop-blur-md animate-in fade-in duration-200"
+          className="fixed inset-0 z-[99999] flex items-center justify-center p-4 bg-black/70 backdrop-blur-md animate-in fade-in duration-200"
           onClick={() => setShowLogoutConfirm(false)}
         >
           <div
@@ -579,7 +585,8 @@ export const Header: React.FC<HeaderProps> = ({
               </button>
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </>
   );
