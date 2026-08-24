@@ -66,11 +66,12 @@ export const Header: React.FC<HeaderProps> = ({
       showToast(t.noExportData);
       return;
     }
-    const headers = ['title', 'media_type', 'release_year', 'vote_average', 'genres', 'poster_path', 'overview', 'season_count', 'season_label', 'tmdb_id'];
+    const headers = ['title', 'media_type', 'release_year', 'release_date', 'vote_average', 'genres', 'poster_path', 'overview', 'season_count', 'season_label', 'tmdb_id'];
     const rows = items.map(item => [
       `"${(item.title || '').replace(/"/g, '""')}"`,
       item.media_type || '',
       item.release_year || '',
+      item.release_date || '',
       item.vote_average || '',
       `"${(item.genres || []).join(', ')}"`,
       item.poster_path || '',
