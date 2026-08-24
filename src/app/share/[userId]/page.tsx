@@ -2,7 +2,6 @@
 
 import React, { useState, useEffect, useMemo } from 'react';
 import { WatchlistItem } from '@/types/watchlist';
-import { createClient } from '@/lib/supabase/client';
 import { EditorialTableView } from '@/components/EditorialTableView';
 import { GridView } from '@/components/GridView';
 import { Search, Loader2, LayoutList, LayoutGrid } from 'lucide-react';
@@ -26,8 +25,6 @@ export default function SharePage() {
   const [sortBy, setSortBy] = useState<SortOption>('year-desc');
   const [searchQuery, setSearchQuery] = useState('');
 
-  const supabase = createClient();
-
   useEffect(() => {
     async function fetchSharedItems() {
       if (!userId) {
@@ -35,16 +32,14 @@ export default function SharePage() {
         return;
       }
       try {
-        const { data, error } = await supabase
-          .from('watchlist_items')
-          .select('tmdb_id, title, original_title, media_type, release_year, release_date, poster_path, backdrop_path, genres, season_count, vote_average')
-          .eq('user_id', userId)
-          .order('created_at', { ascending: false });
-
-        if (error) {
-          console.error('Supabase RLS/Query Error fetching shared items:', error);
+        const res = await fetch(`/api/share/${encodeURIComponent(userId)}`);
+        if (!res.ok) {
+          console.error('Failed to fetch shared items');
           setItems([]);
-        } else if (data) {
+          return;
+        }
+        const { items: data } = await res.json();
+        if (data && data.length > 0) {
           setItems(normalizeWatchlistItems(data));
         } else {
           setItems([]);
@@ -57,61 +52,60 @@ export default function SharePage() {
       }
     }
     fetchSharedItems();
-  }, [userId, supabase]);
+  }, [userId]);
 
   const genresList = Array.from(new Set(items.flatMap((item) => item.genres || []))).sort();
 
 const filteredItems = useMemo(() => {
-       return items
-         .filter((item) => {
-           const isAnime = isAnimeItem(item);
-           const matchesType =
-             filterType === 'all' ||
-             (filterType === 'anime' && isAnime) ||
-             (filterType === 'movie' && item.media_type === 'movie' && !isAnime) ||
-             (filterType === 'tv' && item.media_type === 'tv' && !isAnime);
-           const matchesGenre = !selectedGenre || (item.genres && item.genres.includes(selectedGenre));
-           const matchesSearch =
-             !searchQuery ||
-             item.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-             (item.genres && item.genres.some((g) => g.toLowerCase().includes(searchQuery.toLowerCase())));
+      return items
+        .filter((item) => {
+          const isAnime = isAnimeItem(item);
+          const matchesType =
+            filterType === 'all' ||
+            (filterType === 'anime' && isAnime) ||
+            (filterType === 'movie' && item.media_type === 'movie' && !isAnime) ||
+            (filterType === 'tv' && item.media_type === 'tv' && !isAnime);
+          const matchesGenre = !selectedGenre || (item.genres && item.genres.includes(selectedGenre));
+          const matchesSearch =
+            !searchQuery ||
+            item.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            (item.genres && item.genres.some((g) => g.toLowerCase().includes(searchQuery.toLowerCase())));
 
-           return matchesType && matchesGenre && matchesSearch;
-         })
-         .sort((a, b) => {
-           switch (sortBy) {
-             case 'alpha-asc':
-               return (a.title || '').localeCompare(b.title || '', 'id', { sensitivity: 'base', numeric: true });
-             case 'alpha-desc':
-               return (b.title || '').localeCompare(a.title || '', 'id', { sensitivity: 'base', numeric: true });
-             case 'year-desc': {
-               return sortByRelease([a, b], 'desc')[0] === a ? -1 : 1;
-             }
-             case 'year-asc': {
-               return sortByRelease([a, b], 'asc')[0] === a ? -1 : 1;
-             }
-             case 'rating-desc': {
-               const aRating = Number(a.vote_average) || 0;
-               const bRating = Number(b.vote_average) || 0;
-               return bRating - aRating;
-             }
-             case 'seasons-desc': {
-               const aSeasons = Number(a.season_count) || (a.season_label ? 2 : (a.media_type === 'tv' ? 1 : 0));
-               const bSeasons = Number(b.season_count) || (b.season_label ? 2 : (b.media_type === 'tv' ? 1 : 0));
-               return bSeasons - aSeasons;
-             }
-             default:
-               return 0;
-           }
-         });
-     }, [items, filterType, selectedGenre, searchQuery, sortBy]);
+          return matchesType && matchesGenre && matchesSearch;
+        })
+        .sort((a, b) => {
+          switch (sortBy) {
+            case 'alpha-asc':
+              return (a.title || '').localeCompare(b.title || '', 'id', { sensitivity: 'base', numeric: true });
+            case 'alpha-desc':
+              return (b.title || '').localeCompare(a.title || '', 'id', { sensitivity: 'base', numeric: true });
+            case 'year-desc': {
+              return sortByRelease([a, b], 'desc')[0] === a ? -1 : 1;
+            }
+            case 'year-asc': {
+              return sortByRelease([a, b], 'asc')[0] === a ? -1 : 1;
+            }
+            case 'rating-desc': {
+              const aRating = Number(a.vote_average) || 0;
+              const bRating = Number(b.vote_average) || 0;
+              return bRating - aRating;
+            }
+            case 'seasons-desc': {
+              const aSeasons = Number(a.season_count) || (a.season_label ? 2 : (a.media_type === 'tv' ? 1 : 0));
+              const bSeasons = Number(b.season_count) || (b.season_label ? 2 : (b.media_type === 'tv' ? 1 : 0));
+              return bSeasons - aSeasons;
+            }
+            default:
+              return 0;
+          }
+        });
+    }, [items, filterType, selectedGenre, searchQuery, sortBy]);
 
   const totalCount = items.length;
   const filmCount = items.filter((i) => i.media_type === 'movie' && !isAnimeItem(i)).length;
   const tvCount = items.filter((i) => i.media_type === 'tv' && !isAnimeItem(i)).length;
   const animeCount = items.filter((i) => isAnimeItem(i)).length;
 
-  // Mock context for read-only components
   const mockContextValue = {
     items,
     isLoading,
@@ -189,7 +183,6 @@ const filteredItems = useMemo(() => {
                 </div>
               </div>
             </div>
-            {/* Mobile Category */}
             <div className="flex md:hidden py-2 border-t border-black/[0.06] dark:border-white/[0.08]">
               <div className="grid grid-cols-4 w-full bg-black/[0.04] dark:bg-white/[0.08] p-1 rounded-full text-[10px] font-medium border border-black/10 dark:border-white/10">
                 <button onClick={() => setFilterType('all')} className={`py-1.5 rounded-full text-center transition-all cursor-pointer ${filterType === 'all' ? 'bg-foreground text-background font-bold shadow-md' : 'text-muted-foreground hover:text-foreground'}`}>All ({totalCount})</button>
