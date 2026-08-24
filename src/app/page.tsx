@@ -11,20 +11,22 @@ import { EditorialTableView } from '@/components/EditorialTableView';
 import { GridView } from '@/components/GridView';
 import { Search, Loader2, Sparkles, Filter } from 'lucide-react';
 import { CustomSelect } from '@/components/CustomSelect';
+import { SyncBadge } from '@/components/SyncBadge';
 
 export default function HomePage() {
-  const {
-    filteredItems,
-    isLoading,
-    searchQuery,
-    setSearchQuery,
-    filterType,
-    selectedGenre,
-    setSelectedGenre,
-    genresList,
-    sortBy,
-    setSortBy,
-  } = useWatchlist();
+const {
+     filteredItems,
+     isLoading,
+     isSyncing,
+     searchQuery,
+     setSearchQuery,
+     filterType,
+     selectedGenre,
+     setSelectedGenre,
+     genresList,
+     sortBy,
+     setSortBy,
+   } = useWatchlist();
   const { t } = useLanguage();
   const [viewMode, setViewMode] = useState<'table' | 'grid'>('table');
   const [isSearchOpen, setIsSearchOpen] = useState(false);
@@ -187,22 +189,24 @@ export default function HomePage() {
         </div>
       </footer>
 
-      {/* Apple Modals */}
-      <SearchModal
-        isOpen={isSearchOpen}
-        onClose={() => setIsSearchOpen(false)}
-        onOpenAuth={() => setIsAuthOpen(true)}
-      />
-      <AuthModal
-        isOpen={isAuthOpen}
-        onClose={() => setIsAuthOpen(false)}
-      />
-      <MigrationModal
-        isOpen={isMigrationOpen}
-        onClose={() => setIsMigrationOpen(false)}
-      />
-    </div>
-  );
-}
+       {/* Apple Modals */}
+       <SearchModal
+         isOpen={isSearchOpen}
+         onClose={() => setIsSearchOpen(false)}
+         onOpenAuth={() => setIsAuthOpen(true)}
+       />
+       <AuthModal
+         isOpen={isAuthOpen}
+         onClose={() => setIsAuthOpen(false)}
+       />
+       <MigrationModal
+         isOpen={isMigrationOpen}
+         onClose={() => setIsMigrationOpen(false)}
+       />
+       {isSyncing && <SyncBadge />}
+     </div>
+   );
+ }
+
 
 

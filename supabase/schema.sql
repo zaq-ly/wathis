@@ -11,6 +11,7 @@ CREATE TABLE IF NOT EXISTS public.watchlist_items (
     original_title TEXT,
     media_type TEXT NOT NULL CHECK (media_type IN ('movie', 'tv')),
     release_year INTEGER,
+    release_date TEXT,
     poster_path TEXT,
     backdrop_path TEXT,
     genres TEXT[] NOT NULL DEFAULT '{}',
@@ -19,7 +20,7 @@ CREATE TABLE IF NOT EXISTS public.watchlist_items (
     overview TEXT,
     vote_average NUMERIC,
     created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
-    
+
     -- Constraint: 1 user cannot duplicate same movie/tv in their list
     CONSTRAINT unique_user_media UNIQUE (user_id, tmdb_id, media_type)
 );
@@ -27,6 +28,7 @@ CREATE TABLE IF NOT EXISTS public.watchlist_items (
 -- Migration helpers if table already exists:
 ALTER TABLE public.watchlist_items ADD COLUMN IF NOT EXISTS season_label TEXT;
 ALTER TABLE public.watchlist_items ADD COLUMN IF NOT EXISTS vote_average NUMERIC;
+ALTER TABLE public.watchlist_items ADD COLUMN IF NOT EXISTS release_date TEXT;
 
 -- 2. Enable Row Level Security (RLS)
 ALTER TABLE public.watchlist_items ENABLE ROW LEVEL SECURITY;

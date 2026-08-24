@@ -33,10 +33,15 @@ export const TMDB_GENRES: Record<number, string> = {
 };
 
 const TMDB_BASE_URL = 'https://api.themoviedb.org/3';
-const DEFAULT_TMDB_KEY = '15d2ea6d0dc1d476efbca3eba2b9bbfb';
+const DEFAULT_TMDB_KEY = process.env.NEXT_PUBLIC_TMDB_API_KEY || process.env.TMDB_API_KEY || '';
+
 
 function getApiKey(): string {
-  return process.env.TMDB_API_KEY || process.env.NEXT_PUBLIC_TMDB_API_KEY || DEFAULT_TMDB_KEY;
+  const key = process.env.TMDB_API_KEY || process.env.NEXT_PUBLIC_TMDB_API_KEY || DEFAULT_TMDB_KEY;
+  if (!key) {
+    throw new Error('TMDB API Key is not configured. Please set NEXT_PUBLIC_TMDB_API_KEY in your environment variables.');
+  }
+  return key;
 }
 
 async function executeTMDBSearch(queryText: string, apiKey: string): Promise<TMDBRawSearchResult[]> {
@@ -120,27 +125,16 @@ export async function searchTMDB(query: string): Promise<SearchResultItem[]> {
   const apiKey = getApiKey();
   const trimmed = query.trim();
 
-  try {
+try {
     // 1. Primary search
     let rawResults = await executeTMDBSearch(trimmed, apiKey);
 
-    // 2. Fallback: if 0 results, clean punctuation and retry
+    // 2. Fallback: only clean punctuation if primary returns 0 results
     if (rawResults.length === 0) {
-      // Remove years like (2023) or 2024
-      const withoutYear = trimmed.replace(/\b[12]\d{3}\b/g, '').replace(/[\(\)\[\]]/g, '').trim();
-      // Remove special symbols like dashes, colons
-      const withoutSymbols = withoutYear.replace(/[:\-–_.,\/]/g, ' ').replace(/\s+/g, ' ').trim();
-
-      if (withoutSymbols.length >= 2 && withoutSymbols.toLowerCase() !== trimmed.toLowerCase()) {
-        rawResults = await executeTMDBSearch(withoutSymbols, apiKey);
-      }
-    }
-
-    // 3. Fallback: if still 0 results, try first 3 words
-    if (rawResults.length === 0 && trimmed.split(/\s+/).length > 2) {
-      const firstWords = trimmed.split(/\s+/).slice(0, 2).join(' ');
-      if (firstWords.length >= 3) {
-        rawResults = await executeTMDBSearch(firstWords, apiKey);
+      // Remove common punctuation/brackets while preserving year numbers
+      const withoutPunctuation = trimmed.replace(/[\(\)\[\]]/g, '').trim();
+      if (withoutPunctuation !== trimmed && withoutPunctuation.length >= 2) {
+        rawResults = await executeTMDBSearch(withoutPunctuation, apiKey);
       }
     }
 
@@ -152,7 +146,7 @@ export async function searchTMDB(query: string): Promise<SearchResultItem[]> {
       const origTitle = isTv ? item.original_name : item.original_title;
       const releaseDate = isTv ? item.first_air_date : item.release_date;
       const genres = (item.genre_ids || []).map((id) => TMDB_GENRES[id]).filter(Boolean);
-      
+
       // Robust Anime detection
       const hasJapaneseOrigin =
         item.original_language === 'ja' ||
@@ -166,13 +160,17 @@ export async function searchTMDB(query: string): Promise<SearchResultItem[]> {
       }
 
       const rating = item.vote_average ? Math.round(item.vote_average * 10) / 10 : null;
+      // Save full release date (YYYY-MM-DD) if available, otherwise use year
+      const releaseYear = releaseDate ? formatYear(releaseDate) : null;
+      const fullReleaseDate = releaseDate || null;
 
       return {
         tmdb_id: item.id,
         title,
         original_title: origTitle && origTitle !== title ? origTitle : undefined,
         media_type: isTv ? 'tv' : 'movie',
-        release_year: formatYear(releaseDate),
+        release_year: releaseYear,
+        release_date: fullReleaseDate,
         poster_path: item.poster_path || null,
         backdrop_path: item.backdrop_path || null,
         genres,
@@ -228,22 +226,26 @@ export async function getTMDBDetails(id: number, mediaType: 'movie' | 'tv'): Pro
       if (!genres.includes('Anime')) genres.unshift('Anime');
     }
 
-    const rating = enData.vote_average || idData.vote_average ? Math.round((enData.vote_average || idData.vote_average || 0) * 10) / 10 : null;
-    const overview = idData.overview?.trim() || enData.overview?.trim() || '';
+const rating = enData.vote_average || idData.vote_average ? Math.round((enData.vote_average || idData.vote_average || 0) * 10) / 10 : null;
+      const overview = idData.overview?.trim() || enData.overview?.trim() || '';
+      // Save full release date (YYYY-MM-DD) if available
+      const fullReleaseDate = releaseDate || null;
+      const releaseYear = releaseDate ? formatYear(releaseDate) : null;
 
-    return {
-      tmdb_id: id,
-      title,
-      original_title: origTitle && origTitle !== title ? origTitle : undefined,
-      media_type: mediaType,
-      release_year: formatYear(releaseDate),
-      poster_path: enData.poster_path || idData.poster_path || null,
-      backdrop_path: enData.backdrop_path || idData.backdrop_path || null,
-      genres,
-      season_count: isTv ? (enData.number_of_seasons || idData.number_of_seasons || 1) : null,
-      overview,
-      vote_average: rating,
-    };
+      return {
+        tmdb_id: id,
+        title,
+        original_title: origTitle && origTitle !== title ? origTitle : undefined,
+        media_type: mediaType,
+        release_year: releaseYear,
+        release_date: fullReleaseDate,
+        poster_path: enData.poster_path || idData.poster_path || null,
+        backdrop_path: enData.backdrop_path || idData.backdrop_path || null,
+        genres,
+        season_count: isTv ? (enData.number_of_seasons || idData.number_of_seasons || 1) : null,
+        overview,
+        vote_average: rating,
+      };
   } catch (error) {
     console.error('Failed to get TMDB details:', error);
     return null;

@@ -111,17 +111,18 @@ export const SearchModal: React.FC<SearchModalProps> = ({ isOpen, onClose, onOpe
         });
         setSelectedSeasons((prev) => ({ ...initialSeasons, ...prev }));
 
-        // Background auto-enrich real season count for TV series
+        // Background auto-enrich real season count for TV series (batch of 5 max)
         const tvItems = data.filter((i) => i.media_type === 'tv');
         if (tvItems.length > 0) {
           Promise.all(
-            tvItems.slice(0, 10).map(async (tv) => {
+            tvItems.slice(0, 5).map(async (tv) => {
               try {
                 const res = await fetch(`/api/tmdb/detail?id=${tv.tmdb_id}&type=tv`);
                 if (res.ok) {
                   const detail = await res.json();
                   const realCount = detail?.item?.season_count;
-                  if (realCount && realCount > 1) {
+                  // Only update if real count suggests more seasons than default
+                  if (realCount && realCount > 1 && realCount > (tv.season_count || 1)) {
                     setResults((prev) =>
                       prev.map((p) =>
                         p.tmdb_id === tv.tmdb_id && p.media_type === 'tv'
@@ -300,7 +301,7 @@ export const SearchModal: React.FC<SearchModalProps> = ({ isOpen, onClose, onOpe
                           className="bg-black/[0.04] dark:bg-white/[0.08] border border-black/[0.06] dark:border-white/[0.08] text-foreground text-xs font-medium rounded-full px-3 py-1.5 focus:outline-none cursor-pointer"
                           title="Select watched seasons"
                         >
-                          {Array.from({ length: Math.max(item.season_count || 1, 10) }, (_, i) => i + 1).map((s) => (
+                          {Array.from({ length: Math.min(item.season_count || 1, 20) }, (_, i) => i + 1).map((s) => (
                             <option key={s} value={s} className="bg-card text-foreground">
                               {s === 1 ? `${t.seasons} 1` : `${t.seasons} 1-${s}`}
                             </option>

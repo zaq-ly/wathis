@@ -8,6 +8,7 @@ export interface WathisItem {
   original_title?: string;
   media_type: MediaType;
   release_year: number | null;
+  release_date?: string | null;
   poster_path: string | null;
   backdrop_path: string | null;
   genres: string[];
@@ -68,6 +69,7 @@ export interface SearchResultItem {
   original_title?: string;
   media_type: MediaType;
   release_year: number | null;
+  release_date?: string | null;
   poster_path: string | null;
   backdrop_path: string | null;
   genres: string[];

@@ -4,7 +4,7 @@ import React, { createContext, useContext, useEffect, useState, useCallback } fr
 import { WatchlistItem, SearchResultItem } from '@/types/watchlist';
 import { createClient, isSupabaseConfigured } from '@/lib/supabase/client';
 import { User } from '@supabase/supabase-js';
-import { isAnimeItem, normalizeWatchlistItems } from '@/lib/utils';
+import { isAnimeItem, normalizeWatchlistItems, sortByRelease } from '@/lib/utils';
 
 export type SortOption =
   | 'default'
@@ -133,6 +133,65 @@ export function WatchlistProvider({ children }: { children: React.ReactNode }) {
   };
 
   // 2. Fetch Watchlist Items strictly for the Authenticated User
+  const enrichMissingDates = useCallback(async (items: WatchlistItem[]): Promise<WatchlistItem[]> => {
+    if (!items.length || !user || !isConfigured) return items;
+
+    const missingDates = items.filter((i) => !i.release_date);
+    if (!missingDates.length) return items;
+
+    setIsSyncing(true);
+    setSyncProgress({ current: 0, total: missingDates.length });
+
+    const batchSize = 4;
+    const updatedItems = [...items];
+
+    for (let i = 0; i < missingDates.length; i += batchSize) {
+      const batch = missingDates.slice(i, i + batchSize);
+      await Promise.all(
+        batch.map(async (item) => {
+          try {
+            const res = await fetch(`/api/tmdb/detail?id=${item.tmdb_id}&type=${item.media_type}`);
+            if (!res.ok) return;
+            const data = await res.json();
+            const fresh: SearchResultItem | undefined = data.item;
+            if (!fresh || !fresh.release_date) return;
+
+            const idx = updatedItems.findIndex(
+              (x) => (item.id ? x.id === item.id : x.tmdb_id === item.tmdb_id && x.media_type === item.media_type)
+            );
+            if (idx !== -1) {
+              updatedItems[idx] = {
+                ...updatedItems[idx],
+                release_date: fresh.release_date,
+                vote_average: fresh.vote_average !== undefined ? fresh.vote_average : updatedItems[idx].vote_average,
+              };
+            }
+
+            if (user && isConfigured) {
+              let q = supabase.from('watchlist_items').update({
+                release_date: fresh.release_date,
+                vote_average: fresh.vote_average || updatedItems[idx]?.vote_average,
+              });
+              if (item.id) {
+                q = q.eq('id', item.id);
+              } else {
+                q = q.eq('user_id', user.id).eq('tmdb_id', item.tmdb_id).eq('media_type', item.media_type);
+              }
+              await q;
+            }
+          } catch (e) {
+            console.warn('Sync item failed:', item.title, e);
+          }
+        })
+      );
+      setSyncProgress({ current: Math.min(i + batchSize, missingDates.length), total: missingDates.length });
+    }
+
+    setIsSyncing(false);
+    setSyncProgress(null);
+    return updatedItems;
+  }, [user, isConfigured, supabase]);
+
   const fetchItems = useCallback(async () => {
     if (!isConfigured || !user) {
       setItems([]);
@@ -146,8 +205,7 @@ export function WatchlistProvider({ children }: { children: React.ReactNode }) {
       const { data, error } = await supabase
         .from('watchlist_items')
         .select('*')
-        .eq('user_id', user.id)
-        .order('created_at', { ascending: false });
+        .eq('user_id', user.id);
 
       if (error) throw error;
       let loadedItems: WatchlistItem[] = normalizeWatchlistItems(data || []);
@@ -169,30 +227,6 @@ export function WatchlistProvider({ children }: { children: React.ReactNode }) {
 
       setItems(loadedItems);
 
-      // Background auto-enrichment for items missing vote_average
-      const missingRating = loadedItems.filter((i) => (i.vote_average === null || i.vote_average === undefined) && i.tmdb_id);
-      if (missingRating.length > 0) {
-        Promise.all(
-          missingRating.slice(0, 15).map(async (it) => {
-            try {
-              const res = await fetch(`/api/tmdb/detail?id=${it.tmdb_id}&type=${it.media_type}`);
-              if (res.ok) {
-                const resData = await res.json();
-                const vote = resData?.item?.vote_average;
-                if (vote) {
-                  setItems((prev) =>
-                    prev.map((p) =>
-                      p.tmdb_id === it.tmdb_id && p.media_type === it.media_type
-                        ? { ...p, vote_average: vote }
-                        : p
-                    )
-                  );
-                }
-              }
-            } catch {}
-          })
-        );
-      }
     } catch (err: unknown) {
       const errorMessage = err instanceof Error ? err.message : String(err);
       console.warn('Supabase fetch notice:', errorMessage);
@@ -201,6 +235,8 @@ export function WatchlistProvider({ children }: { children: React.ReactNode }) {
       setIsLoading(false);
     }
   }, [isConfigured, user, supabase]);
+
+  // Note: auto‑sync removed – user can trigger manual sync via UI if needed
 
   useEffect(() => {
     fetchItems();
@@ -226,6 +262,7 @@ export function WatchlistProvider({ children }: { children: React.ReactNode }) {
       original_title: item.original_title,
       media_type: item.media_type,
       release_year: item.release_year,
+      release_date: item.release_date,
       poster_path: item.poster_path,
       backdrop_path: item.backdrop_path,
       genres: item.genres || [],
@@ -261,6 +298,7 @@ export function WatchlistProvider({ children }: { children: React.ReactNode }) {
         original_title: item.original_title || null,
         media_type: item.media_type,
         release_year: item.release_year || null,
+        release_date: item.release_date || null,
         poster_path: item.poster_path || null,
         backdrop_path: item.backdrop_path || null,
         genres: item.genres || [],
@@ -474,7 +512,8 @@ export function WatchlistProvider({ children }: { children: React.ReactNode }) {
             const fresh: SearchResultItem | undefined = data.item;
             if (!fresh || !fresh.title) return;
             const titleChanged = fresh.title !== item.title || fresh.original_title !== item.original_title;
-            if (titleChanged || !item.backdrop_path || !item.overview || fresh.season_count !== item.season_count) {
+            const needsReleaseDate = !item.release_date && fresh.release_date;
+            if (titleChanged || !item.backdrop_path || !item.overview || fresh.season_count !== item.season_count || needsReleaseDate) {
               const dbPayload = {
                 title: fresh.title,
                 original_title: fresh.original_title || null,
@@ -483,18 +522,10 @@ export function WatchlistProvider({ children }: { children: React.ReactNode }) {
                 overview: item.overview || fresh.overview || null,
                 vote_average: fresh.vote_average || item.vote_average,
                 season_count: fresh.season_count ?? item.season_count ?? null,
+                release_date: fresh.release_date || item.release_date,
               };
 
-              if (user && isConfigured) {
-                let q = supabase.from('watchlist_items').update(dbPayload);
-                if (item.id) {
-                  q = q.eq('id', item.id);
-                } else {
-                  q = q.eq('user_id', user.id).eq('tmdb_id', item.tmdb_id).eq('media_type', item.media_type);
-                }
-                await q;
-              }
-
+              // Update local state with full release_date immediately
               const idx = updatedItems.findIndex(
                 (x) => (item.id ? x.id === item.id : x.tmdb_id === item.tmdb_id && x.media_type === item.media_type)
               );
@@ -508,7 +539,18 @@ export function WatchlistProvider({ children }: { children: React.ReactNode }) {
                   overview: item.overview || fresh.overview,
                   vote_average: fresh.vote_average || item.vote_average,
                   season_count: fresh.season_count ?? item.season_count,
+                  release_date: fresh.release_date || item.release_date,
                 };
+              }
+
+              if (user && isConfigured) {
+                let q = supabase.from('watchlist_items').update(dbPayload);
+                if (item.id) {
+                  q = q.eq('id', item.id);
+                } else {
+                  q = q.eq('user_id', user.id).eq('tmdb_id', item.tmdb_id).eq('media_type', item.media_type);
+                }
+                await q;
               }
               updatedCount++;
             }
@@ -540,7 +582,8 @@ export function WatchlistProvider({ children }: { children: React.ReactNode }) {
   const filteredItems = items
     .filter((item) => {
       const isAnime = isAnimeItem(item);
-      const matchesType = filterType === 'all' ||
+      const matchesType =
+        filterType === 'all' ||
         (filterType === 'anime' && isAnime) ||
         (filterType === 'movie' && item.media_type === 'movie' && !isAnime) ||
         (filterType === 'tv' && item.media_type === 'tv' && !isAnime);
@@ -559,14 +602,10 @@ export function WatchlistProvider({ children }: { children: React.ReactNode }) {
         case 'alpha-desc':
           return (b.title || '').localeCompare(a.title || '', 'id', { sensitivity: 'base', numeric: true });
         case 'year-desc': {
-          const aYear = Number(a.release_year) || 0;
-          const bYear = Number(b.release_year) || 0;
-          return bYear - aYear;
+          return sortByRelease([a, b], 'desc')[0] === a ? -1 : 1;
         }
         case 'year-asc': {
-          const aYear = Number(a.release_year) || 9999;
-          const bYear = Number(b.release_year) || 9999;
-          return aYear - bYear;
+          return sortByRelease([a, b], 'asc')[0] === a ? -1 : 1;
         }
         case 'rating-desc': {
           const aRating = Number(a.vote_average) || 0;
@@ -583,7 +622,6 @@ export function WatchlistProvider({ children }: { children: React.ReactNode }) {
           return 0;
       }
     });
-
   return (
     <WatchlistContext.Provider
       value={{

@@ -3,7 +3,7 @@ import { TMDB_GENRES } from './tmdb';
 import { formatYear } from './utils';
 
 const TMDB_BASE_URL = 'https://api.themoviedb.org/3';
-const CLIENT_TMDB_KEY = process.env.NEXT_PUBLIC_TMDB_API_KEY || '15d2ea6d0dc1d476efbca3eba2b9bbfb';
+const CLIENT_TMDB_KEY = process.env.NEXT_PUBLIC_TMDB_API_KEY || '';
 
 export async function fetchTMDBSearch(query: string): Promise<SearchResultItem[]> {
   if (!query || !query.trim()) return [];
@@ -33,50 +33,51 @@ export async function fetchTMDBSearch(query: string): Promise<SearchResultItem[]
     const data = await res.json();
     const results: TMDBRawSearchResult[] = data.results || [];
 
-    return results
-      .filter(
-        (item) =>
-          item.media_type === 'movie' ||
-          item.media_type === 'tv' ||
-          (!item.media_type && (item.title || item.name))
-      )
-      .map((item) => {
-        const isTv = item.media_type === 'tv' || (!item.title && !!item.name);
-        const title = isTv
-          ? item.name || item.original_name || 'Untitled'
-          : item.title || item.original_title || 'Untitled';
-        const origTitle = isTv ? item.original_name : item.original_title;
-        const releaseDate = isTv ? item.first_air_date : item.release_date;
-        const genres = (item.genre_ids || []).map((id) => TMDB_GENRES[id]).filter(Boolean);
-        
-        // Robust Anime detection
-        const hasJapaneseOrigin =
-          item.original_language === 'ja' ||
-          item.origin_country?.includes('JP') ||
-          /[\u3040-\u30ff\u3400-\u4dbf\u4e00-\u9fff]/.test(origTitle || '') ||
-          /anime/i.test(title || '');
-        const hasAnimationGenre = item.genre_ids?.includes(16) || genres.includes('Animation');
+return results
+        .filter(
+          (item) =>
+            item.media_type === 'movie' ||
+            item.media_type === 'tv' ||
+            (!item.media_type && (item.title || item.name))
+        )
+        .map((item) => {
+          const isTv = item.media_type === 'tv' || (!item.title && !!item.name);
+          const title = isTv
+            ? item.name || item.original_name || 'Untitled'
+            : item.title || item.original_title || 'Untitled';
+          const origTitle = isTv ? item.original_name : item.original_title;
+          const releaseDate = isTv ? item.first_air_date : item.release_date;
+          const genres = (item.genre_ids || []).map((id) => TMDB_GENRES[id]).filter(Boolean);
+          
+          // Robust Anime detection
+          const hasJapaneseOrigin =
+            item.original_language === 'ja' ||
+            item.origin_country?.includes('JP') ||
+            /[\u3040-\u30ff\u3400-\u4dbf\u4e00-\u9fff]/.test(origTitle || '') ||
+            /anime/i.test(title || '');
+          const hasAnimationGenre = item.genre_ids?.includes(16) || genres.includes('Animation');
 
-        if (hasAnimationGenre && (hasJapaneseOrigin || item.original_language === 'ja')) {
-          if (!genres.includes('Anime')) genres.unshift('Anime');
-        }
+          if (hasAnimationGenre && (hasJapaneseOrigin || item.original_language === 'ja')) {
+            if (!genres.includes('Anime')) genres.unshift('Anime');
+          }
 
-        const rating = item.vote_average ? Math.round(item.vote_average * 10) / 10 : null;
+          const rating = item.vote_average ? Math.round(item.vote_average * 10) / 10 : null;
 
-        return {
-          tmdb_id: item.id,
-          title,
-          original_title: origTitle && origTitle !== title ? origTitle : undefined,
-          media_type: isTv ? 'tv' : 'movie',
-          release_year: formatYear(releaseDate),
-          poster_path: item.poster_path || null,
-          backdrop_path: item.backdrop_path || null,
-          genres,
-          season_count: isTv ? 1 : null,
-          overview: item.overview || '',
-          vote_average: rating,
-        };
-      });
+          return {
+            tmdb_id: item.id,
+            title,
+            original_title: origTitle && origTitle !== title ? origTitle : undefined,
+            media_type: isTv ? 'tv' : 'movie',
+            release_year: formatYear(releaseDate),
+            release_date: releaseDate || null,
+            poster_path: item.poster_path || null,
+            backdrop_path: item.backdrop_path || null,
+            genres,
+            season_count: isTv ? 1 : null,
+            overview: item.overview?.trim() || '',
+            vote_average: rating,
+          };
+        });
   } catch (err) {
     console.warn('Direct TMDB query notice:', err);
     return [];

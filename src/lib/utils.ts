@@ -163,3 +163,63 @@ export function normalizeWatchlistItems<T extends { genres?: string[]; original_
     return it;
   });
 }
+
+export type SortByReleaseDirection = 'desc' | 'asc';
+
+export function sortByRelease<T extends { release_date?: string | null; release_year?: number | null; title?: string }>(
+  items: T[],
+  direction: SortByReleaseDirection = 'desc'
+): T[] {
+  return [...items].sort((a, b) => {
+    const dateA = a.release_date;
+    const dateB = b.release_date;
+    const yearA = a.release_year;
+    const yearB = b.release_year;
+
+    // Prioritaskan item dengan release_date di atas
+    const hasDateA = !!dateA;
+    const hasDateB = !!dateB;
+
+    if (direction === 'desc') {
+      // Item dengan date lebih prioritas daripada yang hanya punya year
+      if (hasDateA && !hasDateB) return -1;
+      if (!hasDateA && hasDateB) return 1;
+      
+      // Keduanya punya date: bandingkan date
+      if (hasDateA && hasDateB) {
+        const cmp = dateB!.localeCompare(dateA!);
+        if (cmp !== 0) return cmp;
+        return (b.title || '').localeCompare(a.title || '', 'id', { sensitivity: 'base', numeric: true });
+      }
+      
+      // Keduanya tidak punya date: bandingkan year
+      if (yearA && yearB) {
+        if (yearB !== yearA) return yearB - yearA;
+        return (b.title || '').localeCompare(a.title || '', 'id', { sensitivity: 'base', numeric: true });
+      }
+      if (yearB) return 1;
+      if (yearA) return -1;
+      return (b.title || '').localeCompare(a.title || '', 'id', { sensitivity: 'base', numeric: true });
+    } else {
+      // Item dengan date lebih prioritas daripada yang hanya punya year
+      if (hasDateA && !hasDateB) return -1;
+      if (!hasDateA && hasDateB) return 1;
+      
+      // Keduanya punya date: bandingkan date
+      if (hasDateA && hasDateB) {
+        const cmp = dateA!.localeCompare(dateB!);
+        if (cmp !== 0) return cmp;
+        return (a.title || '').localeCompare(b.title || '', 'id', { sensitivity: 'base', numeric: true });
+      }
+      
+      // Keduanya tidak punya date: bandingkan year
+      if (yearA && yearB) {
+        if (yearA !== yearB) return yearA - yearB;
+        return (a.title || '').localeCompare(b.title || '', 'id', { sensitivity: 'base', numeric: true });
+      }
+      if (yearA) return -1;
+      if (yearB) return 1;
+      return (a.title || '').localeCompare(b.title || '', 'id', { sensitivity: 'base', numeric: true });
+    }
+  });
+}

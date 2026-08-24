@@ -10,7 +10,7 @@ import { CustomSelect } from '@/components/CustomSelect';
 import { WathisContext, SortOption } from '@/context/WatchlistContext';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import { useParams } from 'next/navigation';
-import { isAnimeItem, normalizeWatchlistItems } from '@/lib/utils';
+import { isAnimeItem, normalizeWatchlistItems, sortByRelease } from '@/lib/utils';
 
 export default function SharePage() {
   const params = useParams();
@@ -37,7 +37,7 @@ export default function SharePage() {
       try {
         const { data, error } = await supabase
           .from('watchlist_items')
-          .select('*')
+          .select('tmdb_id, title, original_title, media_type, release_year, poster_path, backdrop_path, genres, season_count')
           .eq('user_id', userId)
           .order('created_at', { ascending: false });
 
@@ -61,45 +61,50 @@ export default function SharePage() {
 
   const genresList = Array.from(new Set(items.flatMap((item) => item.genres || []))).sort();
 
-  const filteredItems = useMemo(() => {
-    return items
-      .filter((item) => {
-        const isAnime = isAnimeItem(item);
-        const matchesType =
-          filterType === 'all' ||
-          (filterType === 'anime' && isAnime) ||
-          (filterType === 'movie' && item.media_type === 'movie' && !isAnime) ||
-          (filterType === 'tv' && item.media_type === 'tv' && !isAnime);
-        const matchesGenre = !selectedGenre || (item.genres && item.genres.includes(selectedGenre));
-        const matchesSearch =
-          !searchQuery ||
-          item.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          (item.genres && item.genres.some((g) => g.toLowerCase().includes(searchQuery.toLowerCase())));
+const filteredItems = useMemo(() => {
+       return items
+         .filter((item) => {
+           const isAnime = isAnimeItem(item);
+           const matchesType =
+             filterType === 'all' ||
+             (filterType === 'anime' && isAnime) ||
+             (filterType === 'movie' && item.media_type === 'movie' && !isAnime) ||
+             (filterType === 'tv' && item.media_type === 'tv' && !isAnime);
+           const matchesGenre = !selectedGenre || (item.genres && item.genres.includes(selectedGenre));
+           const matchesSearch =
+             !searchQuery ||
+             item.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+             (item.genres && item.genres.some((g) => g.toLowerCase().includes(searchQuery.toLowerCase())));
 
-        return matchesType && matchesGenre && matchesSearch;
-      })
-      .sort((a, b) => {
-        switch (sortBy) {
-          case 'alpha-asc':
-            return (a.title || '').localeCompare(b.title || '', 'id', { sensitivity: 'base', numeric: true });
-          case 'alpha-desc':
-            return (b.title || '').localeCompare(a.title || '', 'id', { sensitivity: 'base', numeric: true });
-          case 'year-desc':
-            return (Number(b.release_year) || 0) - (Number(a.release_year) || 0);
-          case 'year-asc':
-            return (Number(a.release_year) || 9999) - (Number(b.release_year) || 9999);
-          case 'rating-desc':
-            return (Number(b.vote_average) || 0) - (Number(a.vote_average) || 0);
-          case 'seasons-desc': {
-            const aSeasons = Number(a.season_count) || (a.season_label ? 2 : a.media_type === 'tv' ? 1 : 0);
-            const bSeasons = Number(b.season_count) || (b.season_label ? 2 : b.media_type === 'tv' ? 1 : 0);
-            return bSeasons - aSeasons;
-          }
-          default:
-            return 0;
-        }
-      });
-  }, [items, filterType, selectedGenre, searchQuery, sortBy]);
+           return matchesType && matchesGenre && matchesSearch;
+         })
+         .sort((a, b) => {
+           switch (sortBy) {
+             case 'alpha-asc':
+               return (a.title || '').localeCompare(b.title || '', 'id', { sensitivity: 'base', numeric: true });
+             case 'alpha-desc':
+               return (b.title || '').localeCompare(a.title || '', 'id', { sensitivity: 'base', numeric: true });
+             case 'year-desc': {
+               return sortByRelease([a, b], 'desc')[0] === a ? -1 : 1;
+             }
+             case 'year-asc': {
+               return sortByRelease([a, b], 'asc')[0] === a ? -1 : 1;
+             }
+             case 'rating-desc': {
+               const aRating = Number(a.vote_average) || 0;
+               const bRating = Number(b.vote_average) || 0;
+               return bRating - aRating;
+             }
+             case 'seasons-desc': {
+               const aSeasons = Number(a.season_count) || (a.season_label ? 2 : (a.media_type === 'tv' ? 1 : 0));
+               const bSeasons = Number(b.season_count) || (b.season_label ? 2 : (b.media_type === 'tv' ? 1 : 0));
+               return bSeasons - aSeasons;
+             }
+             default:
+               return 0;
+           }
+         });
+     }, [items, filterType, selectedGenre, searchQuery, sortBy]);
 
   const totalCount = items.length;
   const filmCount = items.filter((i) => i.media_type === 'movie' && !isAnimeItem(i)).length;
