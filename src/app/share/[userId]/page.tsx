@@ -37,7 +37,7 @@ export default function SharePage() {
       try {
         const { data, error } = await supabase
           .from('watchlist_items')
-          .select('tmdb_id, title, original_title, media_type, release_year, poster_path, backdrop_path, genres, season_count')
+          .select('tmdb_id, title, original_title, media_type, release_year, release_date, poster_path, backdrop_path, genres, season_count, vote_average')
           .eq('user_id', userId)
           .order('created_at', { ascending: false });
 
