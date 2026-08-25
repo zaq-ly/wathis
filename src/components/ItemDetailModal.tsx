@@ -173,16 +173,16 @@ export const ItemDetailModal: React.FC<ItemDetailModalProps> = ({
               </span>
             )}
             {item.tmdb_id && (
-              <a
-                href={`https://www.themoviedb.org/${item.media_type === 'movie' ? 'movie' : 'tv'}/${item.tmdb_id}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center space-x-0.5 text-xs font-medium text-muted-foreground underline underline-offset-2"
-                title="View on TMDB"
-              >
+              <span className="inline-flex items-center space-x-0.5 text-xs font-medium bg-black/60 backdrop-blur-xl text-white border border-white/20 rounded-full px-2 py-0.5">
                 <ExternalLink className="w-3 h-3" />
-                <span>TMDB</span>
-              </a>
+                <a
+                  href={`https://www.themoviedb.org/${item.media_type === 'movie' ? 'movie' : 'tv'}/${item.tmdb_id}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-white underline underline-offset-2"
+                  title="View on TMDB"
+                >TMDB</a>
+              </span>
             )}
           </div>
         </div>
