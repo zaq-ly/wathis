@@ -177,7 +177,7 @@ export const ItemDetailModal: React.FC<ItemDetailModalProps> = ({
                 href={`https://www.themoviedb.org/${item.media_type === 'movie' ? 'movie' : 'tv'}/${item.tmdb_id}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="hidden md:inline-flex items-center space-x-0.5 text-xs font-medium text-muted-foreground underline underline-offset-2"
+                className="inline-flex items-center space-x-0.5 text-xs font-medium text-muted-foreground underline underline-offset-2"
                 title="View on TMDB"
               >
                 <ExternalLink className="w-3 h-3" />
