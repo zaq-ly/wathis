@@ -188,19 +188,26 @@ export const ItemDetailModal: React.FC<ItemDetailModalProps> = ({
             )}
           </div>
 
-          {/* Genres */}
-          {item.genres && item.genres.length > 0 && (
-            <div className="flex flex-wrap gap-2">
-              {item.genres.map((g) => (
-                <span
-                  key={g}
-                  className="text-xs font-medium px-3 py-1 rounded-full bg-black/[0.04] dark:bg-white/[0.08] text-muted-foreground border border-black/[0.04] dark:border-white/[0.06]"
-                >
-                  {g}
-                </span>
-              ))}
-            </div>
-          )}
+{/* Genres */}
+           {item.genres && item.genres.length > 0 && (
+             <div className="flex flex-wrap gap-2">
+               {item.genres.map((g) => (
+                 <span
+                   key={g}
+                   className="text-xs font-medium px-3 py-1 rounded-full bg-black/[0.04] dark:bg-white/[0.08] text-muted-foreground border border-black/[0.04] dark:border-white/[0.06]"
+                 >
+                   {g}
+                 </span>
+               ))}
+             </div>
+           )}
+           {/* Overview (mobile only) */}
+           {item.overview && (
+             <div className="block md:hidden mt-4">
+               <p className="text-sm font-medium text-muted-foreground">{t.overview}:</p>
+               <p className="text-sm text-foreground">{item.overview}</p>
+             </div>
+           )}
 
           {/* Season Selector for Series */}
           {!readonly && (
