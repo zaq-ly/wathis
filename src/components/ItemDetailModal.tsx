@@ -14,7 +14,8 @@ import {
   Film,
   Sparkles,
   Check,
-  Edit2
+  Edit2,
+  ExternalLink
 } from 'lucide-react';
 import Image from 'next/image';
 
@@ -170,6 +171,18 @@ export const ItemDetailModal: React.FC<ItemDetailModalProps> = ({
               <span className="text-xs font-medium bg-black/60 backdrop-blur-xl text-zinc-300 border border-white/15 px-3 py-1 rounded-full shadow-sm">
                 {item.release_year}
               </span>
+            )}
+            {item.tmdb_id && (
+              <a
+                href={`https://www.themoviedb.org/${item.media_type === 'movie' ? 'movie' : 'tv'}/${item.tmdb_id}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="hidden md:inline-flex items-center space-x-0.5 text-xs font-medium text-muted-foreground underline underline-offset-2"
+                title="View on TMDB"
+              >
+                <ExternalLink className="w-3 h-3" />
+                <span>TMDB</span>
+              </a>
             )}
           </div>
         </div>
