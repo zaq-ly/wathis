@@ -28,7 +28,7 @@ Aplikasi ini dibangun menggunakan teknologi web modern terbaik saat ini:
 
 - **Framework:** [Next.js 15](https://nextjs.org/) (App Router)
 - **Library:** [React 19](https://react.dev/)
-- **Styling:** [Tailwind CSS v4](https://tailwindcss.com/)
+- **Styling:** [Tailwind CSS v3.4](https://tailwindcss.com/)
 - **Database & Auth:** [Supabase](https://supabase.com/) (PostgreSQL + RLS)
 - **External Data:** [TMDB API](https://www.themoviedb.org/documentation/api)
 - **Icons:** [Lucide React](https://lucide.dev/)

@@ -33,11 +33,12 @@ ALTER TABLE public.watchlist_items ADD COLUMN IF NOT EXISTS release_date TEXT;
 -- 2. Enable Row Level Security (RLS)
 ALTER TABLE public.watchlist_items ENABLE ROW LEVEL SECURITY;
 
--- 3. RLS Policies (Strict User Isolation)
-CREATE POLICY "Users can view their own watchlist items"
+-- 3. RLS Policies
+-- Allow public viewing so shared watchlist links (/share/[userId]) work
+CREATE POLICY "Public can view watchlist items"
     ON public.watchlist_items
     FOR SELECT
-    USING (auth.uid() = user_id);
+    USING (true);
 
 CREATE POLICY "Users can insert into their own watchlist"
     ON public.watchlist_items

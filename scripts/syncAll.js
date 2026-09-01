@@ -1,6 +1,7 @@
 const { createClient } = require('@supabase/supabase-js');
+const path = require('path');
 const dotenv = require('dotenv');
-dotenv.config({ path: 'D:/Projects/wathis/.env.local' });
+dotenv.config({ path: path.resolve(__dirname, '../.env.local') });
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 const tmdbApiKey = process.env.TMDB_API_KEY;
