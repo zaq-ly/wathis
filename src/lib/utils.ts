@@ -121,6 +121,15 @@ export function parseSeasonInput(input: string): { count: number | null; label: 
   const trimmed = input.trim();
   if (!trimmed) return { count: null, label: null };
 
+  // Match "S2 E04", "S2 Ep 4", "S1 E1"
+  const sEpMatch = trimmed.match(/^S(\d+)\s*(?:E|Ep|Episode)\s*(\d+)/i);
+  if (sEpMatch) {
+    const s = parseInt(sEpMatch[1], 10);
+    const ep = parseInt(sEpMatch[2], 10);
+    const formattedEp = ep < 10 ? `0${ep}` : `${ep}`;
+    return { count: s, label: `S${s} E${formattedEp}` };
+  }
+
   const digitsMatch = trimmed.match(/\d+/);
   const num = digitsMatch ? parseInt(digitsMatch[0], 10) : null;
 

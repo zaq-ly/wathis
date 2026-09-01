@@ -24,6 +24,7 @@ interface WatchlistContextType {
   removeItem: (tmdb_id: number, media_type: 'movie' | 'tv') => Promise<boolean>;
   replaceItem: (target: WatchlistItem, replacement: SearchResultItem) => Promise<boolean>;
   updateSeason: (tmdb_id: number, media_type: 'movie' | 'tv', season_count: number | null, season_label: string | null) => Promise<boolean>;
+  togglePin: (tmdb_id: number, media_type: 'movie' | 'tv') => Promise<boolean>;
   isItemInWatchlist: (tmdb_id: number, media_type: 'movie' | 'tv') => boolean;
   refreshItems: () => Promise<void>;
   clearWatchlist: () => Promise<boolean>;
@@ -210,17 +211,19 @@ export function WatchlistProvider({ children }: { children: React.ReactNode }) {
       if (error) throw error;
       let loadedItems: WatchlistItem[] = normalizeWatchlistItems(data || []);
 
-      // LocalStorage persistence fallback for season_label
+      // LocalStorage persistence fallback for season_label and is_pinned
       if (typeof window !== 'undefined') {
         try {
-          const raw = localStorage.getItem('wathis_season_labels') || '{}';
-          const cachedLabels = JSON.parse(raw);
+          const rawLabels = localStorage.getItem('wathis_season_labels') || '{}';
+          const cachedLabels = JSON.parse(rawLabels);
+          const rawPins = localStorage.getItem('wathis_pinned_items') || '{}';
+          const cachedPins = JSON.parse(rawPins);
+
           loadedItems = loadedItems.map((it) => {
             const key = `${it.media_type}_${it.tmdb_id}`;
-            if (!it.season_label && cachedLabels[key]) {
-              return { ...it, season_label: cachedLabels[key] };
-            }
-            return it;
+            const isPinned = it.is_pinned !== undefined ? it.is_pinned : Boolean(cachedPins[key]);
+            const season_label = it.season_label || cachedLabels[key] || it.season_label;
+            return { ...it, is_pinned: isPinned, season_label };
           });
         } catch {}
       }
@@ -406,6 +409,54 @@ export function WatchlistProvider({ children }: { children: React.ReactNode }) {
     return true;
   };
 
+  // 4b. Toggle Pin Status
+  const togglePin = async (
+    tmdb_id: number,
+    media_type: 'movie' | 'tv'
+  ): Promise<boolean> => {
+    let newPinnedState = false;
+
+    setItems((prev) =>
+      prev.map((item) => {
+        if (item.tmdb_id === tmdb_id && item.media_type === media_type) {
+          newPinnedState = !item.is_pinned;
+          return {
+            ...item,
+            is_pinned: newPinnedState,
+          };
+        }
+        return item;
+      })
+    );
+
+    // Persist to localStorage
+    if (typeof window !== 'undefined') {
+      try {
+        const raw = localStorage.getItem('wathis_pinned_items') || '{}';
+        const pins = JSON.parse(raw);
+        const key = `${media_type}_${tmdb_id}`;
+        if (newPinnedState) {
+          pins[key] = true;
+        } else {
+          delete pins[key];
+        }
+        localStorage.setItem('wathis_pinned_items', JSON.stringify(pins));
+      } catch {}
+    }
+
+    if (user && isConfigured) {
+      try {
+        await supabase
+          .from('watchlist_items')
+          .update({ is_pinned: newPinnedState })
+          .match({ tmdb_id, media_type, user_id: user.id });
+      } catch (err) {
+        // Graceful catch if is_pinned column not in db
+      }
+    }
+    return true;
+  };
+
   // 5. Remove Item
   const removeItem = async (tmdb_id: number, media_type: 'movie' | 'tv'): Promise<boolean> => {
     if (typeof window !== 'undefined') {
@@ -513,19 +564,20 @@ export function WatchlistProvider({ children }: { children: React.ReactNode }) {
             if (!fresh || !fresh.title) return;
             const titleChanged = fresh.title !== item.title || fresh.original_title !== item.original_title;
             const needsReleaseDate = !item.release_date && fresh.release_date;
-            if (titleChanged || !item.backdrop_path || !item.overview || fresh.season_count !== item.season_count || needsReleaseDate) {
-              const dbPayload = {
+            const needsRating = (item.vote_average === null || item.vote_average === undefined) && fresh.vote_average !== null && fresh.vote_average !== undefined;
+            if (titleChanged || !item.backdrop_path || !item.overview || fresh.season_count !== item.season_count || needsReleaseDate || needsRating) {
+              const dbPayload: Record<string, any> = {
                 title: fresh.title,
                 original_title: fresh.original_title || null,
                 backdrop_path: fresh.backdrop_path || item.backdrop_path,
                 poster_path: fresh.poster_path || item.poster_path,
                 overview: item.overview || fresh.overview || null,
-                vote_average: fresh.vote_average || item.vote_average,
+                vote_average: fresh.vote_average !== undefined ? fresh.vote_average : item.vote_average,
                 season_count: fresh.season_count ?? item.season_count ?? null,
                 release_date: fresh.release_date || item.release_date,
               };
 
-              // Update local state with full release_date immediately
+              // Update local state with fresh data immediately
               const idx = updatedItems.findIndex(
                 (x) => (item.id ? x.id === item.id : x.tmdb_id === item.tmdb_id && x.media_type === item.media_type)
               );
@@ -537,20 +589,34 @@ export function WatchlistProvider({ children }: { children: React.ReactNode }) {
                   backdrop_path: fresh.backdrop_path || item.backdrop_path,
                   poster_path: fresh.poster_path || item.poster_path,
                   overview: item.overview || fresh.overview,
-                  vote_average: fresh.vote_average || item.vote_average,
+                  vote_average: fresh.vote_average !== undefined ? fresh.vote_average : item.vote_average,
                   season_count: fresh.season_count ?? item.season_count,
                   release_date: fresh.release_date || item.release_date,
                 };
               }
 
               if (user && isConfigured) {
-                let q = supabase.from('watchlist_items').update(dbPayload);
-                if (item.id) {
-                  q = q.eq('id', item.id);
-                } else {
-                  q = q.eq('user_id', user.id).eq('tmdb_id', item.tmdb_id).eq('media_type', item.media_type);
+                try {
+                  let q = supabase.from('watchlist_items').update(dbPayload);
+                  if (item.id) {
+                    q = q.eq('id', item.id);
+                  } else {
+                    q = q.eq('user_id', user.id).eq('tmdb_id', item.tmdb_id).eq('media_type', item.media_type);
+                  }
+                  let { error } = await q;
+                  if (error && (error.code === '42703' || error.message?.includes('column'))) {
+                    delete dbPayload.vote_average;
+                    let retryQ = supabase.from('watchlist_items').update(dbPayload);
+                    if (item.id) {
+                      retryQ = retryQ.eq('id', item.id);
+                    } else {
+                      retryQ = retryQ.eq('user_id', user.id).eq('tmdb_id', item.tmdb_id).eq('media_type', item.media_type);
+                    }
+                    await retryQ;
+                  }
+                } catch (err) {
+                  // Fallback
                 }
-                await q;
               }
               updatedCount++;
             }
@@ -596,6 +662,10 @@ export function WatchlistProvider({ children }: { children: React.ReactNode }) {
       return matchesType && matchesGenre && matchesSearch;
     })
     .sort((a, b) => {
+      // Pinned items always stay at the top
+      if (a.is_pinned && !b.is_pinned) return -1;
+      if (!a.is_pinned && b.is_pinned) return 1;
+
       switch (sortBy) {
         case 'alpha-asc':
           return (a.title || '').localeCompare(b.title || '', 'id', { sensitivity: 'base', numeric: true });
@@ -633,6 +703,7 @@ export function WatchlistProvider({ children }: { children: React.ReactNode }) {
         removeItem,
         replaceItem,
         updateSeason,
+        togglePin,
         isItemInWatchlist,
         refreshItems: fetchItems,
         clearWatchlist,

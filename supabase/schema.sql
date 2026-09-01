@@ -29,6 +29,7 @@ CREATE TABLE IF NOT EXISTS public.watchlist_items (
 ALTER TABLE public.watchlist_items ADD COLUMN IF NOT EXISTS season_label TEXT;
 ALTER TABLE public.watchlist_items ADD COLUMN IF NOT EXISTS vote_average NUMERIC;
 ALTER TABLE public.watchlist_items ADD COLUMN IF NOT EXISTS release_date TEXT;
+ALTER TABLE public.watchlist_items ADD COLUMN IF NOT EXISTS is_pinned BOOLEAN DEFAULT false;
 
 -- 2. Enable Row Level Security (RLS)
 ALTER TABLE public.watchlist_items ENABLE ROW LEVEL SECURITY;

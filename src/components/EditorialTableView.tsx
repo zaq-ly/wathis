@@ -5,7 +5,7 @@ import { WatchlistItem } from '@/types/watchlist';
 import { useWatchlist } from '@/context/WatchlistContext';
 import { useLanguage } from '@/context/LanguageContext';
 import { getTMDBImageUrl, formatSeasonDisplay, isAnimeItem } from '@/lib/utils';
-import { Trash2, Calendar, Sparkles, ExternalLink, Clapperboard, Film, Tv, ArrowLeftRight, Play } from 'lucide-react';
+import { Trash2, Calendar, Sparkles, ExternalLink, Clapperboard, Film, Tv, ArrowLeftRight, Play, Pin } from 'lucide-react';
 import Image from 'next/image';
 import { EditMatchModal } from './EditMatchModal';
 import { ItemDetailModal } from './ItemDetailModal';
@@ -21,7 +21,7 @@ export const EditorialTableView: React.FC<EditorialTableViewProps> = ({
   onOpenSearch,
   readonly = false,
 }) => {
-  const { removeItem, setSelectedGenre } = useWatchlist();
+  const { removeItem, togglePin, setSelectedGenre } = useWatchlist();
   const { t } = useLanguage();
   const [hoveredItem, setHoveredItem] = useState<WatchlistItem | null>(null);
   const [editingItem, setEditingItem] = useState<WatchlistItem | null>(null);
@@ -96,42 +96,43 @@ export const EditorialTableView: React.FC<EditorialTableViewProps> = ({
 
                 {/* Details */}
                 <div className="min-w-0 flex-1 space-y-1">
-                  <div className="text-sm font-semibold text-foreground truncate">
-                    {item.title}
+                  <div className="text-sm font-semibold text-foreground truncate flex items-center space-x-1.5">
+                    {item.is_pinned && (
+                      <Pin className="w-3.5 h-3.5 text-amber-500 fill-current shrink-0" />
+                    )}
+                    <span className="truncate">{item.title}</span>
                   </div>
 
-                  <div className="flex items-center space-x-2 text-xs text-muted-foreground">
-                    <span className="font-medium text-foreground/90">
-                      {item.release_year || '—'}
-                    </span>
-                    <span>•</span>
+                  <div className="flex items-center space-x-2 text-xs text-muted-foreground whitespace-nowrap overflow-hidden">
                     {isAnimeItem(item) ? (
-                      <span className="px-2 py-0.5 rounded-md bg-rose-500/10 text-rose-600 dark:text-rose-400 text-[11px] font-semibold">
+                      <span className="inline-flex items-center px-2 py-0.5 rounded-md bg-rose-500/10 text-rose-600 dark:text-rose-400 text-[11px] font-semibold shrink-0">
                         Anime{formatSeasonDisplay(item) ? ` • ${formatSeasonDisplay(item)}` : ''}
                       </span>
                     ) : item.media_type === 'movie' ? (
-                      <span className="px-2 py-0.5 rounded-md bg-sky-500/10 text-sky-600 dark:text-sky-400 text-[11px] font-semibold">
+                      <span className="inline-flex items-center px-2 py-0.5 rounded-md bg-sky-500/10 text-sky-600 dark:text-sky-400 text-[11px] font-semibold shrink-0">
                         Film{formatSeasonDisplay(item) ? ` • ${formatSeasonDisplay(item)}` : ''}
                       </span>
                     ) : (
-                      <span className="px-2 py-0.5 rounded-md bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 text-[11px] font-semibold">
+                      <span className="inline-flex items-center px-2 py-0.5 rounded-md bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 text-[11px] font-semibold shrink-0">
                         Series{formatSeasonDisplay(item) ? ` • ${formatSeasonDisplay(item)}` : ''}
                       </span>
                     )}
+
+                    <span className="font-medium text-foreground/80 shrink-0">
+                      {item.release_year || '—'}
+                    </span>
+
                     {item.vote_average ? (
-                      <>
-                        <span>•</span>
-                        <span className="text-amber-500 dark:text-amber-400 font-semibold text-xs flex items-center space-x-0.5">
-                          <span>★</span>
-                          <span>{item.vote_average}</span>
-                        </span>
-                      </>
+                      <span className="text-amber-500 dark:text-amber-400 font-semibold text-xs inline-flex items-center space-x-0.5 shrink-0">
+                        <span>★</span>
+                        <span>{Number(item.vote_average).toFixed(1)}</span>
+                      </span>
                     ) : null}
                   </div>
 
                   {item.genres && item.genres.length > 0 && (
                     <div className="text-[11px] text-muted-foreground truncate">
-                      {item.genres.slice(0, 2).join(', ')}
+                      {item.genres.slice(0, 3).join(', ')}
                     </div>
                   )}
                 </div>
@@ -139,7 +140,21 @@ export const EditorialTableView: React.FC<EditorialTableViewProps> = ({
 
               {/* Action Buttons */}
               {!readonly && (
-                <div className="shrink-0 flex items-center">
+                <div className="shrink-0 flex items-center space-x-1">
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      togglePin(item.tmdb_id, item.media_type);
+                    }}
+                    className={`p-2 rounded-full transition-colors cursor-pointer ${
+                      item.is_pinned
+                        ? 'text-amber-500 hover:text-amber-600 bg-amber-500/10'
+                        : 'text-muted-foreground hover:text-amber-500 hover:bg-amber-500/10'
+                    }`}
+                    title={item.is_pinned ? t.unpinTitle : t.pinTitle}
+                  >
+                    <Pin className={`w-3.5 h-3.5 ${item.is_pinned ? 'fill-current' : ''}`} />
+                  </button>
                   <button
                     onClick={(e) => {
                       e.stopPropagation();
@@ -269,7 +284,7 @@ export const EditorialTableView: React.FC<EditorialTableViewProps> = ({
               <div className="col-span-2">{t.tableType}</div>
               <div className="col-span-2">{t.seasons}</div>
               <div className="col-span-2">{t.tableYear}</div>
-              <div className="col-span-2 text-right pr-14">{t.tableRating}</div>
+              <div className="col-span-2 text-right pr-20">{t.tableRating}</div>
             </div>
 
             {/* Smooth Scrollable Table Rows */}
@@ -296,8 +311,11 @@ export const EditorialTableView: React.FC<EditorialTableViewProps> = ({
 
                     {/* Title & Genres */}
                     <div className="col-span-3 min-w-0 pr-3">
-                      <div className="text-xs sm:text-sm font-semibold text-card-foreground group-hover:text-blue-600 dark:group-hover:text-blue-400 truncate transition-colors">
-                        {item.title}
+                      <div className="text-xs sm:text-sm font-semibold text-card-foreground group-hover:text-blue-600 dark:group-hover:text-blue-400 truncate transition-colors flex items-center space-x-1.5">
+                        {item.is_pinned && (
+                          <Pin className="w-3.5 h-3.5 text-amber-500 fill-current shrink-0" />
+                        )}
+                        <span className="truncate">{item.title}</span>
                       </div>
                       <div className="text-[11px] text-muted-foreground truncate mt-0.5">
                         {item.genres && item.genres.length > 0
@@ -345,9 +363,9 @@ export const EditorialTableView: React.FC<EditorialTableViewProps> = ({
                       {item.release_year || '—'}
                     </div>
 
-                    {/* Rating & Delete Action */}
+                    {/* Rating & Action Buttons */}
                     <div className="col-span-2 flex items-center justify-end relative">
-                      <div className="text-xs font-semibold text-foreground/90 flex items-center space-x-1 pr-14">
+                      <div className="text-xs font-semibold text-foreground/90 flex items-center space-x-1 pr-20">
                         {item.vote_average ? (
                           <>
                             <span className="text-amber-500 dark:text-amber-400 text-xs">★</span>
@@ -359,16 +377,32 @@ export const EditorialTableView: React.FC<EditorialTableViewProps> = ({
                       </div>
 
                       {!readonly && (
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            removeItem(item.tmdb_id, item.media_type);
-                          }}
-                          className="absolute right-0 opacity-0 group-hover:opacity-100 p-1.5 rounded-full text-muted-foreground hover:text-red-500 hover:bg-red-500/10 transition-all cursor-pointer"
-                          title="Hapus"
-                        >
-                          <Trash2 className="w-3.5 h-3.5" />
-                        </button>
+                        <div className="absolute right-0 opacity-0 group-hover:opacity-100 flex items-center space-x-1 transition-all">
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              togglePin(item.tmdb_id, item.media_type);
+                            }}
+                            className={`p-1.5 rounded-full transition-all cursor-pointer ${
+                              item.is_pinned
+                                ? 'text-amber-500 hover:text-amber-600 bg-amber-500/10'
+                                : 'text-muted-foreground hover:text-amber-500 hover:bg-amber-500/10'
+                            }`}
+                            title={item.is_pinned ? t.unpinTitle : t.pinTitle}
+                          >
+                            <Pin className={`w-3.5 h-3.5 ${item.is_pinned ? 'fill-current' : ''}`} />
+                          </button>
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              removeItem(item.tmdb_id, item.media_type);
+                            }}
+                            className="p-1.5 rounded-full text-muted-foreground hover:text-red-500 hover:bg-red-500/10 transition-all cursor-pointer"
+                            title="Hapus"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
                       )}
                     </div>
                   </div>

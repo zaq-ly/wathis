@@ -16,6 +16,7 @@ export interface WathisItem {
   season_label?: string | null;
   overview?: string;
   vote_average?: number | null;
+  is_pinned?: boolean;
   created_at?: string;
 }
 

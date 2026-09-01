@@ -5,7 +5,7 @@ import { WatchlistItem } from '@/types/watchlist';
 import { useWatchlist } from '@/context/WatchlistContext';
 import { useLanguage } from '@/context/LanguageContext';
 import { getTMDBImageUrl, formatSeasonDisplay, isAnimeItem } from '@/lib/utils';
-import { Trash2, Calendar, Sparkles, Clapperboard, ArrowLeftRight, Film, Tv } from 'lucide-react';
+import { Trash2, Calendar, Sparkles, Clapperboard, ArrowLeftRight, Film, Tv, Pin } from 'lucide-react';
 import Image from 'next/image';
 import { EditMatchModal } from './EditMatchModal';
 import { ItemDetailModal } from './ItemDetailModal';
@@ -17,7 +17,7 @@ interface GridViewProps {
 }
 
 export const GridView: React.FC<GridViewProps> = ({ items, onOpenSearch, readonly = false }) => {
-  const { removeItem } = useWatchlist();
+  const { removeItem, togglePin } = useWatchlist();
   const { t } = useLanguage();
   const [editingItem, setEditingItem] = useState<WatchlistItem | null>(null);
   const [selectedDetailItem, setSelectedDetailItem] = useState<WatchlistItem | null>(null);
@@ -82,19 +82,26 @@ export const GridView: React.FC<GridViewProps> = ({ items, onOpenSearch, readonl
                 {/* Apple Gradient Vignette */}
                 <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-black/30 opacity-60 group-hover:opacity-90 transition-opacity duration-300" />
 
-                <div className="absolute top-2.5 left-2.5 px-2.5 py-0.5 rounded-full bg-black/60 backdrop-blur-xl text-[10px] text-white font-medium border border-white/10 flex items-center space-x-1 shadow-sm">
+                <div className="absolute top-2.5 left-2.5 px-2.5 py-0.5 rounded-full bg-black/60 backdrop-blur-xl text-[10px] text-white font-medium border border-white/10 flex items-center space-x-1 shadow-sm whitespace-nowrap max-w-[calc(100%-48px)] truncate">
                   {isAnimeItem(item) ? (
-                    <Sparkles className="w-2.5 h-2.5 text-rose-400" />
+                    <Sparkles className="w-2.5 h-2.5 text-rose-400 shrink-0" />
                   ) : item.media_type === 'movie' ? (
-                    <Film className="w-2.5 h-2.5 text-sky-400" />
+                    <Film className="w-2.5 h-2.5 text-sky-400 shrink-0" />
                   ) : (
-                    <Tv className="w-2.5 h-2.5 text-indigo-400" />
+                    <Tv className="w-2.5 h-2.5 text-indigo-400 shrink-0" />
                   )}
-                  <span>
+                  <span className="truncate">
                     {isAnimeItem(item) ? 'Anime' : item.media_type === 'movie' ? 'Film' : 'Series'}
                     {formatSeasonDisplay(item) ? ` • ${formatSeasonDisplay(item)}` : ''}
                   </span>
                 </div>
+
+                {/* Pinned Badge (Default view when not hovering) */}
+                {item.is_pinned && (
+                  <div className="absolute top-2.5 right-2.5 p-1 rounded-full bg-amber-500 text-zinc-950 shadow-md border border-amber-400 z-10 group-hover:opacity-0 transition-opacity">
+                    <Pin className="w-3 h-3 fill-current" />
+                  </div>
+                )}
 
                 {/* Bottom Badge: Rating */}
                 {item.vote_average ? (
@@ -106,7 +113,21 @@ export const GridView: React.FC<GridViewProps> = ({ items, onOpenSearch, readonl
 
                 {/* Quick Action Floating Pills */}
                 {!readonly && (
-                  <div className="absolute top-2.5 right-2.5 flex items-center space-x-1">
+                  <div className="absolute top-2.5 right-2.5 flex items-center space-x-1 z-20">
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        togglePin(item.tmdb_id, item.media_type);
+                      }}
+                      className={`p-1.5 rounded-full backdrop-blur-xl transition-all duration-200 border shadow-sm cursor-pointer ${
+                        item.is_pinned
+                          ? 'bg-amber-500 text-zinc-950 border-amber-400 opacity-100'
+                          : 'bg-black/60 hover:bg-amber-500 text-white hover:text-zinc-950 border-white/10 opacity-0 group-hover:opacity-100'
+                      }`}
+                      title={item.is_pinned ? t.unpinTitle : t.pinTitle}
+                    >
+                      <Pin className={`w-3 h-3 ${item.is_pinned ? 'fill-current' : ''}`} />
+                    </button>
                     <button
                       onClick={(e) => {
                         e.stopPropagation();
@@ -134,8 +155,9 @@ export const GridView: React.FC<GridViewProps> = ({ items, onOpenSearch, readonl
               {/* Title & Metadata Details */}
               <div className="p-3 flex-1 flex flex-col justify-between space-y-1.5 bg-card">
                 <div>
-                  <h4 className="text-xs sm:text-sm font-semibold text-foreground group-hover:text-blue-600 dark:group-hover:text-blue-400 truncate transition-colors">
-                    {item.title}
+                  <h4 className="text-xs sm:text-sm font-semibold text-foreground group-hover:text-blue-600 dark:group-hover:text-blue-400 truncate transition-colors flex items-center space-x-1.5">
+                    {item.is_pinned && <Pin className="w-3 h-3 text-amber-500 fill-current shrink-0" />}
+                    <span className="truncate">{item.title}</span>
                   </h4>
                   {item.genres && item.genres.length > 0 && (
                     <p className="text-[11px] text-muted-foreground truncate mt-0.5">

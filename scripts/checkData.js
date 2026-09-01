@@ -9,19 +9,19 @@ const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
 async function checkData() {
-  const { data: all, error: allErr } = await supabase.from('watchlist_items').select('id, title, release_date');
+  const { data: all, error: allErr } = await supabase.from('watchlist_items').select('id, title, vote_average');
   if (allErr) { console.error('Error:', allErr); return; }
   
-  const withDate = all.filter(i => i.release_date);
-  const withoutDate = all.filter(i => !i.release_date);
+  const withRating = all.filter(i => i.vote_average !== null && i.vote_average !== undefined);
+  const withoutRating = all.filter(i => i.vote_average === null || i.vote_average === undefined);
   
   console.log(`Total items: ${all.length}`);
-  console.log(`With release_date: ${withDate.length}`);
-  console.log(`Without release_date: ${withoutDate.length}`);
+  console.log(`With vote_average: ${withRating.length}`);
+  console.log(`Without vote_average: ${withoutRating.length}`);
   
-  if (withoutDate.length > 0) {
-    console.log('\nSample tanpa release_date (5 pertama):');
-    withoutDate.slice(0, 5).forEach(i => console.log(`- ${i.title}`));
+  if (withoutRating.length > 0) {
+    console.log('\nSample tanpa rating (5 pertama):');
+    withoutRating.slice(0, 5).forEach(i => console.log(`- ${i.title}`));
   }
 }
 
