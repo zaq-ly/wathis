@@ -47,20 +47,20 @@ export function parseUniversalImport(content: string, filename: string = ''): Pa
         const results: ParsedImportItem[] = [];
         for (const item of parsed) {
           if (typeof item === 'string') {
-            const { cleanTitle, detectedSeason } = cleanMigrationTitle(item);
+            const { cleanTitle, detectedSeason, detectedYear } = cleanMigrationTitle(item);
             if (cleanTitle) {
-              results.push({ raw: item, clean: cleanTitle, season: detectedSeason });
+              results.push({ raw: item, clean: cleanTitle, season: detectedSeason, year: detectedYear });
             }
           } else if (item && typeof item === 'object') {
             const raw = item.title || item.name || item.rawTitle || item.film || '';
             if (raw) {
-              const { cleanTitle, detectedSeason } = cleanMigrationTitle(String(raw));
+              const { cleanTitle, detectedSeason, detectedYear } = cleanMigrationTitle(String(raw));
               if (cleanTitle) {
                 results.push({
                   raw: String(raw),
                   clean: cleanTitle,
                   season: detectedSeason || item.season,
-                  year: item.year || item.release_year,
+                  year: item.year || item.release_year || detectedYear,
                   genre: Array.isArray(item.genres) ? item.genres.join(', ') : item.genre || item.notionGenre,
                   type: item.type || item.media_type,
                 });
@@ -114,9 +114,9 @@ export function parseUniversalImport(content: string, filename: string = ''): Pa
       const cleanedLine = line.replace(/^(\d+[\.\)]|\*|\-|\+)\s*(\[[ xX]\]\s*)?/, '').trim();
       const cols = parseCSVLine(cleanedLine);
       const rawTitle = cols[titleIdx] || cleanedLine;
-      const { cleanTitle, detectedSeason } = cleanMigrationTitle(rawTitle);
+      const { cleanTitle, detectedSeason, detectedYear } = cleanMigrationTitle(rawTitle);
 
-      let year: number | undefined;
+      let year: number | undefined = detectedYear;
       if (headerMap['year'] !== undefined && cols[headerMap['year']]) {
         const parsedYear = parseInt(cols[headerMap['year']].slice(0, 4), 10);
         if (!isNaN(parsedYear)) year = parsedYear;

@@ -33,6 +33,34 @@ Aplikasi ini dibangun menggunakan teknologi web modern terbaik saat ini:
 - **External Data:** [TMDB API](https://www.themoviedb.org/documentation/api)
 - **Icons:** [Lucide React](https://lucide.dev/)
 
+---
+
+## 🚀 Panduan Setup & Run
+
+### 1. Prasyarat & Environment Variables
+Salin template environment:
+```bash
+cp .env.example .env.local
+```
+Lengkapi variabel berikut di `.env.local` atau pada dashboard hosting (Vercel):
+- `NEXT_PUBLIC_SUPABASE_URL`
+- `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+- `NEXT_PUBLIC_TMDB_API_KEY`
+- `NEXT_PUBLIC_GOOGLE_CLIENT_ID` (opsional untuk Google OAuth)
+- `SUPABASE_SERVICE_ROLE_KEY` (opsional untuk service role sync)
+
+### 2. Database Migration
+Jalankan skrip SQL di Supabase SQL Editor dari file `supabase/schema.sql`.
+
+### 3. Install & Jalankan
+```bash
+npm install
+npm run dev     # Mode development
+npm test        # Unit testing
+npm run build   # Production build
+npm start       # Production server
+```
+
 <br />
 
 <div align="center">
