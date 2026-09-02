@@ -17,7 +17,7 @@ interface GridViewProps {
 }
 
 export const GridView: React.FC<GridViewProps> = ({ items, onOpenSearch, readonly = false }) => {
-  const { removeItem, togglePin } = useWatchlist();
+  const { removeItem } = useWatchlist();
   const { t } = useLanguage();
   const [editingItem, setEditingItem] = useState<WatchlistItem | null>(null);
   const [selectedDetailItem, setSelectedDetailItem] = useState<WatchlistItem | null>(null);
@@ -114,20 +114,6 @@ export const GridView: React.FC<GridViewProps> = ({ items, onOpenSearch, readonl
                 {/* Quick Action Floating Pills */}
                 {!readonly && (
                   <div className="absolute top-2.5 right-2.5 flex items-center space-x-1 z-20">
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        togglePin(item.tmdb_id, item.media_type);
-                      }}
-                      className={`p-1.5 rounded-full backdrop-blur-xl transition-all duration-200 border shadow-sm cursor-pointer ${
-                        item.is_pinned
-                          ? 'bg-amber-500 text-zinc-950 border-amber-400 opacity-100'
-                          : 'bg-black/60 hover:bg-amber-500 text-white hover:text-zinc-950 border-white/10 opacity-0 group-hover:opacity-100'
-                      }`}
-                      title={item.is_pinned ? t.unpinTitle : t.pinTitle}
-                    >
-                      <Pin className={`w-3 h-3 ${item.is_pinned ? 'fill-current' : ''}`} />
-                    </button>
                     <button
                       onClick={(e) => {
                         e.stopPropagation();
