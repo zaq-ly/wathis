@@ -42,8 +42,8 @@ export const ItemDetailModal: React.FC<ItemDetailModalProps> = ({
   const [selectedSeasonCount, setSelectedSeasonCount] = useState<number>(1);
   const [customSeasonLabel, setCustomSeasonLabel] = useState<string>('');
   const [watchMode, setWatchMode] = useState<'completed' | 'ongoing' | 'custom'>('completed');
-  const [ongoingSeason, setOngoingSeason] = useState<number>(1);
-  const [ongoingEpisode, setOngoingEpisode] = useState<number>(1);
+  const [ongoingSeason, setOngoingSeason] = useState<number | string>(1);
+  const [ongoingEpisode, setOngoingEpisode] = useState<number | string>(1);
   const [isSaved, setIsSaved] = useState(false);
   const [mounted, setMounted] = useState(false);
 
@@ -116,11 +116,13 @@ export const ItemDetailModal: React.FC<ItemDetailModalProps> = ({
     if (e) e.preventDefault();
     if (!item) return;
 
-    const s = Math.max(1, Number(ongoingSeason) || 1);
-    const ep = Math.max(1, Number(ongoingEpisode) || 1);
+    const s = Math.max(1, parseInt(String(ongoingSeason), 10) || 1);
+    const ep = Math.max(1, parseInt(String(ongoingEpisode), 10) || 1);
     const formattedEp = ep < 10 ? `0${ep}` : `${ep}`;
     const newLabel = `S${s} E${formattedEp}`;
 
+    setOngoingSeason(s);
+    setOngoingEpisode(ep);
     setSelectedSeasonCount(s);
     setCustomSeasonLabel(newLabel);
     await updateSeason(item.tmdb_id, item.media_type, s, newLabel);
@@ -382,15 +384,25 @@ export const ItemDetailModal: React.FC<ItemDetailModalProps> = ({
                       <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
                         {t.season}
                       </label>
-                      <div className="flex items-center bg-card border border-black/[0.08] dark:border-white/[0.12] rounded-xl px-3 py-2">
+                      <div className="flex items-center bg-card border border-black/[0.08] dark:border-white/[0.12] rounded-xl px-3 py-2 focus-within:ring-2 focus-within:ring-foreground/20">
                         <span className="text-xs text-muted-foreground mr-2 font-mono font-bold">S</span>
                         <input
-                          type="number"
-                          min="1"
-                          max="99"
+                          type="text"
+                          inputMode="numeric"
+                          pattern="[0-9]*"
                           value={ongoingSeason}
-                          onChange={(e) => setOngoingSeason(Math.max(1, parseInt(e.target.value, 10) || 1))}
+                          onFocus={(e) => e.target.select()}
+                          onChange={(e) => {
+                            const val = e.target.value.replace(/\D/g, '').slice(0, 2);
+                            setOngoingSeason(val);
+                          }}
+                          onBlur={() => {
+                            if (!ongoingSeason || parseInt(String(ongoingSeason), 10) < 1) {
+                              setOngoingSeason(1);
+                            }
+                          }}
                           className="bg-transparent border-none outline-none text-foreground text-xs font-bold w-full"
+                          placeholder="1"
                         />
                       </div>
                     </div>
@@ -400,15 +412,25 @@ export const ItemDetailModal: React.FC<ItemDetailModalProps> = ({
                       <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
                         {t.lastEpisode}
                       </label>
-                      <div className="flex items-center bg-card border border-black/[0.08] dark:border-white/[0.12] rounded-xl px-3 py-2">
+                      <div className="flex items-center bg-card border border-black/[0.08] dark:border-white/[0.12] rounded-xl px-3 py-2 focus-within:ring-2 focus-within:ring-foreground/20">
                         <span className="text-xs text-muted-foreground mr-2 font-mono font-bold">Ep</span>
                         <input
-                          type="number"
-                          min="1"
-                          max="9999"
+                          type="text"
+                          inputMode="numeric"
+                          pattern="[0-9]*"
                           value={ongoingEpisode}
-                          onChange={(e) => setOngoingEpisode(Math.max(1, parseInt(e.target.value, 10) || 1))}
+                          onFocus={(e) => e.target.select()}
+                          onChange={(e) => {
+                            const val = e.target.value.replace(/\D/g, '').slice(0, 4);
+                            setOngoingEpisode(val);
+                          }}
+                          onBlur={() => {
+                            if (!ongoingEpisode || parseInt(String(ongoingEpisode), 10) < 1) {
+                              setOngoingEpisode(1);
+                            }
+                          }}
                           className="bg-transparent border-none outline-none text-foreground text-xs font-bold w-full"
+                          placeholder="1"
                         />
                       </div>
                     </div>
@@ -417,7 +439,13 @@ export const ItemDetailModal: React.FC<ItemDetailModalProps> = ({
                   {/* Save Button for Ongoing */}
                   <div className="flex items-center justify-between pt-1">
                     <div className="text-xs text-muted-foreground">
-                      Label: <span className="font-mono font-bold text-foreground">S{ongoingSeason} E{ongoingEpisode < 10 ? `0${ongoingEpisode}` : ongoingEpisode}</span>
+                      Label:{' '}
+                      <span className="font-mono font-bold text-foreground">
+                        S{ongoingSeason || 1} E{(() => {
+                          const ep = parseInt(String(ongoingEpisode), 10) || 1;
+                          return ep < 10 ? `0${ep}` : `${ep}`;
+                        })()}
+                      </span>
                     </div>
                     <button
                       type="submit"
