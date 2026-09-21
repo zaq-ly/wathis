@@ -150,6 +150,7 @@ export const GridView: React.FC<GridViewProps> = ({ items, onOpenSearch, readonl
                       {item.genres.slice(0, 2).join(', ')}
                     </p>
                   )}
+
                 </div>
 
                 <div className="pt-2 flex items-center justify-between text-xs text-muted-foreground border-t border-black/[0.04] dark:border-white/[0.06]">

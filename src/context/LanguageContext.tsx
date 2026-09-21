@@ -31,6 +31,16 @@ export const translations = {
     syncFinished: 'Sinkronisasi selesai!',
     exportFinished: 'Data arsip CSV berhasil di-download!',
     noExportData: 'Tidak ada data arsip untuk di-export.',
+    discover: 'Rekomendasi',
+    discoverSubtitle: 'Jelajah film, serial, & anime terbaik langsung dari TMDB',
+    minRatingLabel: 'Rating Min',
+    allRatings: 'Semua Rating',
+    popularity: 'Paling Populer',
+    topRated: 'Rating Tertinggi',
+    savedInArchive: 'Tersimpan',
+    addToArchive: 'Tambah',
+    loadMore: 'Muat Lebih Banyak',
+    noMoreTitles: 'Semua judul rekomendasi sudah dimuat',
 
     // Search & Filter
     searchHeroPlaceholder: 'Cari film, anime, atau series untuk ditambahkan...',
@@ -126,6 +136,16 @@ export const translations = {
     syncFinished: 'Sync completed!',
     exportFinished: 'Archive CSV successfully downloaded!',
     noExportData: 'No archive data to export.',
+    discover: 'Discover',
+    discoverSubtitle: 'Explore top films, series, & anime directly from TMDB',
+    minRatingLabel: 'Min Rating',
+    allRatings: 'All Ratings',
+    popularity: 'Most Popular',
+    topRated: 'Top Rated',
+    savedInArchive: 'In Archive',
+    addToArchive: 'Add',
+    loadMore: 'Load More',
+    noMoreTitles: 'All recommendations loaded',
 
     // Search & Filter
     searchHeroPlaceholder: 'Search films, anime, or series to archive...',

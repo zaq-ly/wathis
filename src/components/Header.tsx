@@ -186,6 +186,18 @@ export const Header: React.FC<HeaderProps> = ({
                 <span>{t.anime}</span>
                 <span className="text-[11px] opacity-70">({animeCount})</span>
               </button>
+
+              <button
+                onClick={() => setFilterType('discover')}
+                className={`px-3.5 py-1.5 rounded-full text-xs transition-all duration-200 cursor-pointer flex items-center space-x-1.5 ${
+                  filterType === 'discover'
+                    ? 'bg-foreground text-background font-bold shadow-md'
+                    : 'text-muted-foreground hover:text-foreground font-medium'
+                }`}
+              >
+                <Sparkles className="w-3 h-3 text-amber-400" />
+                <span>{t.discover}</span>
+              </button>
             </nav>
           </div>
 
@@ -504,7 +516,7 @@ export const Header: React.FC<HeaderProps> = ({
 
         {/* Mobile Segmented Category Bar */}
         <div className="flex md:hidden py-2 border-t border-black/[0.06] dark:border-white/[0.08]">
-          <div className="grid grid-cols-4 w-full bg-black/[0.04] dark:bg-white/[0.08] p-1 rounded-full text-[10px] sm:text-xs font-medium border border-black/10 dark:border-white/10">
+          <div className="grid grid-cols-5 w-full bg-black/[0.04] dark:bg-white/[0.08] p-1 rounded-full text-[10px] sm:text-xs font-medium border border-black/10 dark:border-white/10">
             <button
               onClick={() => setFilterType('all')}
               className={`py-1.5 rounded-full text-center flex items-center justify-center space-x-1 transition-all cursor-pointer ${
@@ -524,7 +536,7 @@ export const Header: React.FC<HeaderProps> = ({
                   : 'text-muted-foreground hover:text-foreground'
               }`}
             >
-              <span>{t.films} ({filmCount})</span>
+              <span>{t.films}</span>
             </button>
 
             <button
@@ -535,7 +547,7 @@ export const Header: React.FC<HeaderProps> = ({
                   : 'text-muted-foreground hover:text-foreground'
               }`}
             >
-              <span>{t.series} ({tvCount})</span>
+              <span>{t.series}</span>
             </button>
 
             <button
@@ -546,7 +558,19 @@ export const Header: React.FC<HeaderProps> = ({
                   : 'text-muted-foreground hover:text-foreground'
               }`}
             >
-              <span>{t.anime} ({animeCount})</span>
+              <span>{t.anime}</span>
+            </button>
+
+            <button
+              onClick={() => setFilterType('discover')}
+              className={`py-1.5 rounded-full text-center flex items-center justify-center space-x-1 transition-all cursor-pointer ${
+                filterType === 'discover'
+                  ? 'bg-foreground text-background font-bold shadow-md'
+                  : 'text-muted-foreground hover:text-foreground'
+              }`}
+            >
+              <Sparkles className="w-2.5 h-2.5 text-amber-400 shrink-0" />
+              <span>{t.discover}</span>
             </button>
           </div>
         </div>

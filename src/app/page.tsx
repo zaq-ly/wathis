@@ -12,6 +12,7 @@ import { GridView } from '@/components/GridView';
 import { Search, Loader2, Sparkles, Filter } from 'lucide-react';
 import { CustomSelect } from '@/components/CustomSelect';
 import { SyncBadge } from '@/components/SyncBadge';
+import { DiscoverView } from '@/components/DiscoverView';
 
 export default function HomePage() {
 const {
@@ -28,7 +29,23 @@ const {
      setSortBy,
    } = useWatchlist();
   const { t } = useLanguage();
-  const [viewMode, setViewMode] = useState<'table' | 'grid'>('table');
+  const [viewMode, setViewModeState] = useState<'table' | 'grid'>('grid');
+
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem('wathis_view_mode') as 'table' | 'grid' | null;
+      if (saved === 'table' || saved === 'grid') {
+        setViewModeState(saved);
+      }
+    } catch {}
+  }, []);
+
+  const setViewMode = (mode: 'table' | 'grid') => {
+    setViewModeState(mode);
+    try {
+      localStorage.setItem('wathis_view_mode', mode);
+    } catch {}
+  };
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isAuthOpen, setIsAuthOpen] = useState(false);
   const [isMigrationOpen, setIsMigrationOpen] = useState(false);
@@ -102,75 +119,82 @@ const {
           </div>
         </div>
 
-        {/* Category Header & Filter Toolbar */}
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-3.5 pb-2">
-          {/* Headline & Title Count */}
-          <div className="flex items-baseline space-x-3">
-            <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-foreground">
-              {filterType === 'movie' ? t.films : filterType === 'tv' ? t.series : filterType === 'anime' ? t.anime : t.all}
-            </h1>
-            <span className="px-2.5 py-0.5 rounded-full bg-black/[0.04] dark:bg-white/[0.08] text-xs font-medium text-muted-foreground">
-              {filteredItems.length} {t.titlesCount}
-            </span>
-          </div>
+        {/* Main Content Area */}
+        {filterType === 'discover' ? (
+          <DiscoverView onOpenAuth={() => setIsAuthOpen(true)} />
+        ) : (
+          <>
+            {/* Category Header & Filter Toolbar */}
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-3.5 pb-2">
+              {/* Headline & Title Count */}
+              <div className="flex items-baseline space-x-3">
+                <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-foreground">
+                  {filterType === 'movie' ? t.films : filterType === 'tv' ? t.series : filterType === 'anime' ? t.anime : t.all}
+                </h1>
+                <span className="px-2.5 py-0.5 rounded-full bg-black/[0.04] dark:bg-white/[0.08] text-xs font-medium text-muted-foreground">
+                  {filteredItems.length} {t.titlesCount}
+                </span>
+              </div>
 
-          {/* Apple Toolbar: Sort + Genre Filter + Search Pill */}
-          <div className="flex flex-wrap items-center gap-2.5">
-            {/* Sort Dropdown */}
-            <CustomSelect
-              value={sortBy}
-              options={sortOptions}
-              onChange={(val) => setSortBy(val as any)}
-            />
+              {/* Apple Toolbar: Sort + Genre Filter + Search Pill */}
+              <div className="flex flex-wrap items-center gap-2.5">
+                {/* Sort Dropdown */}
+                <CustomSelect
+                  value={sortBy}
+                  options={sortOptions}
+                  onChange={(val) => setSortBy(val as any)}
+                />
 
-            {/* Genre Dropdown */}
-            {genresList.length > 0 && (
-              <CustomSelect
-                value={selectedGenre || ''}
-                options={genreOptions}
-                onChange={(val) => setSelectedGenre(val || null)}
-                placeholder={t.allGenres}
+                {/* Genre Dropdown */}
+                {genresList.length > 0 && (
+                  <CustomSelect
+                    value={selectedGenre || ''}
+                    options={genreOptions}
+                    onChange={(val) => setSelectedGenre(val || null)}
+                    placeholder={t.allGenres}
+                  />
+                )}
+
+                {/* Quick Search Input Pill */}
+                <div className="relative flex-1 sm:w-52 min-w-[140px]">
+                  <Search className="w-3.5 h-3.5 text-muted-foreground absolute left-3.5 top-3 pointer-events-none" />
+                  <input
+                    type="text"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    placeholder={t.filterInArchive}
+                    className="h-9 w-full bg-black/[0.03] dark:bg-white/[0.07] hover:bg-black/[0.06] dark:hover:bg-white/[0.1] focus:bg-white dark:focus:bg-zinc-900 rounded-full pl-9 pr-8 text-xs text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-blue-500/30 transition-all duration-200 border border-black/[0.06] dark:border-white/[0.08]"
+                  />
+                  {searchQuery && (
+                    <button
+                      onClick={() => setSearchQuery('')}
+                      className="absolute right-3 top-2.5 text-muted-foreground hover:text-foreground text-xs cursor-pointer"
+                    >
+                      ✕
+                    </button>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            {/* Content Body */}
+            {isLoading ? (
+              <div className="py-32 flex flex-col items-center justify-center space-y-3">
+                <Loader2 className="w-6 h-6 text-blue-500 animate-spin" />
+                <span className="text-xs text-muted-foreground font-medium">Loading...</span>
+              </div>
+            ) : viewMode === 'table' ? (
+              <EditorialTableView
+                items={filteredItems}
+                onOpenSearch={() => setIsSearchOpen(true)}
+              />
+            ) : (
+              <GridView
+                items={filteredItems}
+                onOpenSearch={() => setIsSearchOpen(true)}
               />
             )}
-
-            {/* Quick Search Input Pill */}
-            <div className="relative flex-1 sm:w-52 min-w-[140px]">
-              <Search className="w-3.5 h-3.5 text-muted-foreground absolute left-3.5 top-3 pointer-events-none" />
-              <input
-                type="text"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder={t.filterInArchive}
-                className="h-9 w-full bg-black/[0.03] dark:bg-white/[0.07] hover:bg-black/[0.06] dark:hover:bg-white/[0.1] focus:bg-white dark:focus:bg-zinc-900 rounded-full pl-9 pr-8 text-xs text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-blue-500/30 transition-all duration-200 border border-black/[0.06] dark:border-white/[0.08]"
-              />
-              {searchQuery && (
-                <button
-                  onClick={() => setSearchQuery('')}
-                  className="absolute right-3 top-2.5 text-muted-foreground hover:text-foreground text-xs cursor-pointer"
-                >
-                  ✕
-                </button>
-              )}
-            </div>
-          </div>
-        </div>
-
-        {/* Content Body */}
-        {isLoading ? (
-          <div className="py-32 flex flex-col items-center justify-center space-y-3">
-            <Loader2 className="w-6 h-6 text-blue-500 animate-spin" />
-            <span className="text-xs text-muted-foreground font-medium">Loading...</span>
-          </div>
-        ) : viewMode === 'table' ? (
-          <EditorialTableView
-            items={filteredItems}
-            onOpenSearch={() => setIsSearchOpen(true)}
-          />
-        ) : (
-          <GridView
-            items={filteredItems}
-            onOpenSearch={() => setIsSearchOpen(true)}
-          />
+          </>
         )}
       </main>
 

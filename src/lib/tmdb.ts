@@ -251,3 +251,235 @@ const rating = enData.vote_average || idData.vote_average ? Math.round((enData.v
     return null;
   }
 }
+
+export const MOVIE_GENRE_MAP: Record<string, number> = {
+  Action: 28,
+  Adventure: 12,
+  Animation: 16,
+  Comedy: 35,
+  Crime: 80,
+  Documentary: 99,
+  Drama: 18,
+  Family: 10751,
+  Fantasy: 14,
+  History: 36,
+  Horror: 27,
+  Music: 10402,
+  Mystery: 9648,
+  Romance: 10749,
+  'Sci-Fi': 878,
+  Thriller: 53,
+  War: 10752,
+  Western: 37,
+};
+
+export const TV_GENRE_MAP: Record<string, number> = {
+  Action: 10759,
+  Adventure: 10759,
+  Animation: 16,
+  Comedy: 35,
+  Crime: 80,
+  Documentary: 99,
+  Drama: 18,
+  Family: 10751,
+  Mystery: 9648,
+  'Sci-Fi': 10765,
+  Fantasy: 10765,
+  Western: 37,
+};
+
+export const DISCOVER_GENRES = [
+  'Action',
+  'Adventure',
+  'Animation',
+  'Comedy',
+  'Crime',
+  'Documentary',
+  'Drama',
+  'Family',
+  'Fantasy',
+  'Horror',
+  'Mystery',
+  'Romance',
+  'Sci-Fi',
+  'Thriller',
+];
+
+export interface DiscoverOptions {
+  mediaType?: 'all' | 'movie' | 'tv' | 'anime';
+  genre?: string;
+  minRating?: number;
+  sortBy?: 'rating' | 'popularity';
+  page?: number;
+  language?: string;
+}
+
+function parseRawToSearchResult(item: any, forceType?: 'movie' | 'tv'): SearchResultItem {
+  const isTv = forceType ? forceType === 'tv' : (item.media_type === 'tv' || (!item.title && !!item.name));
+  const title = isTv ? item.name || item.original_name || 'Untitled' : item.title || item.original_title || 'Untitled';
+  const origTitle = isTv ? item.original_name : item.original_title;
+  const releaseDate = isTv ? item.first_air_date : item.release_date;
+  const genres = (item.genre_ids || []).map((id: number) => TMDB_GENRES[id]).filter(Boolean);
+
+  const hasJapaneseOrigin =
+    item.original_language === 'ja' ||
+    item.origin_country?.includes('JP') ||
+    /[\u3040-\u30ff\u3400-\u4dbf\u4e00-\u9fff]/.test(origTitle || '') ||
+    /anime/i.test(title || '');
+  const hasAnimationGenre = item.genre_ids?.includes(16) || genres.includes('Animation');
+
+  if (hasAnimationGenre && (hasJapaneseOrigin || item.original_language === 'ja')) {
+    if (!genres.includes('Anime')) genres.unshift('Anime');
+  }
+
+  const rating = item.vote_average ? Math.round(item.vote_average * 10) / 10 : null;
+  const releaseYear = releaseDate ? formatYear(releaseDate) : null;
+
+  return {
+    tmdb_id: item.id,
+    title,
+    original_title: origTitle && origTitle !== title ? origTitle : undefined,
+    media_type: isTv ? 'tv' : 'movie',
+    release_year: releaseYear,
+    release_date: releaseDate || null,
+    poster_path: item.poster_path || null,
+    backdrop_path: item.backdrop_path || null,
+    genres,
+    season_count: isTv ? 1 : null,
+    overview: item.overview?.trim() || '',
+    vote_average: rating,
+  };
+}
+
+export async function discoverTMDB(options: DiscoverOptions = {}): Promise<SearchResultItem[]> {
+  const {
+    mediaType = 'all',
+    genre,
+    minRating = 0,
+    sortBy = 'popularity',
+    page = 1,
+    language = 'id',
+  } = options;
+
+  const apiKey = getApiKey();
+  const sortParam = sortBy === 'popularity' ? 'popularity.desc' : 'vote_average.desc';
+  const voteCountMin = sortBy === 'rating' ? 150 : 30;
+
+  const fetchEndpoint = async (endpoint: 'movie' | 'tv', extraParams: Record<string, string> = {}) => {
+    const makeParams = (langLocale: string) => {
+      const params = new URLSearchParams({
+        api_key: apiKey,
+        sort_by: sortParam,
+        'vote_count.gte': String(voteCountMin),
+        include_adult: 'false',
+        language: langLocale,
+        page: String(page),
+        ...extraParams,
+      });
+
+      if (minRating > 0) {
+        params.set('vote_average.gte', String(minRating));
+      }
+
+      if (genre) {
+        const gId = endpoint === 'movie' ? MOVIE_GENRE_MAP[genre] : TV_GENRE_MAP[genre];
+        if (gId) {
+          params.set('with_genres', String(gId));
+        }
+      }
+      return params;
+    };
+
+    if (language === 'id') {
+      const idUrl = `${TMDB_BASE_URL}/discover/${endpoint}?${makeParams('id-ID').toString()}`;
+      const enUrl = `${TMDB_BASE_URL}/discover/${endpoint}?${makeParams('en-US').toString()}`;
+
+      const [idRes, enRes] = await Promise.all([
+        fetch(idUrl, { next: { revalidate: 3600 } }),
+        fetch(enUrl, { next: { revalidate: 3600 } }),
+      ]);
+
+      const idData = idRes.ok ? await idRes.json() : { results: [] };
+      const enData = enRes.ok ? await enRes.json() : { results: [] };
+
+      const enMap = new Map<number, any>((enData.results || []).map((it: any) => [it.id, it]));
+      const HAS_NON_LATIN = /[\u3040-\u30ff\u3400-\u4dbf\u4e00-\u9fff\uac00-\ud7af\u0400-\u04ff\u0600-\u06ff\u0e00-\u0e7f]/;
+
+      return (idData.results || []).map((idItem: any) => {
+        const enItem = enMap.get(idItem.id);
+        const rawIdTitle = idItem.title || idItem.name || '';
+        const rawEnTitle = enItem?.title || enItem?.name || '';
+
+        // If Indonesian title contains non-Latin characters (Kanji, Hangul, Kana, etc.),
+        // fallback to Romanized English title so titles are always readable.
+        let finalTitle = rawIdTitle;
+        if (!finalTitle || HAS_NON_LATIN.test(finalTitle)) {
+          finalTitle = rawEnTitle || finalTitle || 'Untitled';
+        }
+
+        // If Indonesian overview is available, use it. Otherwise fallback to English overview.
+        const finalOverview = idItem.overview?.trim() || enItem?.overview?.trim() || '';
+
+        const mergedItem = {
+          ...idItem,
+          title: finalTitle,
+          name: finalTitle,
+          overview: finalOverview,
+          poster_path: idItem.poster_path || enItem?.poster_path,
+          backdrop_path: idItem.backdrop_path || enItem?.backdrop_path,
+          genre_ids: idItem.genre_ids?.length ? idItem.genre_ids : enItem?.genre_ids,
+        };
+        return parseRawToSearchResult(mergedItem, endpoint);
+      });
+    }
+
+    const enUrl = `${TMDB_BASE_URL}/discover/${endpoint}?${makeParams('en-US').toString()}`;
+    const res = await fetch(enUrl, { next: { revalidate: 3600 } });
+    if (!res.ok) return [];
+    const data = await res.json();
+    return (data.results || []).map((it: any) => parseRawToSearchResult(it, endpoint));
+  };
+
+  try {
+    if (mediaType === 'movie') {
+      return await fetchEndpoint('movie');
+    }
+
+    if (mediaType === 'tv') {
+      return await fetchEndpoint('tv');
+    }
+
+    if (mediaType === 'anime') {
+      return await fetchEndpoint('tv', {
+        with_genres: '16',
+        with_original_language: 'ja',
+      });
+    }
+
+    // mediaType === 'all'
+    const [movies, tvs] = await Promise.all([
+      fetchEndpoint('movie'),
+      fetchEndpoint('tv'),
+    ]);
+
+    const combined = [...movies, ...tvs];
+    if (sortBy === 'rating') {
+      combined.sort((a, b) => (b.vote_average || 0) - (a.vote_average || 0));
+    } else {
+      // Interleave movies and tvs for a balanced feed
+      const interleaved: SearchResultItem[] = [];
+      const maxLen = Math.max(movies.length, tvs.length);
+      for (let i = 0; i < maxLen; i++) {
+        if (movies[i]) interleaved.push(movies[i]);
+        if (tvs[i]) interleaved.push(tvs[i]);
+      }
+      return interleaved;
+    }
+
+    return combined;
+  } catch (error) {
+    console.error('Failed to discover from TMDB:', error);
+    return [];
+  }
+}
+

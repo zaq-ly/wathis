@@ -24,13 +24,14 @@ interface WatchlistContextType {
   removeItem: (tmdb_id: number, media_type: 'movie' | 'tv') => Promise<boolean>;
   replaceItem: (target: WatchlistItem, replacement: SearchResultItem) => Promise<boolean>;
   updateSeason: (tmdb_id: number, media_type: 'movie' | 'tv', season_count: number | null, season_label: string | null) => Promise<boolean>;
+  updateOverview: (tmdb_id: number, media_type: 'movie' | 'tv', overview: string) => Promise<boolean>;
   togglePin: (tmdb_id: number, media_type: 'movie' | 'tv') => Promise<boolean>;
   isItemInWatchlist: (tmdb_id: number, media_type: 'movie' | 'tv') => boolean;
   refreshItems: () => Promise<void>;
   clearWatchlist: () => Promise<boolean>;
   signOut: () => Promise<void>;
-  filterType: 'all' | 'movie' | 'tv' | 'anime';
-  setFilterType: (type: 'all' | 'movie' | 'tv' | 'anime') => void;
+  filterType: 'all' | 'movie' | 'tv' | 'anime' | 'discover';
+  setFilterType: (type: 'all' | 'movie' | 'tv' | 'anime' | 'discover') => void;
   selectedGenre: string | null;
   setSelectedGenre: (genre: string | null) => void;
   sortBy: SortOption;
@@ -52,7 +53,7 @@ export function WatchlistProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [isConfigured] = useState<boolean>(isSupabaseConfigured());
 
-  const [filterType, setFilterType] = useState<'all' | 'movie' | 'tv' | 'anime'>('all');
+  const [filterType, setFilterType] = useState<'all' | 'movie' | 'tv' | 'anime' | 'discover'>('all');
   const [selectedGenre, setSelectedGenre] = useState<string | null>(null);
   const [sortBy, setSortBy] = useState<SortOption>('year-desc');
   const [searchQuery, setSearchQuery] = useState('');
@@ -457,6 +458,33 @@ export function WatchlistProvider({ children }: { children: React.ReactNode }) {
     return true;
   };
 
+  const updateOverview = async (
+    tmdb_id: number,
+    media_type: 'movie' | 'tv',
+    overview: string
+  ): Promise<boolean> => {
+    setItems((prev) =>
+      prev.map((item) => {
+        if (item.tmdb_id === tmdb_id && item.media_type === media_type) {
+          return { ...item, overview };
+        }
+        return item;
+      })
+    );
+
+    if (user && isConfigured) {
+      try {
+        await supabase
+          .from('watchlist_items')
+          .update({ overview })
+          .match({ tmdb_id, media_type, user_id: user.id });
+      } catch (err) {
+        console.warn('Supabase update overview notice:', err);
+      }
+    }
+    return true;
+  };
+
   // 5. Remove Item
   const removeItem = async (tmdb_id: number, media_type: 'movie' | 'tv'): Promise<boolean> => {
     if (typeof window !== 'undefined') {
@@ -703,6 +731,7 @@ export function WatchlistProvider({ children }: { children: React.ReactNode }) {
         removeItem,
         replaceItem,
         updateSeason,
+        updateOverview,
         togglePin,
         isItemInWatchlist,
         refreshItems: fetchItems,

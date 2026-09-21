@@ -18,7 +18,8 @@ import {
   ExternalLink,
   BookmarkCheck,
   PlayCircle,
-  Pin
+  Pin,
+  Loader2
 } from 'lucide-react';
 import Image from 'next/image';
 
@@ -37,8 +38,8 @@ export const ItemDetailModal: React.FC<ItemDetailModalProps> = ({
   onOpenEditMatch,
   readonly = false,
 }) => {
-  const { updateSeason, removeItem, togglePin } = useWatchlist();
-  const { t } = useLanguage();
+  const { updateSeason, updateOverview, removeItem, togglePin } = useWatchlist();
+  const { language, t } = useLanguage();
   const [selectedSeasonCount, setSelectedSeasonCount] = useState<number>(1);
   const [customSeasonLabel, setCustomSeasonLabel] = useState<string>('');
   const [watchMode, setWatchMode] = useState<'completed' | 'ongoing' | 'custom'>('completed');
@@ -46,6 +47,10 @@ export const ItemDetailModal: React.FC<ItemDetailModalProps> = ({
   const [ongoingEpisode, setOngoingEpisode] = useState<number | string>(1);
   const [isSaved, setIsSaved] = useState(false);
   const [mounted, setMounted] = useState(false);
+  const [translatedOverview, setTranslatedOverview] = useState<string | null>(null);
+  const [isTranslating, setIsTranslating] = useState(false);
+  const [showOriginal, setShowOriginal] = useState(false);
+  const [isSavedTranslation, setIsSavedTranslation] = useState(false);
 
   const quickSeasonMax = 6;
   const standardLabels = Array.from({ length: quickSeasonMax }, (_, i) => i === 0 ? 'S1' : `S1-S${i + 1}`);
@@ -60,6 +65,10 @@ export const ItemDetailModal: React.FC<ItemDetailModalProps> = ({
       setSelectedSeasonCount(item.season_count || 1);
       setCustomSeasonLabel(formatSeasonDisplay(item));
       setIsSaved(false);
+      setTranslatedOverview(null);
+      setIsTranslating(false);
+      setShowOriginal(false);
+      setIsSavedTranslation(false);
 
       // Auto detect if current label is ongoing (e.g. S2 E04, S1 E12, Eps 12)
       const matchOngoing = currentLabel.match(/^S(\d+)\s*(?:E|Ep|Episode)\s*(\d+)/i);
@@ -143,6 +152,36 @@ export const ItemDetailModal: React.FC<ItemDetailModalProps> = ({
     await updateSeason(item.tmdb_id, item.media_type, finalCount, finalLabel);
     setIsSaved(true);
     setTimeout(() => setIsSaved(false), 2000);
+  };
+
+  const handleTranslateOverview = async () => {
+    if (!item?.overview) return;
+    setIsTranslating(true);
+    try {
+      const res = await fetch('/api/translate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          text: item.overview,
+          from: 'en',
+          to: 'id',
+        }),
+      });
+      if (res.ok) {
+        const data = await res.json();
+        if (data.translatedText) {
+          setTranslatedOverview(data.translatedText);
+          setShowOriginal(false);
+          await updateOverview(item.tmdb_id, item.media_type, data.translatedText);
+          setIsSavedTranslation(true);
+          setTimeout(() => setIsSavedTranslation(false), 3000);
+        }
+      }
+    } catch (err) {
+      console.error('Translation error:', err);
+    } finally {
+      setIsTranslating(false);
+    }
   };
 
   const handleDelete = async () => {
@@ -280,11 +319,61 @@ export const ItemDetailModal: React.FC<ItemDetailModalProps> = ({
                ))}
              </div>
            )}
-           {/* Overview (mobile only) */}
+           {/* Overview / Synopsis with Translation */}
            {item.overview && (
-             <div className="block md:hidden mt-4">
-               <p className="text-sm font-medium text-muted-foreground">{t.overview}:</p>
-               <p className="text-sm text-foreground">{item.overview}</p>
+             <div className="mt-4 space-y-1.5">
+               <div className="flex items-center justify-between">
+                 <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
+                   {t.overview}:
+                 </p>
+                 {language === 'id' && (
+                   <div>
+                     {translatedOverview ? (
+                       <button
+                         type="button"
+                         onClick={() => setShowOriginal(!showOriginal)}
+                         className="text-[11px] text-blue-500 hover:text-blue-600 font-medium transition-colors cursor-pointer"
+                       >
+                         {showOriginal ? 'Lihat Terjemahan (ID)' : 'Lihat Teks Asli'}
+                       </button>
+                     ) : (
+                       <button
+                         type="button"
+                         onClick={handleTranslateOverview}
+                         disabled={isTranslating}
+                         className="inline-flex items-center space-x-1.5 px-2.5 py-1 rounded-full bg-amber-500/10 hover:bg-amber-500/20 text-amber-500 font-semibold text-[11px] transition-colors cursor-pointer disabled:opacity-50"
+                       >
+                         {isTranslating ? (
+                           <Loader2 className="w-3 h-3 animate-spin" />
+                         ) : (
+                           <Sparkles className="w-3 h-3" />
+                         )}
+                         <span>
+                           {isTranslating ? 'Menerjemahkan...' : 'Terjemahkan ke Indonesia'}
+                         </span>
+                       </button>
+                     )}
+                   </div>
+                 )}
+               </div>
+
+               <p className="text-sm text-foreground/90 leading-relaxed font-normal">
+                 {translatedOverview && !showOriginal ? translatedOverview : item.overview}
+               </p>
+
+               {translatedOverview && !showOriginal && (
+                 <div className="flex items-center space-x-2 pt-0.5">
+                   <span className="text-[10px] text-muted-foreground italic">
+                     * Diterjemahkan otomatis ke Bahasa Indonesia
+                   </span>
+                   {isSavedTranslation && (
+                     <span className="text-[10px] text-emerald-500 font-medium flex items-center space-x-1">
+                       <Check className="w-2.5 h-2.5" />
+                       <span>Tersimpan di arsip</span>
+                     </span>
+                   )}
+                 </div>
+               )}
              </div>
            )}
 
