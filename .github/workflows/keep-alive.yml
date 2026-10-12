@@ -2,33 +2,70 @@ name: Supabase Keep-Alive
 
 on:
   schedule:
-    # Jalan tiap 3 hari sekali jam 00:00 UTC
+    # Jalan otomatis tiap 3 hari sekali jam 00:00 UTC
     - cron: '0 0 */3 * *'
-  workflow_dispatch: # Izinkan tombol "Run workflow" manual di GitHub
+  workflow_dispatch: # Memungkinkan tombol "Run workflow" manual di GitHub
 
 jobs:
   keep-alive:
     runs-on: ubuntu-latest
     steps:
-      - name: Ping Supabase REST API
+      - name: Ping Supabase Keep-Alive
         env:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
         run: |
-          if [ -z "$SUPABASE_URL" ] || [ -z "$SUPABASE_ANON_KEY" ]; then
-            echo "::error::Secrets SUPABASE_URL atau SUPABASE_ANON_KEY belum diisi di GitHub Repo Settings!"
-            exit 1
-          fi
+          node -e '
+            async function main() {
+              const rawUrl = process.env.SUPABASE_URL || "";
+              const rawKey = process.env.SUPABASE_ANON_KEY || "";
 
-          STATUS=$(curl -s -o /dev/null -w "%{http_code}" \
-            -H "apikey: $SUPABASE_ANON_KEY" \
-            -H "Authorization: Bearer $SUPABASE_ANON_KEY" \
-            "$SUPABASE_URL/rest/v1/watchlist_items?select=id&limit=1")
+              if (!rawUrl || !rawKey) {
+                console.error("::error::Secrets SUPABASE_URL atau SUPABASE_ANON_KEY belum diisi di Repository Settings!");
+                process.exit(1);
+              }
 
-          echo "HTTP response status: $STATUS"
+              // Bersihkan jika ada nama variabel atau tanda petik yang ikut ter-copy
+              const cleanUrl = rawUrl.replace(/^.*=/, "").replace(/["\047\s]/g, "").replace(/\/$/, "");
+              const cleanKey = rawKey.replace(/^.*=/, "").replace(/["\047\s]/g, "");
 
-          if [ "$STATUS" -ge 200 ] && [ "$STATUS" -lt 400 ]; then
-            echo "Supabase successfully pinged! Database is active."
-          else
-            echo "::warning::Supabase returned status $STATUS (project might be paused or restoring)."
-          fi
+              const targetUrl = cleanUrl.startsWith("http") ? cleanUrl : `https://${cleanUrl}`;
+              const hostname = new URL(targetUrl).hostname;
+              console.log("Menghubungi Supabase:", hostname);
+
+              // 1. Ping Auth API (GoTrue)
+              try {
+                const authRes = await fetch(`${targetUrl}/auth/v1/health`, {
+                  headers: { apikey: cleanKey }
+                });
+                console.log("Auth health status:", authRes.status);
+              } catch (e) {
+                console.log("Auth ping error:", e.message);
+              }
+
+              // 2. Ping Database REST API (PostgREST query nyata)
+              try {
+                const dbRes = await fetch(`${targetUrl}/rest/v1/watchlist_items?select=id&limit=1`, {
+                  headers: {
+                    apikey: cleanKey,
+                    Authorization: `Bearer ${cleanKey}`
+                  }
+                });
+                console.log("Database REST query status:", dbRes.status);
+
+                if (dbRes.ok || dbRes.status === 200 || dbRes.status === 206) {
+                  console.log("SUKSES: Database Supabase aktif dan merespons!");
+                  process.exit(0);
+                }
+              } catch (e) {
+                console.error("Database query error:", e.message);
+              }
+
+              console.log("Keep-alive request selesai dikirim.");
+            }
+
+            main().catch(err => {
+              console.error("Fatal error:", err);
+              process.exit(1);
+            });
+          '
