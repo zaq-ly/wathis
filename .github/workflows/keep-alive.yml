@@ -1,0 +1,34 @@
+name: Supabase Keep-Alive
+
+on:
+  schedule:
+    # Jalan tiap 3 hari sekali jam 00:00 UTC
+    - cron: '0 0 */3 * *'
+  workflow_dispatch: # Izinkan tombol "Run workflow" manual di GitHub
+
+jobs:
+  keep-alive:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping Supabase REST API
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+        run: |
+          if [ -z "$SUPABASE_URL" ] || [ -z "$SUPABASE_ANON_KEY" ]; then
+            echo "::error::Secrets SUPABASE_URL atau SUPABASE_ANON_KEY belum diisi di GitHub Repo Settings!"
+            exit 1
+          fi
+
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" \
+            -H "apikey: $SUPABASE_ANON_KEY" \
+            -H "Authorization: Bearer $SUPABASE_ANON_KEY" \
+            "$SUPABASE_URL/rest/v1/watchlist_items?select=id&limit=1")
+
+          echo "HTTP response status: $STATUS"
+
+          if [ "$STATUS" -ge 200 ] && [ "$STATUS" -lt 400 ]; then
+            echo "Supabase successfully pinged! Database is active."
+          else
+            echo "::warning::Supabase returned status $STATUS (project might be paused or restoring)."
+          fi

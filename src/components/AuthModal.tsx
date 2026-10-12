@@ -45,6 +45,11 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
     async (response: { credential: string }) => {
       setIsLoading(true);
       setErrorMessage(null);
+      if (!isSupabaseConfigured()) {
+        setErrorMessage('Supabase belum dikonfigurasi di .env.local');
+        setIsLoading(false);
+        return;
+      }
       try {
         const { error } = await supabase.auth.signInWithIdToken({
           provider: 'google',
@@ -53,7 +58,10 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
         if (error) throw error;
         onClose();
       } catch (err: unknown) {
-        const message = err instanceof Error ? err.message : 'Google sign-in failed';
+        const raw = err instanceof Error ? err.message : 'Google sign-in failed';
+        const message = raw === 'Failed to fetch' || raw.includes('Failed to fetch')
+          ? 'Gagal terhubung ke Supabase. Project Supabase mungkin sedang dijeda (paused) atau URL di .env.local tidak valid.'
+          : raw;
         setErrorMessage(message);
       } finally {
         setIsLoading(false);
@@ -156,7 +164,10 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
       });
       if (error) throw error;
     } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : 'Google sign-in failed';
+      const raw = err instanceof Error ? err.message : 'Google sign-in failed';
+      const message = raw === 'Failed to fetch' || raw.includes('Failed to fetch')
+        ? 'Gagal terhubung ke Supabase. Project Supabase mungkin sedang dijeda (paused) atau URL di .env.local tidak valid.'
+        : raw;
       setErrorMessage(message);
       setIsLoading(false);
     }
