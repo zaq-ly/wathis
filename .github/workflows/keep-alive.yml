@@ -9,7 +9,12 @@ on:
 jobs:
   keep-alive:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
       - name: Ping Supabase Keep-Alive & Auto Restore
         env:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
@@ -129,3 +134,18 @@ jobs:
               process.exit(1);
             });
           '
+
+      - name: Keep GitHub Actions Active (Reset 60-Day Timer)
+        if: always()
+        run: |
+          DAY_OF_MONTH=$(date +'%d')
+          if [ "$DAY_OF_MONTH" = "01" ]; then
+            echo "Tanggal 01 terdeteksi: mengirim commit pembaruan aktivitas..."
+            git config user.name "github-actions[bot]"
+            git config user.email "github-actions[bot]@users.noreply.github.com"
+            git commit --allow-empty -m "chore(ci): keep github actions active [skip ci]"
+            git push origin main
+            echo "Aktivitas repository berhasil diperbarui untuk 60 hari ke depan."
+          else
+            echo "Hari ini tanggal $DAY_OF_MONTH. Auto-commit reset 60-hari dijadwalkan tiap tanggal 01."
+          fi
