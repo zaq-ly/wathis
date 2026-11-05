@@ -1,39 +1,77 @@
-name: Supabase Keep-Alive
+name: Supabase Keep-Alive & Auto-Restore
 
 on:
   schedule:
-    # Jalan otomatis tiap 3 hari sekali jam 00:00 UTC
-    - cron: '0 0 */3 * *'
-  workflow_dispatch: # Memungkinkan tombol "Run workflow" manual di GitHub
+    # Berjalan tiap hari jam 03:00 UTC (aman dari batas 7 hari & delay cron)
+    - cron: '0 3 * * *'
+  workflow_dispatch: # Memungkinkan trigger manual dari tab Actions di GitHub
 
 jobs:
   keep-alive:
     runs-on: ubuntu-latest
     steps:
-      - name: Ping Supabase Keep-Alive
+      - name: Ping Supabase Keep-Alive & Auto Restore
         env:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+          APP_URL: ${{ secrets.APP_URL }}
         run: |
           node -e '
+            async function restoreProject(projectRef, token) {
+              console.log("Mencoba auto-restore project:", projectRef);
+              try {
+                const res = await fetch(`https://api.supabase.com/v1/projects/${projectRef}/restore`, {
+                  method: "POST",
+                  headers: {
+                    Authorization: `Bearer ${token}`,
+                    "Content-Type": "application/json"
+                  }
+                });
+                if (res.ok) {
+                  console.log("SUKSES: Perintah restore Supabase berhasil dikirim! DB sedang dinyalakan kembali.");
+                  return true;
+                } else {
+                  const body = await res.text();
+                  console.warn("Gagal auto-restore via Management API:", res.status, body);
+                }
+              } catch (e) {
+                console.warn("Error saat memanggil Management API restore:", e.message);
+              }
+              return false;
+            }
+
             async function main() {
               const rawUrl = process.env.SUPABASE_URL || "";
               const rawKey = process.env.SUPABASE_ANON_KEY || "";
+              const token = (process.env.SUPABASE_ACCESS_TOKEN || "").trim();
+              const appUrl = (process.env.APP_URL || "").trim();
 
               if (!rawUrl || !rawKey) {
                 console.error("::error::Secrets SUPABASE_URL atau SUPABASE_ANON_KEY belum diisi di Repository Settings!");
                 process.exit(1);
               }
 
-              // Bersihkan jika ada nama variabel atau tanda petik yang ikut ter-copy
               const cleanUrl = rawUrl.replace(/^.*=/, "").replace(/["\047\s]/g, "").replace(/\/$/, "");
               const cleanKey = rawKey.replace(/^.*=/, "").replace(/["\047\s]/g, "");
-
               const targetUrl = cleanUrl.startsWith("http") ? cleanUrl : `https://${cleanUrl}`;
               const hostname = new URL(targetUrl).hostname;
-              console.log("Menghubungi Supabase:", hostname);
+              const projectRef = hostname.split(".")[0];
 
-              // 1. Ping Auth API (GoTrue)
+              console.log("Target Supabase:", hostname, `(ref: ${projectRef})`);
+
+              // 1. Opsional: Ping Web App Health Endpoint jika APP_URL diset
+              if (appUrl) {
+                try {
+                  const cleanAppUrl = appUrl.replace(/\/$/, "");
+                  const healthRes = await fetch(`${cleanAppUrl}/api/health`);
+                  console.log("App /api/health ping status:", healthRes.status);
+                } catch (e) {
+                  console.log("App ping note:", e.message);
+                }
+              }
+
+              // 2. Ping Auth API (GoTrue)
               try {
                 const authRes = await fetch(`${targetUrl}/auth/v1/health`, {
                   headers: { apikey: cleanKey }
@@ -43,7 +81,10 @@ jobs:
                 console.log("Auth ping error:", e.message);
               }
 
-              // 2. Ping Database REST API (PostgREST query nyata)
+              // 3. Ping Database REST API (PostgREST query)
+              let dbActive = false;
+              let isPaused = false;
+
               try {
                 const dbRes = await fetch(`${targetUrl}/rest/v1/watchlist_items?select=id&limit=1`, {
                   headers: {
@@ -51,17 +92,36 @@ jobs:
                     Authorization: `Bearer ${cleanKey}`
                   }
                 });
+
                 console.log("Database REST query status:", dbRes.status);
 
                 if (dbRes.ok || dbRes.status === 200 || dbRes.status === 206) {
+                  dbActive = true;
                   console.log("SUKSES: Database Supabase aktif dan merespons!");
-                  process.exit(0);
+                } else if (dbRes.status === 503 || dbRes.status === 500) {
+                  isPaused = true;
+                  console.warn("PERINGATAN: Supabase kemungkinan dalam kondisi PAUSED atau offline (HTTP " + dbRes.status + ")");
                 }
               } catch (e) {
                 console.error("Database query error:", e.message);
+                isPaused = true;
               }
 
-              console.log("Keep-alive request selesai dikirim.");
+              // 4. Jika terpause & ada access token -> bangunkan via Management API
+              if (!dbActive) {
+                if (token) {
+                  const restored = await restoreProject(projectRef, token);
+                  if (restored) process.exit(0);
+                } else {
+                  console.log("TIPS: Tambahkan secret SUPABASE_ACCESS_TOKEN (Personal Access Token dari supabase.com/account/tokens) agar bot bisa otomatis bangunkan DB saat terpause.");
+                }
+              }
+
+              if (dbActive) {
+                process.exit(0);
+              } else {
+                console.log("Keep-alive selesai dijalankan.");
+              }
             }
 
             main().catch(err => {
