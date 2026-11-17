@@ -76,6 +76,24 @@ async function restoreProject(projectRef, token) {
   return false;
 }
 
+/** Pastikan token auto-restore masih valid, agar tidak baru ketahuan rusak saat DB terpause. */
+async function verifyAccessToken(projectRef, token) {
+  if (!token) {
+    console.warn('::warning::SUPABASE_ACCESS_TOKEN tidak diset; auto-restore tidak tersedia.');
+    return;
+  }
+  const res = await fetchWithTimeout(`https://api.supabase.com/v1/projects/${projectRef}`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  if (res.ok) {
+    const { status } = await res.json();
+    console.log(`Access token valid. Status project: ${status}`);
+    return;
+  }
+  console.error(`::error::SUPABASE_ACCESS_TOKEN tidak valid/kedaluwarsa (HTTP ${res.status}). Buat token baru dan update secret di GitHub.`);
+  process.exit(1);
+}
+
 async function main() {
   const rawUrl = clean(process.env.SUPABASE_URL).replace(/\/$/, '');
   const key = clean(process.env.SUPABASE_ANON_KEY);
@@ -106,6 +124,7 @@ async function main() {
       last = await pingDatabase(baseUrl, key);
       if (last.ok) {
         console.log('SUKSES: database aktif.');
+        await verifyAccessToken(projectRef, token);
         return;
       }
     } catch (e) {
